@@ -8,6 +8,11 @@ export default function GamesPage() {
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  
+  // Filter states
+  const [filterAge, setFilterAge] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterDate, setFilterDate] = useState('all')
 
   useEffect(() => {
     fetchGames()
@@ -45,9 +50,9 @@ export default function GamesPage() {
     const supabase = createClient()
     const { error } = await supabase
       .from('game_invitations')
-      .update({ 
+      .update({
         status: 'matched',
-        guest_club_id: user.id 
+        guest_club_id: user.id
       })
       .eq('id', gameId)
 
@@ -56,6 +61,34 @@ export default function GamesPage() {
       fetchGames()
     }
   }
+
+  // Filter games
+  const filteredGames = games.filter(game => {
+    const ageMatch = filterAge === 'all' || game.age_group === filterAge
+    const statusMatch = filterStatus === 'all' || game.status === filterStatus
+    
+    // Date filter
+    let dateMatch = true
+    if (filterDate !== 'all') {
+      const gameDate = new Date(game.game_date)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      if (filterDate === 'today') {
+        dateMatch = gameDate.toDateString() === today.toDateString()
+      } else if (filterDate === 'week') {
+        const weekFromNow = new Date(today)
+        weekFromNow.setDate(weekFromNow.getDate() + 7)
+        dateMatch = gameDate >= today && gameDate <= weekFromNow
+      } else if (filterDate === 'month') {
+        const monthFromNow = new Date(today)
+        monthFromNow.setMonth(monthFromNow.getMonth() + 1)
+        dateMatch = gameDate >= today && gameDate <= monthFromNow
+      }
+    }
+    
+    return ageMatch && statusMatch && dateMatch
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -75,8 +108,8 @@ export default function GamesPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Upcoming Games</h1>
-          <a 
+          <h1 className="text-3xl font-bold">Upcoming Games ({filteredGames.length})</h1>
+          
             href="/games/new"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
@@ -84,21 +117,82 @@ export default function GamesPage() {
           </a>
         </div>
 
+        {/* Filters */}
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Age Group
+              </label>
+              <select 
+                value={filterAge} 
+                onChange={(e) => setFilterAge(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="all">All Ages</option>
+                <option value="U7">U7</option>
+                <option value="U9">U9</option>
+                <option value="U11">U11</option>
+                <option value="U13">U13</option>
+                <option value="U15">U15</option>
+                <option value="U18">U18</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <select 
+                value={filterStatus} 
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="all">All Status</option>
+                <option value="open">Open</option>
+                <option value="matched">Matched</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date Range
+              </label>
+              <select 
+                value={filterDate} 
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="all">All Dates</option>
+                <option value="today">Today</option>
+                <option value="week">Next 7 Days</option>
+                <option value="month">Next 30 Days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {loading ? (
           <LoadingSpinner />
-        ) : games.length === 0 ? (
+        ) : filteredGames.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500 mb-4">No games posted yet</p>
-            <a 
-              href="/games/new"
-              className="text-blue-600 hover:text-blue-700"
-            >
-              Be the first to post a game!
-            </a>
+            <p className="text-gray-500 mb-4">No games found matching your filters</p>
+            {games.length > 0 && (
+              <button
+                onClick={() => {
+                  setFilterAge('all')
+                  setFilterStatus('all')
+                  setFilterDate('all')
+                }}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid gap-4">
-            {games.map((game) => (
+            {filteredGames.map((game) => (
               <div key={game.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -123,8 +217,8 @@ export default function GamesPage() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className={`px-3 py-1 rounded text-sm ${
-                      game.status === 'open' 
-                        ? 'bg-green-100 text-green-800' 
+                      game.status === 'open'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
                       {game.status === 'matched' ? 'Matched' : 'Open'}

@@ -34,16 +34,20 @@ export default function ClubsPage() {
             <a href="/games" className="text-gray-600">Games</a>
             <a href="/rinks" className="text-gray-600">Rinks</a>
             <a href="/clubs" className="text-blue-600">Clubs</a>
+            <a href="/profile" className="text-gray-600">Profile</a>
           </div>
         </div>
       </nav>
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Hockey Clubs</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          <h1 className="text-3xl font-bold">Hockey Clubs ({clubs.length})</h1>
+          <a 
+            href="/clubs/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
             Register Your Club
-          </button>
+          </a>
         </div>
 
         {loading ? (
@@ -51,12 +55,18 @@ export default function ClubsPage() {
         ) : clubs.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <p className="text-gray-500 mb-4">No clubs registered yet</p>
-            <p className="text-sm text-gray-400">Be the first to register your club!</p>
+            <p className="text-sm text-gray-400 mb-4">Be the first to register your club!</p>
+            <a 
+              href="/clubs/new"
+              className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
+              Register Now
+            </a>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {clubs.map((club) => (
-              <div key={club.id} className="bg-white rounded-lg shadow p-6">
+              <div key={club.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold">{club.name}</h3>
                   {club.verified && (
@@ -65,20 +75,36 @@ export default function ClubsPage() {
                     </span>
                   )}
                 </div>
-                
+
                 {club.description && (
                   <p className="text-gray-600 mb-4 line-clamp-3">{club.description}</p>
                 )}
-                
+
                 <div className="space-y-1 text-sm text-gray-500">
                   {club.contact_email && (
-                    <p>📧 {club.contact_email}</p>
+                    <p className="flex items-center">
+                      <span className="mr-2">📧</span>
+                      <a href={`mailto:${club.contact_email}`} className="text-blue-600 hover:underline">
+                        {club.contact_email}
+                      </a>
+                    </p>
                   )}
                   {club.contact_phone && (
-                    <p>📞 {club.contact_phone}</p>
+                    <p className="flex items-center">
+                      <span className="mr-2">📞</span>
+                      <a href={`tel:${club.contact_phone}`} className="text-blue-600 hover:underline">
+                        {club.contact_phone}
+                      </a>
+                    </p>
+                  )}
+                  {club.address && (
+                    <p className="flex items-center">
+                      <span className="mr-2">📍</span>
+                      <span>{club.address}</span>
+                    </p>
                   )}
                 </div>
-                
+
                 <button className="mt-4 w-full border border-gray-300 py-2 rounded hover:bg-gray-50">
                   View Profile
                 </button>

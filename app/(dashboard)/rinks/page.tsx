@@ -21,8 +21,6 @@ export default function RinksPage() {
         .select('*')
         .order('name')
       
-      console.log('Fetched rinks:', data) // Debug log
-      
       if (error) {
         console.error('Error fetching rinks:', error)
         setError(error.message)
@@ -35,6 +33,12 @@ export default function RinksPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Generate Google Maps URL
+  const getMapUrl = (address: string, city: string) => {
+    const fullAddress = `${address}, ${city}, ON, Canada`
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
   }
 
   return (
@@ -52,12 +56,7 @@ export default function RinksPage() {
       </nav>
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Ottawa Ice Rinks</h1>
-        
-        {/* Debug info - remove in production */}
-        <div className="bg-yellow-50 p-4 mb-4 rounded">
-          <p className="text-sm">Total rinks found: {rinks.length}</p>
-        </div>
+        <h1 className="text-3xl font-bold mb-6">Ottawa Ice Rinks ({rinks.length})</h1>
 
         {loading ? (
           <LoadingSpinner />
@@ -100,6 +99,19 @@ export default function RinksPage() {
                       <span className="mr-2">🕐</span>
                       <span>{rink.availability_hours}</span>
                     </p>
+
+                    {/* Map Link */}
+                    <p className="flex items-center">
+                      <span className="mr-2">🗺️</span>
+                      <a 
+                        href={getMapUrl(rink.address, rink.city)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        View on Google Maps
+                      </a>
+                    </p>
                   </div>
                   
                   <div className="mt-4 flex gap-2">
@@ -109,8 +121,11 @@ export default function RinksPage() {
                     >
                       Book Now
                     </button>
-                    <button className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition-colors">
-                      View Details
+                    <button 
+                      onClick={() => window.open(getMapUrl(rink.address, rink.city), '_blank')}
+                      className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      📍 Map
                     </button>
                   </div>
                 </div>
