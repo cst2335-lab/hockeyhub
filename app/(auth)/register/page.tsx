@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [userType, setUserType] = useState('parent')
+  const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -18,22 +19,40 @@ export default function RegisterPage() {
 
     const supabase = createClient()
     
+    // Register user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          user_type: userType,
-        }
-      }
     })
 
     if (error) {
       setMessage('Error: ' + error.message)
-    } else {
-      setMessage('Registration successful! Please check your email to verify.')
+      setLoading(false)
+      return
     }
+
+    // Create profile
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          full_name: fullName,
+          user_type: userType,
+          phone: phone,
+          username: email.split('@')[0]
+        })
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError)
+      }
+    }
+
+    setMessage('Registration successful! You can now login.')
+    setTimeout(() => {
+      window.location.href = '/login'
+    }, 2000)
+    
     setLoading(false)
   }
 
@@ -49,7 +68,7 @@ export default function RegisterPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Full Name
+                Full Name *
               </label>
               <input
                 type="text"
@@ -57,12 +76,13 @@ export default function RegisterPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="John Smith"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Email
+                Email *
               </label>
               <input
                 type="email"
@@ -70,25 +90,41 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="john@example.com"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Password
+                Password *
               </label>
               <input
                 type="password"
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="At least 6 characters"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                I am a...
+                Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="613-555-0100"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                I am a... *
               </label>
               <select
                 value={userType}
@@ -104,7 +140,11 @@ export default function RegisterPage() {
           </div>
 
           {message && (
-            <div className={`text-sm ${message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-sm text-center p-2 rounded ${
+              message.includes('Error') 
+                ? 'bg-red-50 text-red-600' 
+                : 'bg-green-50 text-green-600'
+            }`}>
               {message}
             </div>
           )}

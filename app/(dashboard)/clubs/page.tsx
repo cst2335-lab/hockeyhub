@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function ClubsPage() {
   const [clubs, setClubs] = useState<any[]>([])
@@ -46,7 +47,7 @@ export default function ClubsPage() {
         </div>
 
         {loading ? (
-          <p>Loading clubs...</p>
+          <LoadingSpinner />
         ) : clubs.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <p className="text-gray-500 mb-4">No clubs registered yet</p>

@@ -2,14 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 export default function GamesPage() {
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     fetchGames()
+    getUser()
   }, [])
+
+  const getUser = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+  }
 
   const fetchGames = async () => {
     const supabase = createClient()
@@ -27,8 +36,30 @@ export default function GamesPage() {
     setLoading(false)
   }
 
+  const handleRespond = async (gameId: string) => {
+    if (!user) {
+      alert('Please login to respond to games')
+      return
+    }
+
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('game_invitations')
+      .update({ 
+        status: 'matched',
+        guest_club_id: user.id 
+      })
+      .eq('id', gameId)
+
+    if (!error) {
+      alert('Game invitation accepted!')
+      fetchGames()
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold">🏒 HockeyHub</a>
@@ -36,10 +67,12 @@ export default function GamesPage() {
             <a href="/games" className="text-blue-600">Games</a>
             <a href="/rinks" className="text-gray-600">Rinks</a>
             <a href="/clubs" className="text-gray-600">Clubs</a>
+            <a href="/profile" className="text-gray-600">Profile</a>
           </div>
         </div>
       </nav>
 
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Upcoming Games</h1>
@@ -52,7 +85,7 @@ export default function GamesPage() {
         </div>
 
         {loading ? (
-          <p>Loading games...</p>
+          <LoadingSpinner />
         ) : games.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <p className="text-gray-500 mb-4">No games posted yet</p>
@@ -68,7 +101,7 @@ export default function GamesPage() {
             {games.map((game) => (
               <div key={game.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-xl font-semibold">{game.title}</h3>
                     <p className="text-gray-600 mt-1">
                       📅 {new Date(game.game_date).toLocaleDateString()} at {game.game_time}
@@ -84,18 +117,28 @@ export default function GamesPage() {
                         {game.skill_level || 'All Levels'}
                       </span>
                     </div>
+                    {game.description && (
+                      <p className="text-gray-600 mt-3">{game.description}</p>
+                    )}
                   </div>
-                  <span className={`px-3 py-1 rounded text-sm ${
-                    game.status === 'open' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {game.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className={`px-3 py-1 rounded text-sm ${
+                      game.status === 'open' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {game.status === 'matched' ? 'Matched' : 'Open'}
+                    </span>
+                    {game.status === 'open' && user && game.created_by !== user.id && (
+                      <button
+                        onClick={() => handleRespond(game.id)}
+                        className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700"
+                      >
+                        Accept Invitation
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {game.description && (
-                  <p className="text-gray-600 mt-3">{game.description}</p>
-                )}
               </div>
             ))}
           </div>
