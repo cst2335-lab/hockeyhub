@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import LoadingSpinner from '@/components/LoadingSpinner'
+
+// Simple LoadingSpinner component (if you haven't created it separately)
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+)
 
 export default function GamesPage() {
   const [games, setGames] = useState<any[]>([])
@@ -34,7 +40,7 @@ export default function GamesPage() {
         rinks (name, address)
       `)
       .order('game_date', { ascending: true })
-
+    
     if (data) {
       setGames(data)
     }
@@ -46,7 +52,7 @@ export default function GamesPage() {
       alert('Please login to respond to games')
       return
     }
-
+    
     const supabase = createClient()
     const { error } = await supabase
       .from('game_invitations')
@@ -55,7 +61,7 @@ export default function GamesPage() {
         guest_club_id: user.id
       })
       .eq('id', gameId)
-
+    
     if (!error) {
       alert('Game invitation accepted!')
       fetchGames()
@@ -107,9 +113,10 @@ export default function GamesPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Upcoming Games ({filteredGames.length})</h1>
-          
+          <h1 className="text-3xl font-bold">Upcoming Games</h1>
+          <a
             href="/games/new"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
@@ -119,13 +126,13 @@ export default function GamesPage() {
 
         {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Age Group
               </label>
-              <select 
-                value={filterAge} 
+              <select
+                value={filterAge}
                 onChange={(e) => setFilterAge(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
@@ -143,8 +150,8 @@ export default function GamesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
               </label>
-              <select 
-                value={filterStatus} 
+              <select
+                value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
@@ -158,44 +165,52 @@ export default function GamesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Date Range
               </label>
-              <select 
-                value={filterDate} 
+              <select
+                value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="all">All Dates</option>
                 <option value="today">Today</option>
-                <option value="week">Next 7 Days</option>
-                <option value="month">Next 30 Days</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
               </select>
             </div>
-          </div>
-        </div>
-
-        {loading ? (
-          <LoadingSpinner />
-        ) : filteredGames.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500 mb-4">No games found matching your filters</p>
-            {games.length > 0 && (
+            
+            <div className="flex items-end">
               <button
                 onClick={() => {
                   setFilterAge('all')
                   setFilterStatus('all')
                   setFilterDate('all')
                 }}
-                className="text-blue-600 hover:text-blue-700"
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
               >
                 Clear Filters
               </button>
-            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Games List */}
+        {loading ? (
+          <LoadingSpinner />
+        ) : filteredGames.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500 mb-4">No games found</p>
+            <a
+              href="/games/new"
+              className="text-blue-600 hover:text-blue-700"
+            >
+              Be the first to post a game!
+            </a>
           </div>
         ) : (
           <div className="grid gap-4">
             {filteredGames.map((game) => (
               <div key={game.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start">
-                  <div className="flex-1">
+                  <div>
                     <h3 className="text-xl font-semibold">{game.title}</h3>
                     <p className="text-gray-600 mt-1">
                       📅 {new Date(game.game_date).toLocaleDateString()} at {game.game_time}
@@ -217,8 +232,8 @@ export default function GamesPage() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className={`px-3 py-1 rounded text-sm ${
-                      game.status === 'open'
-                        ? 'bg-green-100 text-green-800'
+                      game.status === 'open' 
+                        ? 'bg-green-100 text-green-800' 
                         : 'bg-gray-100 text-gray-800'
                     }`}>
                       {game.status === 'matched' ? 'Matched' : 'Open'}

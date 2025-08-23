@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import LoadingSpinner from '@/components/LoadingSpinner'
+
+// Simple LoadingSpinner component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+)
 
 export default function RinksPage() {
   const [rinks, setRinks] = useState<any[]>([])
@@ -35,14 +41,15 @@ export default function RinksPage() {
     }
   }
 
-  // Generate Google Maps URL
-  const getMapUrl = (address: string, city: string) => {
-    const fullAddress = `${address}, ${city}, ON, Canada`
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
+  // Function to open Google Maps
+  const openInGoogleMaps = (address: string) => {
+    const encodedAddress = encodeURIComponent(address)
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank')
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold">🏒 HockeyHub</a>
@@ -55,79 +62,50 @@ export default function RinksPage() {
         </div>
       </nav>
 
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Ottawa Ice Rinks ({rinks.length})</h1>
+        <h1 className="text-3xl font-bold mb-6">Ottawa Ice Rinks</h1>
+        
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
+            Error: {error}
+          </div>
+        )}
 
         {loading ? (
           <LoadingSpinner />
-        ) : error ? (
-          <div className="bg-red-50 text-red-600 p-4 rounded">
-            Error: {error}
-          </div>
         ) : rinks.length === 0 ? (
-          <div className="bg-gray-100 p-8 rounded text-center">
-            <p className="text-gray-600">No rinks found in the database</p>
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500">No rinks available</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {rinks.map((rink) => (
-              <div key={rink.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{rink.name}</h3>
-                  
-                  <div className="space-y-2 text-gray-600">
-                    <p className="flex items-start">
-                      <span className="mr-2">📍</span>
-                      <span>{rink.address}, {rink.city}</span>
-                    </p>
-                    
-                    {rink.phone && (
-                      <p className="flex items-center">
-                        <span className="mr-2">📞</span>
-                        <a href={`tel:${rink.phone}`} className="text-blue-600 hover:underline">
-                          {rink.phone}
-                        </a>
-                      </p>
-                    )}
-                    
-                    <p className="flex items-center">
-                      <span className="mr-2">💰</span>
-                      <span className="font-semibold">${rink.hourly_rate}/hour</span>
-                    </p>
-                    
-                    <p className="flex items-center">
-                      <span className="mr-2">🕐</span>
-                      <span>{rink.availability_hours}</span>
-                    </p>
+              <div key={rink.id} className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-2">{rink.name}</h2>
+                <p className="text-gray-600 mb-2">📍 {rink.address}</p>
+                <p className="text-gray-600 mb-2">📞 {rink.phone}</p>
+                
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-2">Hourly Rate</p>
+                  <p className="text-2xl font-bold text-blue-600 mb-4">
+                    ${rink.hourly_rate}/hour
+                  </p>
+                </div>
 
-                    {/* Map Link */}
-                    <p className="flex items-center">
-                      <span className="mr-2">🗺️</span>
-                      <a 
-                        href={getMapUrl(rink.address, rink.city)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View on Google Maps
-                      </a>
-                    </p>
-                  </div>
-                  
-                  <div className="mt-4 flex gap-2">
-                    <button 
-                      onClick={() => window.location.href = `/games/new?rinkId=${rink.id}&rinkName=${encodeURIComponent(rink.name)}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-                    >
-                      Book Now
-                    </button>
-                    <button 
-                      onClick={() => window.open(getMapUrl(rink.address, rink.city), '_blank')}
-                      className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
-                    >
-                      📍 Map
-                    </button>
-                  </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openInGoogleMaps(rink.address)}
+                    className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200"
+                  >
+                    📍 View on Map
+                  </button>
+                  <a 
+                    href={`/games/new?rink=${rink.id}`}
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center"
+                  >
+                    Book Now
+                  </a>
                 </div>
               </div>
             ))}
