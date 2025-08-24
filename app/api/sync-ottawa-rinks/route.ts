@@ -122,7 +122,7 @@ export async function GET(request: Request) {
     // === ACTUAL SYNC ===
     let added = 0
     let updated = 0
-    let errors: string[] = []
+    const errors: string[] = []
     
     for (const rink of OTTAWA_RINKS_COMPLETE) {
       try {
