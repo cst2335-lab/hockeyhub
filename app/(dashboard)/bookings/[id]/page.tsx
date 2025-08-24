@@ -1,26 +1,23 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
-export default function BookingDetailPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
+/**
+ * Booking detail page (Client Component)
+ * - Read dynamic route param via useParams() to satisfy Next 15 PageProps typing.
+ * - Wrap the data loader in useCallback and include it in useEffect deps.
+ */
+export default function BookingDetailPage() {
   const [booking, setBooking] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  
-  // 使用 React.use() 解包 params
-  const resolvedParams = use(params)
+  const { id: bookingId } = useParams<{ id: string }>()
 
-  useEffect(() => {
-    fetchBookingDetail()
-  }, [])
-
-  const fetchBookingDetail = async () => {
+  /** Load booking by id */
+  const fetchBookingDetail = useCallback(async () => {
+    if (!bookingId) return
     const supabase = createClient()
     const { data, error } = await supabase
       .from('bookings')
@@ -28,7 +25,7 @@ export default function BookingDetailPage({
         *,
         rinks (name, address, phone, hourly_rate)
       `)
-      .eq('id', resolvedParams.id)
+      .eq('id', bookingId)
       .single()
 
     if (data) {
@@ -38,16 +35,22 @@ export default function BookingDetailPage({
       router.push('/bookings')
     }
     setLoading(false)
-  }
+  }, [bookingId, router])
 
+  useEffect(() => {
+    fetchBookingDetail()
+  }, [fetchBookingDetail])
+
+  /** Cancel booking by id */
   const handleCancel = async () => {
+    if (!bookingId) return
     if (!confirm('Are you sure you want to cancel this booking?')) return
 
     const supabase = createClient()
     const { error } = await supabase
       .from('bookings')
       .update({ status: 'cancelled' })
-      .eq('id', resolvedParams.id)
+      .eq('id', bookingId)
 
     if (!error) {
       alert('Booking cancelled successfully')
@@ -71,12 +74,14 @@ export default function BookingDetailPage({
     )
   }
 
-  const statusColor = {
+  const statusColors: Record<string, string> = {
     confirmed: 'bg-green-100 text-green-800',
     pending: 'bg-yellow-100 text-yellow-800',
     cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-gray-100 text-gray-800'
-  }[booking.status] || 'bg-gray-100 text-gray-800'
+    completed: 'bg-gray-100 text-gray-800',
+  }
+  const statusColor =
+    statusColors[booking.status] || 'bg-gray-100 text-gray-800'
 
   return (
     <div className="container mx-auto p-8">
@@ -113,11 +118,15 @@ export default function BookingDetailPage({
               </div>
               <div>
                 <p className="text-sm text-gray-600">Date</p>
-                <p className="font-medium">{new Date(booking.booking_date).toLocaleDateString()}</p>
+                <p className="font-medium">
+                  {new Date(booking.booking_date).toLocaleDateString()}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Time</p>
-                <p className="font-medium">{booking.start_time} - {booking.end_time}</p>
+                <p className="font-medium">
+                  {booking.start_time} - {booking.end_time}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Duration</p>
@@ -141,7 +150,9 @@ export default function BookingDetailPage({
               )}
               <div>
                 <p className="text-sm text-gray-600">Hourly Rate</p>
-                <p className="font-medium">${booking.rinks?.hourly_rate}/hour</p>
+                <p className="font-medium">
+                  ${booking.rinks?.hourly_rate}/hour
+                </p>
               </div>
             </div>
           </div>
@@ -151,7 +162,9 @@ export default function BookingDetailPage({
           <h2 className="text-xl font-semibold mb-4">Price Breakdown</h2>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Ice Time ({booking.hours} hours × ${booking.rinks?.hourly_rate})</span>
+              <span>
+                Ice Time ({booking.hours} hours × ${booking.rinks?.hourly_rate})
+              </span>
               <span>${booking.subtotal}</span>
             </div>
             <div className="flex justify-between">
