@@ -1,0 +1,8 @@
+{
+    "crons": [
+    {
+        "path": "/api/sync-ottawa-rinks",
+      "schedule": "0 3 * * *"
+    }
+    ]
+}
