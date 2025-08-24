@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
-export default function BookingsPage() {
+export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('upcoming')
@@ -34,7 +34,7 @@ export default function BookingsPage() {
         )
       `)
       .eq('user_id', user.id)
-      .order('booking_date', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (!error && data) {
       setBookings(data)
@@ -54,8 +54,6 @@ export default function BookingsPage() {
     if (!error) {
       alert('Booking cancelled successfully')
       fetchBookings()
-    } else {
-      alert('Failed to cancel booking')
     }
   }
 
@@ -190,11 +188,6 @@ export default function BookingsPage() {
                         <span className={`px-2 py-1 rounded text-xs ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
-                        {booking.payment_status === 'paid' && (
-                          <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-800">
-                            ✓ Paid
-                          </span>
-                        )}
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
@@ -209,41 +202,22 @@ export default function BookingsPage() {
                           <p>🎫 <strong>Booking ID:</strong> {booking.id.slice(0, 8)}...</p>
                         </div>
                       </div>
-
-                      {booking.notes && (
-                        <div className="mt-3 p-3 bg-gray-50 rounded">
-                          <p className="text-sm text-gray-600">
-                            <strong>Notes:</strong> {booking.notes}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
                     {/* Actions */}
                     <div className="ml-4 space-y-2">
-                      {booking.status === 'pending' || booking.status === 'confirmed' ? (
-                        <>
-                          <button
-                            onClick={() => router.push(`/bookings/${booking.id}`)}
-                            className="block w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
-                          >
-                            View Details
-                          </button>
-                          {new Date(booking.booking_date) > new Date() && (
-                            <button
-                              onClick={() => cancelBooking(booking.id)}
-                              className="block w-full px-4 py-2 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50"
-                            >
-                              Cancel
-                            </button>
-                          )}
-                        </>
-                      ) : (
+                      <button
+                        onClick={() => router.push(`/bookings/${booking.id}`)}
+                        className="block w-full px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        View Details
+                      </button>
+                      {booking.status !== 'cancelled' && new Date(booking.booking_date) > new Date() && (
                         <button
-                          onClick={() => router.push(`/book/${booking.rink_id}`)}
-                          className="block px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                          onClick={() => cancelBooking(booking.id)}
+                          className="block w-full px-4 py-2 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50"
                         >
-                          Book Again
+                          Cancel
                         </button>
                       )}
                     </div>
