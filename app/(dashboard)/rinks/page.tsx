@@ -84,6 +84,24 @@ export default function RinksPage() {
     return { label: 'Budget', color: 'bg-green-100 text-green-800' }
   }
 
+  // 生成 Google Maps URL
+  const getMapUrl = (rink: any) => {
+    const query = rink.address 
+      ? `${rink.address}, Ottawa, ON, Canada`
+      : `${rink.name} ice rink Ottawa`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+
+  // 格式化电话号码
+  const formatPhone = (phone: string) => {
+    if (phone.includes('(')) return phone;
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -110,7 +128,7 @@ export default function RinksPage() {
               placeholder="Rink name or location..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -120,7 +138,7 @@ export default function RinksPage() {
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Prices</option>
               <option value="0-150">Budget ($140-150/hr)</option>
@@ -137,7 +155,7 @@ export default function RinksPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
@@ -175,7 +193,7 @@ export default function RinksPage() {
               setPriceRange('all')
               setSearchTerm('')
             }}
-            className="mt-4 text-blue-600 hover:text-blue-700"
+            className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
           >
             Clear filters
           </button>
@@ -189,13 +207,14 @@ export default function RinksPage() {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <h2 className="text-xl font-semibold flex-1">{rink.name}</h2>
-                    <span className={`px-2 py-1 rounded text-xs ml-2 ${category.color}`}>
+                    <span className={`px-2 py-1 rounded text-xs ml-2 whitespace-nowrap ${category.color}`}>
                       {category.label}
                     </span>
                   </div>
                   
-                  <p className="text-gray-600 text-sm mb-4">
-                    📍 {rink.address || 'Ottawa, ON'}
+                  <p className="text-gray-600 text-sm mb-4 flex items-start">
+                    <span className="mr-1">📍</span>
+                    <span>{rink.address || 'Ottawa, ON'}</span>
                   </p>
                   
                   <div className="flex items-center justify-between mb-4">
@@ -206,9 +225,12 @@ export default function RinksPage() {
                       <span className="text-gray-600">/hour</span>
                     </div>
                     {rink.phone && (
-                      <div className="text-sm text-gray-600">
-                        📞 {rink.phone}
-                      </div>
+                      <a 
+                        href={`tel:${rink.phone}`}
+                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                      >
+                        📞 {formatPhone(rink.phone)}
+                      </a>
                     )}
                   </div>
                   
@@ -216,7 +238,7 @@ export default function RinksPage() {
                     <div className="flex flex-wrap gap-1 mb-4">
                       {rink.amenities.slice(0, 3).map((amenity: string, i: number) => (
                         <span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {amenity.replace('_', ' ')}
+                          {amenity.replace(/_/g, ' ').toLowerCase()}
                         </span>
                       ))}
                       {rink.amenities.length > 3 && (
@@ -227,23 +249,25 @@ export default function RinksPage() {
                     </div>
                   )}
                   
+                  {/* Action Buttons */}
                   <div className="flex gap-2">
+                    {/* Primary CTA - Book Now */}
                     <button
                       onClick={() => router.push(`/book/${rink.id}`)}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors font-medium"
                     >
                       Book Now
                     </button>
-                    {rink.booking_url && (
-                    <a  
-                        href={rink.booking_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                      >
-                        Official Site
-                      </a>
-                    )}
+                    
+                    {/* Map Button */}
+                    <button
+                      onClick={() => window.open(getMapUrl(rink), '_blank')}
+                      className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors flex items-center gap-1"
+                      title="View on Google Maps"
+                    >
+                      <span>📍</span>
+                      <span className="hidden sm:inline">Map</span>
+                    </button>
                   </div>
                 </div>
               </div>
