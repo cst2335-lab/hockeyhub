@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -14,14 +14,9 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
 
-  useEffect(() => {
-    loadRinkAndUser()
-  }, [params.rinkId])
-
-  const loadRinkAndUser = async () => {
+  const loadRinkAndUser = useCallback(async () => {
     const supabase = createClient()
     
-    // Get user
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       router.push('/login')
@@ -29,7 +24,6 @@ export default function BookingPage() {
     }
     setUser(user)
     
-    // Get rink details
     const { data: rinkData } = await supabase
       .from('rinks')
       .select('*')
@@ -37,7 +31,11 @@ export default function BookingPage() {
       .single()
     
     setRink(rinkData)
-  }
+  }, [params.rinkId, router])
+
+  useEffect(() => {
+    loadRinkAndUser()
+  }, [loadRinkAndUser])
 
   const handleBooking = async () => {
     if (!date || !startTime || !hours) {
@@ -48,12 +46,11 @@ export default function BookingPage() {
     setLoading(true)
     
     const subtotal = rink.hourly_rate * hours
-    const platformFee = subtotal * 0.08 // 8% platform fee
+    const platformFee = subtotal * 0.08
     const total = subtotal + platformFee
     
     const supabase = createClient()
     
-    // Create booking record
     const { data: booking, error } = await supabase
       .from('bookings')
       .insert({
@@ -77,12 +74,17 @@ export default function BookingPage() {
       return
     }
     
-    // Redirect to payment (for now, just confirm)
     alert(`Booking created! Total: $${total.toFixed(2)}`)
     router.push('/bookings')
   }
 
-  if (!rink) return <div className="p-8">Loading...</div>
+  if (!rink) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   const subtotal = rink.hourly_rate * hours
   const fee = subtotal * 0.08
@@ -91,13 +93,22 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-2xl mx-auto px-4">
+        <button
+          onClick={() => router.back()}
+          className="mb-4 text-blue-600 hover:text-blue-700"
+        >
+          ← Back to Rinks
+        </button>
+        
         <div className="bg-white rounded-lg shadow p-6">
           <h1 className="text-2xl font-bold mb-6">Book Ice Time</h1>
           
-          <div className="mb-6">
+          <div className="mb-6 p-4 bg-blue-50 rounded">
             <h2 className="text-xl font-semibold">{rink.name}</h2>
             <p className="text-gray-600">{rink.address}</p>
-            <p className="text-lg font-semibold mt-2">${rink.hourly_rate}/hour</p>
+            <p className="text-lg font-bold text-blue-600 mt-2">
+              ${rink.hourly_rate}/hour
+            </p>
           </div>
           
           <div className="space-y-4">
@@ -129,7 +140,7 @@ export default function BookingPage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-1">Duration (hours)</label>
+              <label className="block text-sm font-medium mb-1">Duration</label>
               <select
                 value={hours}
                 onChange={(e) => setHours(parseInt(e.target.value))}
@@ -153,14 +164,14 @@ export default function BookingPage() {
             </div>
             <div className="border-t pt-2 flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span className="text-blue-600">${total.toFixed(2)}</span>
             </div>
           </div>
           
           <button
             onClick={handleBooking}
             disabled={loading || !date || !startTime}
-            className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50"
+            className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Processing...' : `Confirm Booking - $${total.toFixed(2)}`}
           </button>
