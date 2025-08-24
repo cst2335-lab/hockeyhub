@@ -133,7 +133,7 @@ export async function GET(request: Request) {
           .eq('name', rink.name)
           .single()
         
-        if (existingRink) {
+if (existingRink) {
           // Update if price changed
           if (existingRink.hourly_rate !== rink.hourly_rate) {
             const { error } = await supabase
@@ -156,31 +156,23 @@ export async function GET(request: Request) {
             }
           }
         } else {
-  // Add new rink - 修复amenities格式
-  const amenitiesList = ['parking', 'canteen', 'wheelchair_accessible']
-  if (rink.hourly_rate > 200) amenitiesList.push('skate_rental')
-  if (rink.hourly_rate > 250) amenitiesList.push('pro_shop')
-  
-  const { error } = await supabase
-    .from('rinks')
-    .insert({
-      name: rink.name,
-      address: rink.address,
-      phone: rink.phone,
-      hourly_rate: rink.hourly_rate,
-      booking_url: rink.booking_url || null,
-      availability_hours: '6:00 AM - 11:00 PM',
-      source: 'ottawa_sync',
-      amenities: amenitiesList
-    })
-  
-  if (!error) {
-    added++
-    console.log(`✅ Added: ${rink.name}`)
-  } else {
-    errors.push(`Insert failed for ${rink.name}: ${error.message}`)
-  }
-}
+          // Add new rink - amenities
+          const amenitiesList = ['parking', 'canteen', 'wheelchair_accessible']
+          if (rink.hourly_rate > 200) amenitiesList.push('skate_rental')
+          if (rink.hourly_rate > 250) amenitiesList.push('pro_shop')
+          
+          const { error } = await supabase
+            .from('rinks')
+            .insert({
+              name: rink.name,
+              address: rink.address,
+              phone: rink.phone,
+              hourly_rate: rink.hourly_rate,
+              booking_url: rink.booking_url || null,
+              availability_hours: '6:00 AM - 11:00 PM',
+              source: 'ottawa_sync',
+              amenities: amenitiesList
+            })
           
           if (!error) {
             added++
@@ -188,7 +180,7 @@ export async function GET(request: Request) {
           } else {
             errors.push(`Insert failed for ${rink.name}: ${error.message}`)
           }
-        }
+        }          
       } catch (error: any) {
         errors.push(`Error processing ${rink.name}: ${error.message}`)
       }

@@ -235,7 +235,7 @@ export default function RinksPage() {
                       Book Now
                     </button>
                     {rink.booking_url && (
-                      
+                    <a  
                         href={rink.booking_url}
                         target="_blank"
                         rel="noopener noreferrer"
