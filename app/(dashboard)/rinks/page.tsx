@@ -167,10 +167,10 @@ export default function RinksPage() {
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Prices</option>
-              <option value="budget">Budget (≤$200/hr)</option>
+              <option value="budget">Budget (&lt;=$200/hr)</option>
               <option value="standard">Standard ($201-300/hr)</option>
               <option value="premium">Premium ($301-400/hr)</option>
-              <option value="luxury">Luxury (>$400/hr)</option>
+              <option value="luxury">Luxury (&gt;$400/hr)</option>
             </select>
 
             {/* Sort */}
