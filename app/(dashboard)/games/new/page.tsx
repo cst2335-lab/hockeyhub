@@ -1,282 +1,300 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Trophy,
-  Eye,
-  Heart,
-  Clock,
-  Plus
-} from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy } from 'lucide-react';
 
-interface Game {
-  id: string;
-  title: string;
-  game_date: string;
-  game_time: string;
-  rink_id: string;
-  age_group: string;
-  skill_level: string;
-  description: string;
-  status: string;
-  created_by: string;
-  location?: string;
-  view_count?: number;
-  interested_count?: number;
-  created_at: string;
-}
-
-export default function GamesPage() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
+export default function CreateGamePage() {
+  const router = useRouter();
   const supabase = createClient();
+  
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    game_date: '',
+    game_time: '',
+    location: '',
+    age_group: 'U11',
+    skill_level: 'Intermediate',
+    description: '',
+    max_players: '',
+    contact_info: ''
+  });
 
-  useEffect(() => {
-    loadGames();
-  }, []);
+  const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
+  const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
 
-  async function loadGames() {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      setError(null);
-      console.log('Starting to load games...');
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
       
-      // Simple query without joins first
-      const { data: gamesData, error: gamesError } = await supabase
-        .from('game_invitations')
-        .select('*')
-        .eq('status', 'open')
-        .order('game_date', { ascending: true });
-
-      console.log('Games query result:', { gamesData, gamesError });
-
-      if (gamesError) {
-        console.error('Database error:', gamesError);
-        throw gamesError;
+      if (!user) {
+        alert('Please login to post a game');
+        router.push('/login');
+        return;
       }
 
-      // Filter for upcoming games only (if game_date exists)
-      const today = new Date().toISOString().split('T')[0];
-      const upcomingGames = gamesData?.filter(game => {
-        if (!game.game_date) return true; // Include games without dates
-        return game.game_date >= today;
-      }) || [];
+      // Create game invitation
+      const { data, error } = await supabase
+        .from('game_invitations')
+        .insert({
+          title: formData.title,
+          game_date: formData.game_date,
+          game_time: formData.game_time,
+          location: formData.location,
+          age_group: formData.age_group,
+          skill_level: formData.skill_level,
+          description: formData.description,
+          max_players: formData.max_players ? parseInt(formData.max_players) : null,
+          contact_info: formData.contact_info,
+          status: 'open',
+          created_by: user.id,
+          view_count: 0,
+          interested_count: 0
+        })
+        .select()
+        .single();
 
-      console.log('Filtered upcoming games:', upcomingGames.length);
-      setGames(upcomingGames);
+      if (error) throw error;
+
+      // Success - redirect to game details
+      router.push(`/games/${data.id}`);
       
     } catch (error: any) {
-      console.error('Error in loadGames:', error);
-      setError(error.message || 'Failed to load games');
+      console.error('Error creating game:', error);
+      alert(error.message || 'Failed to create game');
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleInterest(gameId: string) {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert('Please login to show interest');
-        return;
-      }
-
-      // Check if already interested
-      const { data: existing } = await supabase
-        .from('game_interests')
-        .select('id')
-        .match({ game_id: gameId, user_id: user.id })
-        .single();
-
-      if (existing) {
-        // Remove interest
-        await supabase
-          .from('game_interests')
-          .delete()
-          .match({ game_id: gameId, user_id: user.id });
-      } else {
-        // Add interest
-        await supabase
-          .from('game_interests')
-          .insert({
-            game_id: gameId,
-            user_id: user.id,
-            status: 'interested'
-          });
-      }
-
-      // Reload games
-      loadGames();
-    } catch (error) {
-      console.error('Error handling interest:', error);
-    }
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   }
 
-  function formatDate(dateStr: string) {
-    if (!dateStr) return 'TBD';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
-    });
-  }
-
-  function getTimeAgo(dateStr: string) {
-    if (!dateStr) return 'Unknown';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-    
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    return 'Just now';
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Error: {error}</p>
-          <button 
-            onClick={loadGames}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Get tomorrow's date as default
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Find Games</h1>
-            <p className="mt-2 text-gray-600">
-              {games.length > 0 
-                ? `${games.length} games available` 
-                : 'No games available'}
-            </p>
-          </div>
+        <div className="mb-8">
           <Link
-            href="/games/new"
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            href="/games"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
-            <Plus className="h-5 w-5 mr-2" />
-            Post a Game
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Games
           </Link>
+          <h1 className="text-3xl font-bold text-gray-900">Post a Game</h1>
+          <p className="mt-2 text-gray-600">Create a game invitation for other teams</p>
         </div>
 
-        {/* Games Grid */}
-        {games.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {games.map((game) => (
-              <div
-                key={game.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex-1">
-                      {game.title || 'Untitled Game'}
-                    </h3>
-                    <button
-                      onClick={() => handleInterest(game.id)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition ml-2"
-                    >
-                      <Heart className="h-5 w-5 text-gray-400" />
-                    </button>
-                  </div>
-
-                  {/* Game Details */}
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <span>{formatDate(game.game_date)} at {game.game_time || 'TBD'}</span>
-                    </div>
-                    
-                    {game.location && (
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span>{game.location}</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <span>{game.age_group || 'All ages'} - {game.skill_level || 'All levels'}</span>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  {game.description && (
-                    <p className="mt-3 text-sm text-gray-500 line-clamp-2">
-                      {game.description}
-                    </p>
-                  )}
-
-                  {/* Stats */}
-                  <div className="mt-4 flex items-center space-x-4 text-xs text-gray-500">
-                    <span className="flex items-center">
-                      <Eye className="h-3 w-3 mr-1" />
-                      {game.view_count || 0} views
-                    </span>
-                    <span className="flex items-center">
-                      <Heart className="h-3 w-3 mr-1" />
-                      {game.interested_count || 0} interested
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {getTimeAgo(game.created_at)}
-                    </span>
-                  </div>
-
-                  {/* View Details Button */}
-                  <div className="mt-4">
-                    <Link
-                      href={`/games/${game.id}`}
-                      className="block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+          {/* Title */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              Game Title *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="e.g., U13 Friendly Match Looking for Opponent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        ) : (
-          // Empty State
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No games available</h3>
-            <p className="text-gray-500 mb-6">Be the first to post a game invitation!</p>
-            <Link
-              href="/games/new"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+
+          {/* Date and Time */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="game_date" className="block text-sm font-medium text-gray-700 mb-2">
+                <Calendar className="inline h-4 w-4 mr-1" />
+                Game Date *
+              </label>
+              <input
+                type="date"
+                id="game_date"
+                name="game_date"
+                required
+                min={minDate}
+                value={formData.game_date}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
+                <Clock className="inline h-4 w-4 mr-1" />
+                Game Time *
+              </label>
+              <input
+                type="time"
+                id="game_time"
+                name="game_time"
+                required
+                value={formData.game_time}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline h-4 w-4 mr-1" />
+              Location *
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              required
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g., Bell Sensplex, Kanata"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Age Group and Skill Level */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
+                <Users className="inline h-4 w-4 mr-1" />
+                Age Group *
+              </label>
+              <select
+                id="age_group"
+                name="age_group"
+                required
+                value={formData.age_group}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {ageGroups.map(group => (
+                  <option key={group} value={group}>{group}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
+                <Trophy className="inline h-4 w-4 mr-1" />
+                Skill Level *
+              </label>
+              <select
+                id="skill_level"
+                name="skill_level"
+                required
+                value={formData.skill_level}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {skillLevels.map(level => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Max Players */}
+          <div>
+            <label htmlFor="max_players" className="block text-sm font-medium text-gray-700 mb-2">
+              Max Players (Optional)
+            </label>
+            <input
+              type="number"
+              id="max_players"
+              name="max_players"
+              min="1"
+              max="50"
+              value={formData.max_players}
+              onChange={handleChange}
+              placeholder="e.g., 20"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={4}
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Provide additional details about the game, rules, or requirements..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700 mb-2">
+              Contact Information (Optional)
+            </label>
+            <input
+              type="text"
+              id="contact_info"
+              name="contact_info"
+              value={formData.contact_info}
+              onChange={handleChange}
+              placeholder="e.g., Coach John - 613-555-0123"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              This will be shared only with interested teams
+            </p>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <Plus className="h-5 w-5 mr-2" />
-              Post First Game
+              {loading ? 'Creating...' : 'Post Game'}
+            </button>
+            <Link
+              href="/games"
+              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition"
+            >
+              Cancel
             </Link>
           </div>
-        )}
+        </form>
+
+        {/* Tips */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-900 mb-2">Tips for a successful game post:</h3>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Include specific time and location details</li>
+            <li>• Be clear about skill level expectations</li>
+            <li>• Mention if you have ice time already booked</li>
+            <li>• Provide contact information for quick responses</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
