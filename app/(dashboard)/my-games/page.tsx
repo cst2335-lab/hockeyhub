@@ -16,7 +16,8 @@ import {
   Trophy,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Edit2
 } from 'lucide-react';
 
 interface Game {
@@ -355,6 +356,13 @@ export default function MyGamesPage() {
                         className="text-blue-600 hover:text-blue-800 text-sm"
                       >
                         View Details
+                      </Link>
+                      
+                      <Link
+                        href={`/games/${game.id}/edit`}
+                        className="text-purple-600 hover:text-purple-800 text-sm"
+                      >
+                        Edit Game
                       </Link>
                       
                       {game.status === 'open' && (
