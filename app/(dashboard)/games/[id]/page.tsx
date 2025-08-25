@@ -44,6 +44,7 @@ export default function GameDetailsPage() {
   const [game, setGame] = useState<GameDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [isInterested, setIsInterested] = useState(false);
   const [showContact, setShowContact] = useState(false);
   
@@ -52,8 +53,18 @@ export default function GameDetailsPage() {
   useEffect(() => {
     if (gameId) {
       loadGame();
+      incrementViewCount();
     }
   }, [gameId]);
+
+  async function incrementViewCount() {
+    try {
+      // 增加浏览量
+      await supabase.rpc('increment_view_count', { game_id: gameId });
+    } catch (error) {
+      console.error('Error incrementing view count:', error);
+    }
+  }
 
   async function loadGame() {
     try {
@@ -63,6 +74,7 @@ export default function GameDetailsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setCurrentUserId(user.id);
+        setCurrentUserEmail(user.email || null);
         console.log('Current user:', user.id);
       }
 
@@ -113,6 +125,7 @@ export default function GameDetailsPage() {
   async function handleInterest() {
     if (!currentUserId) {
       alert('Please login to show interest');
+      router.push('/login');
       return;
     }
 
@@ -123,6 +136,16 @@ export default function GameDetailsPage() {
           .from('game_interests')
           .delete()
           .match({ game_id: gameId, user_id: currentUserId });
+        
+        // Delete related notification
+        await supabase
+          .from('notifications')
+          .delete()
+          .match({ 
+            game_id: gameId, 
+            from_user_id: currentUserId,
+            type: 'game_interest'
+          });
         
         setIsInterested(false);
         setShowContact(false);
@@ -136,8 +159,27 @@ export default function GameDetailsPage() {
             status: 'interested'
           });
         
+        // Create notification for game creator
+        if (game?.created_by && game.created_by !== currentUserId) {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: game.created_by,  // 游戏创建者收到通知
+              type: 'game_interest',
+              title: 'New Interest in Your Game',
+              message: `Someone is interested in "${game.title}"`,
+              game_id: gameId,
+              from_user_id: currentUserId,
+              from_user_email: currentUserEmail,
+              is_read: false
+            });
+        }
+        
         setIsInterested(true);
         setShowContact(true);
+        
+        // 更新感兴趣计数
+        await supabase.rpc('increment_interested_count', { game_id: gameId });
       }
       
       // Reload to update counts
@@ -335,9 +377,14 @@ export default function GameDetailsPage() {
                   You created this game. {game.interested_count || 0} teams have shown interest.
                 </p>
                 {(game.interested_count || 0) > 0 && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    Check the notifications section to see who's interested.
-                  </p>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => router.push('/notifications')}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      View notifications to see who's interested →
+                    </button>
+                  </div>
                 )}
               </div>
             )}
