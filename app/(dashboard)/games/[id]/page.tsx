@@ -334,7 +334,7 @@ export default function GameDetailsPage() {
                 <p className="text-sm text-gray-600">
                   You created this game. {game.interested_count || 0} teams have shown interest.
                 </p>
-                {game.interested_count > 0 && (
+                {(game.interested_count || 0) > 0 && (
                   <p className="text-sm text-gray-500 mt-2">
                     Check the notifications section to see who's interested.
                   </p>
