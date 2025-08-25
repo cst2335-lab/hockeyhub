@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Trophy, MapPin, Calendar, Users, Bell, User, LogOut } from 'lucide-react';
+import { Home, Trophy, MapPin, Calendar, Users, Bell, User, LogOut, FileText } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -81,6 +81,7 @@ export default function DashboardLayout({
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
     { href: '/games', label: 'Games', icon: Trophy },
+    { href: '/my-games', label: 'My Games', icon: FileText },
     { href: '/rinks', label: 'Rinks', icon: MapPin },
     { href: '/bookings', label: 'My Bookings', icon: Calendar },
     { href: '/clubs', label: 'Clubs', icon: Users },
