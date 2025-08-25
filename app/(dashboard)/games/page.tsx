@@ -1,244 +1,156 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import { Calendar, MapPin, Users, Trophy, Eye, Heart, Clock, Plus } from 'lucide-react';
 
-// Simple LoadingSpinner component (if you haven't created it separately)
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center p-8">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-  </div>
-)
+interface Game {
+  id: string;
+  title: string;
+  game_date: string;
+  game_time: string;
+  age_group: string;
+  skill_level: string;
+  description: string;
+  status: string;
+  location?: string;
+  view_count?: number;
+  interested_count?: number;
+  created_at: string;
+}
 
 export default function GamesPage() {
-  const [games, setGames] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
-  
-  // Filter states
-  const [filterAge, setFilterAge] = useState('all')
-  const [filterStatus, setFilterStatus] = useState('all')
-  const [filterDate, setFilterDate] = useState('all')
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
-    fetchGames()
-    getUser()
-  }, [])
+    fetchGames();
+  }, []);
 
-  const getUser = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
-  }
+  async function fetchGames() {
+    try {
+      const { data, error } = await supabase
+        .from('game_invitations')
+        .select('*')
+        .eq('status', 'open')
+        .order('game_date', { ascending: true });
 
-  const fetchGames = async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('game_invitations')
-      .select(`
-        *,
-        rinks (name, address)
-      `)
-      .order('game_date', { ascending: true })
-    
-    if (data) {
-      setGames(data)
-    }
-    setLoading(false)
-  }
-
-  const handleRespond = async (gameId: string) => {
-    if (!user) {
-      alert('Please login to respond to games')
-      return
-    }
-    
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('game_invitations')
-      .update({
-        status: 'matched',
-        guest_club_id: user.id
-      })
-      .eq('id', gameId)
-    
-    if (!error) {
-      alert('Game invitation accepted!')
-      fetchGames()
+      if (error) throw error;
+      setGames(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
-  // Filter games
-  const filteredGames = games.filter(game => {
-    const ageMatch = filterAge === 'all' || game.age_group === filterAge
-    const statusMatch = filterStatus === 'all' || game.status === filterStatus
-    
-    // Date filter
-    let dateMatch = true
-    if (filterDate !== 'all') {
-      const gameDate = new Date(game.game_date)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      
-      if (filterDate === 'today') {
-        dateMatch = gameDate.toDateString() === today.toDateString()
-      } else if (filterDate === 'week') {
-        const weekFromNow = new Date(today)
-        weekFromNow.setDate(weekFromNow.getDate() + 7)
-        dateMatch = gameDate >= today && gameDate <= weekFromNow
-      } else if (filterDate === 'month') {
-        const monthFromNow = new Date(today)
-        monthFromNow.setMonth(monthFromNow.getMonth() + 1)
-        dateMatch = gameDate >= today && gameDate <= monthFromNow
-      }
-    }
-    
-    return ageMatch && statusMatch && dateMatch
-  })
+  function formatDate(dateStr: string) {
+    if (!dateStr) return 'TBD';
+    return new Date(dateStr).toLocaleDateString('en-US', { 
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Upcoming Games</h1>
-        <a
-          href="/games/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Post Game Invitation
-        </a>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-center">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Age Group
-            </label>
-            <select
-              value={filterAge}
-              onChange={(e) => setFilterAge(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="all">All Ages</option>
-              <option value="U7">U7</option>
-              <option value="U9">U9</option>
-              <option value="U11">U11</option>
-              <option value="U13">U13</option>
-              <option value="U15">U15</option>
-              <option value="U18">U18</option>
-            </select>
+            <h1 className="text-3xl font-bold text-gray-900">Find Games</h1>
+            <p className="mt-2 text-gray-600">{games.length} games available</p>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="all">All Status</option>
-              <option value="open">Open</option>
-              <option value="matched">Matched</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date Range
-            </label>
-            <select
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="all">All Dates</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-            </select>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={() => {
-                setFilterAge('all')
-                setFilterStatus('all')
-                setFilterDate('all')
-              }}
-              className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Games List */}
-      {loading ? (
-        <LoadingSpinner />
-      ) : filteredGames.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">No games found</p>
-          <a
+          <Link
             href="/games/new"
-            className="text-blue-600 hover:text-blue-700"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Be the first to post a game!
-          </a>
+            <Plus className="h-5 w-5 mr-2" />
+            Post a Game
+          </Link>
         </div>
-      ) : (
-        <div className="grid gap-4">
-          {filteredGames.map((game) => (
-            <div key={game.id} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-semibold">{game.title}</h3>
-                  <p className="text-gray-600 mt-1">
-                    📅 {new Date(game.game_date).toLocaleDateString()} at {game.game_time}
-                  </p>
-                  <p className="text-gray-600">
-                    📍 {game.rinks?.name || 'Location TBD'}
-                  </p>
-                  <div className="flex gap-2 mt-2">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                      {game.age_group || 'All Ages'}
+
+        {/* Games Grid */}
+        {games.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {games.map((game) => (
+              <div key={game.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {game.title || 'Untitled Game'}
+                  </h3>
+
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>{formatDate(game.game_date)} at {game.game_time || 'TBD'}</span>
+                    </div>
+                    
+                    {game.location && (
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        <span>{game.location}</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2" />
+                      <span>{game.age_group} - {game.skill_level}</span>
+                    </div>
+                  </div>
+
+                  {game.description && (
+                    <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                      {game.description}
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex items-center space-x-4 text-xs text-gray-500">
+                    <span className="flex items-center">
+                      <Eye className="h-3 w-3 mr-1" />
+                      {game.view_count || 0} views
                     </span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                      {game.skill_level || 'All Levels'}
+                    <span className="flex items-center">
+                      <Heart className="h-3 w-3 mr-1" />
+                      {game.interested_count || 0} interested
                     </span>
                   </div>
-                  {game.description && (
-                    <p className="text-gray-600 mt-3">{game.description}</p>
-                  )}
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span
-                    className={`px-3 py-1 rounded text-sm ${
-                      game.status === 'open' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
+
+                  <Link
+                    href={`/games/${game.id}`}
+                    className="mt-4 block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    {game.status === 'matched' ? 'Matched' : 'Open'}
-                  </span>
-                  {game.status === 'open' && user && game.created_by !== user.id && (
-                    <button
-                      onClick={() => handleRespond(game.id)}
-                      className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700"
-                    >
-                      Accept Invitation
-                    </button>
-                  )}
+                    View Details
+                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No games available</h3>
+            <Link
+              href="/games/new"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Post First Game
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
