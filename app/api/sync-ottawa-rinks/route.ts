@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { createServiceClient } from '@/lib/supabase/service'
 import { NextResponse } from 'next/server'
 
 // Static Ottawa rinks data (fallback)
@@ -43,7 +43,9 @@ export async function GET(request: Request) {
     }
 
     console.log('Starting Ottawa rinks sync at:', new Date().toISOString())
-    const supabase = createClient()
+    
+    // Use service client that bypasses RLS
+    const supabase = createServiceClient()
     
     let newCount = 0
     let updateCount = 0
@@ -204,7 +206,7 @@ export async function GET(request: Request) {
     
     // Try to log the error
     try {
-      const supabase = createClient()
+      const supabase = createServiceClient()
       await supabase
         .from('rink_updates_log')
         .insert({
