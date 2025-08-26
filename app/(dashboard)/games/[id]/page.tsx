@@ -512,7 +512,7 @@ export default function GameDetailsPage() {
               ) : (
                 <div>
                   <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
-                  
+                 <a 
                     href="/login"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
                   >
