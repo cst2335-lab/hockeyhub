@@ -108,7 +108,7 @@ export async function GET(request: Request) {
         // Check if already exists
         const { data: existing } = await supabase
           .from('rinks')
-          .select('id, source')
+          .select('id, source, address, phone')
           .eq('name', rink.name)
           .single()
 
