@@ -284,7 +284,7 @@ export default function GameDetailsPage() {
             {/* Game Info */}
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
-                <h3 className="font-semibold mb-2">Game Details</rongress-bar>
+                <h3 className="font-semibold mb-2">Game Details</h3>
                 <div className="space-y-2 text-gray-700">
                   <p><strong>Age Group:</strong> {game.age_group}</p>
                   <p><strong>Skill Level:</strong> {game.skill_level}</p>
