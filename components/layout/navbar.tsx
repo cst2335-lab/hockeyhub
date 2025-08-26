@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { User } from '@supabase/auth-helpers-nextjs';
+import { User } from '@supabase/supabase-js';
 import { Home, Users, MapPin, Trophy, User as UserIcon, LogOut, Bell } from 'lucide-react';
 import NotificationBell from '@/components/notifications/notification-bell';
 
