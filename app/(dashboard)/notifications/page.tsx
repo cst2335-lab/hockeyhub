@@ -1,49 +1,46 @@
+// app/(dashboard)/notifications/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { Bell, Eye, Heart, Check, Trash2, Calendar, MapPin } from 'lucide-react';
+import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { format } from 'date-fns';
 
 interface Notification {
   id: string;
+  user_id: string;
   type: string;
   title: string;
   message: string;
-  game_id: string | null;
-  from_user_id: string | null;
-  from_user_email: string | null;
+  link: string | null;
+  related_id: string | null;
   is_read: boolean;
   created_at: string;
-  game?: {
-    title: string;
-    game_date: string;
-    game_time: string;
-    location: string;
-  };
 }
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
-  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     loadNotifications();
     
-    // 设置实时订阅
+    // Subscribe to real-time notifications
     const channel = supabase
       .channel('notifications')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${getCurrentUserId()}`
-      }, () => {
-        loadNotifications();
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications'
+        },
+        () => {
+          loadNotifications();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -51,55 +48,55 @@ export default function NotificationsPage() {
     };
   }, []);
 
-  async function getCurrentUserId() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user?.id;
-  }
-
   async function loadNotifications() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('Error getting user:', userError);
+        return;
+      }
+      
       if (!user) {
-        router.push('/login');
+        console.log('No user found');
         return;
       }
 
-      // 加载通知和相关游戏信息
-      const { data, error } = await supabase
-        .from('notifications')
-        .select(`
-          *,
-          game:game_invitations(
-            title,
-            game_date,
-            game_time,
-            location
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      console.log('Loading notifications for user:', user.id);
 
-      if (error) throw error;
+     const { data, error } = await supabase
+  .from('notifications')
+  .select('id, user_id, type, title, message, link, related_id, is_read, created_at')
+  .eq('user_id', user.id)
+  .order('created_at', { ascending: false });
+
+      console.log('Notifications result:', { data, error });
+
+      if (error) {
+        console.error('Error loading notifications:', error);
+        throw error;
+      }
+      
       setNotifications(data || []);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      console.error('Error in loadNotifications:', error);
     } finally {
       setLoading(false);
     }
   }
 
-  async function markAsRead(notificationId: string) {
+  async function markAsRead(id: string) {
     try {
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('id', notificationId);
+        .eq('id', id);
 
-      if (!error) {
-        setNotifications(prev =>
-          prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
-        );
-      }
+      if (error) throw error;
+      
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
+      );
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -116,236 +113,180 @@ export default function NotificationsPage() {
         .eq('user_id', user.id)
         .eq('is_read', false);
 
-      if (!error) {
-        setNotifications(prev =>
-          prev.map(n => ({ ...n, is_read: true }))
-        );
-      }
+      if (error) throw error;
+      
+      setNotifications(prev =>
+        prev.map(n => ({ ...n, is_read: true }))
+      );
     } catch (error) {
       console.error('Error marking all as read:', error);
     }
   }
 
-  async function deleteNotification(notificationId: string) {
+  async function deleteNotification(id: string) {
     try {
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .eq('id', notificationId);
+        .eq('id', id);
 
-      if (!error) {
-        setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      }
+      if (error) throw error;
+      
+      setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (error) {
       console.error('Error deleting notification:', error);
     }
   }
 
-  function handleNotificationClick(notification: Notification) {
-    // 标记为已读
-    if (!notification.is_read) {
-      markAsRead(notification.id);
-    }
-    
-    // 跳转到相关游戏
-    if (notification.game_id) {
-      router.push(`/games/${notification.game_id}`);
-    }
-  }
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  function formatTime(dateStr: string) {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-    
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    const minutes = Math.floor(diff / (1000 * 60));
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
-  }
-
-  function getIcon(type: string) {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case 'game_interest':
-        return <Heart className="h-5 w-5 text-red-500" />;
-      case 'game_matched':
-        return <Check className="h-5 w-5 text-green-500" />;
+        return '🏒';
+      case 'interest_accepted':
+        return '✅';
+      case 'game_cancelled':
+        return '❌';
+      case 'game_updated':
+        return '📝';
       default:
-        return <Bell className="h-5 w-5 text-blue-500" />;
+        return '📢';
     }
-  }
+  };
 
-  const filteredNotifications = filter === 'unread' 
-    ? notifications.filter(n => !n.is_read)
-    : notifications;
-
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'game_interest':
+        return 'bg-blue-100 text-blue-800';
+      case 'interest_accepted':
+        return 'bg-green-100 text-green-800';
+      case 'game_cancelled':
+        return 'bg-red-100 text-red-800';
+      case 'game_updated':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-          {unreadCount > 0 && (
-            <p className="text-gray-600 mt-2">
-              You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-            </p>
-          )}
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Bell className="h-8 w-8 text-blue-600" />
+          <div>
+            <h1 className="text-2xl font-bold">Notifications</h1>
+            {unreadCount > 0 && (
+              <p className="text-sm text-gray-600">
+                You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
         </div>
-
-        {/* Filter Tabs and Actions */}
-        <div className="mb-6 flex justify-between items-center">
-          <div className="flex space-x-4">
-            <button
-              onClick={() => setFilter('all')}
-              className={`pb-2 px-1 border-b-2 transition ${
-                filter === 'all' 
-                  ? 'border-blue-600 text-blue-600 font-medium' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              All ({notifications.length})
-            </button>
-            <button
-              onClick={() => setFilter('unread')}
-              className={`pb-2 px-1 border-b-2 transition ${
-                filter === 'unread' 
-                  ? 'border-blue-600 text-blue-600 font-medium' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Unread ({unreadCount})
-            </button>
-          </div>
-          
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllAsRead}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              Mark all as read
-            </button>
-          )}
-        </div>
-
-        {/* Notifications List */}
-        {filteredNotifications.length > 0 ? (
-          <div className="space-y-3">
-            {filteredNotifications.map(notification => (
-              <div
-                key={notification.id}
-                className={`bg-white rounded-lg shadow p-4 transition hover:shadow-md cursor-pointer ${
-                  !notification.is_read ? 'border-l-4 border-blue-500' : ''
-                }`}
-                onClick={() => handleNotificationClick(notification)}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3 flex-1">
-                    <div className="flex-shrink-0 mt-1">
-                      {getIcon(notification.type)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={`font-medium ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}`}>
-                        {notification.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {notification.message}
-                      </p>
-                      
-                      {/* 游戏信息 */}
-                      {notification.game && (
-                        <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
-                          <div className="font-medium text-gray-700">
-                            {notification.game.title}
-                          </div>
-                          <div className="flex items-center space-x-3 text-gray-500 mt-1">
-                            <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {new Date(notification.game.game_date).toLocaleDateString()}
-                            </span>
-                            {notification.game.location && (
-                              <span className="flex items-center">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {notification.game.location}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* 联系信息（如果有） */}
-                      {notification.from_user_email && (
-                        <div className="mt-2">
-                          <span className="text-sm text-gray-500">From: </span>
-                          <a 
-                            href={`mailto:${notification.from_user_email}`}
-                            className="text-sm text-blue-600 hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {notification.from_user_email}
-                          </a>
-                        </div>
-                      )}
-                      
-                      <p className="text-xs text-gray-400 mt-2">
-                        {formatTime(notification.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Actions */}
-                  <div className="flex items-center space-x-2 ml-4">
-                    {!notification.is_read && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markAsRead(notification.id);
-                        }}
-                        className="p-1 text-gray-400 hover:text-green-600"
-                        title="Mark as read"
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteNotification(notification.id);
-                      }}
-                      className="p-1 text-gray-400 hover:text-red-600"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <Bell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filter === 'unread' ? 'All caught up!' : 'No notifications yet'}
-            </h3>
-            <p className="text-gray-500">
-              When someone interacts with your games, you'll see it here.
-            </p>
-          </div>
+        {unreadCount > 0 && (
+          <button
+            onClick={markAllAsRead}
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <CheckCheck className="h-4 w-4" />
+            Mark all as read
+          </button>
         )}
       </div>
+
+      {/* Notifications List */}
+      {notifications.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-600 mb-2">
+            No notifications yet
+          </h2>
+          <p className="text-gray-500">
+            When someone shows interest in your games or accepts your requests, you'll see it here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`bg-white rounded-lg shadow p-4 transition-all ${
+                !notification.is_read ? 'border-l-4 border-blue-600' : ''
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">{getTypeIcon(notification.type)}</span>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(notification.type)}`}>
+                      {notification.type.replace('_', ' ').toUpperCase()}
+                    </span>
+                    {!notification.is_read && (
+                      <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
+                        NEW
+                      </span>
+                    )}
+                  </div>
+                  
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    {notification.title}
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-2">
+                    {notification.message}
+                  </p>
+                  
+                  <div className="flex items-center gap-4">
+                    {notification.link && (
+                      <Link
+                        href={notification.link}
+                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        View Details
+                      </Link>
+                    )}
+                    
+                    <span className="text-xs text-gray-500">
+                      {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 ml-4">
+                  {!notification.is_read && (
+                    <button
+                      onClick={() => markAsRead(notification.id)}
+                      className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Mark as read"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={() => deleteNotification(notification.id)}
+                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete notification"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
