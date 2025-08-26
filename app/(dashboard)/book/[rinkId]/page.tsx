@@ -72,13 +72,14 @@ export default function BookRinkPage() {
       })
 
     if (!error) {
-      router.push('/bookings')
+        alert('Booking created successfully! Redirecting to your bookings...')
+        router.push('/bookings')
     } else {
-      console.error('Booking error:', error)
-      alert('Failed to create booking. Please try again.')
+        console.error('Booking error:', error)
+        alert('Failed to create booking. Please try again.')
     }
     setSubmitting(false)
-  }
+    }
 
   if (loading) {
     return (

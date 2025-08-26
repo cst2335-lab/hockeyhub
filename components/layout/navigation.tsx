@@ -150,11 +150,14 @@ export default function Navigation() {
                       <Button 
                         variant="ghost" 
                         className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => supabase.auth.signOut()}
-                      >
+                        onClick={async () => {
+                            await supabase.auth.signOut()
+                            window.location.href = '/'
+                        }}
+                        >
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign Out
-                      </Button>
+                    </Button>
                     </div>
                   </div>
                 </div>
