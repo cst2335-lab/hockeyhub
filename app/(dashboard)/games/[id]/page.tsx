@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useParams, useRouter } from 'next/navigation'
+import RatingStars from '@/components/rating/RatingStars'
 
 interface Game {
   id: string
@@ -56,6 +57,12 @@ export default function GameDetailsPage() {
   const [showContactInfo, setShowContactInfo] = useState(false)
   const [message, setMessage] = useState('')
   const [showMessageForm, setShowMessageForm] = useState(false)
+  
+  // Rating states
+  const [hasRated, setHasRated] = useState(false)
+  const [userRating, setUserRating] = useState(0)
+  const [tempRating, setTempRating] = useState(0)
+  const [ratingComment, setRatingComment] = useState('')
 
   useEffect(() => {
     loadGameDetails()
@@ -136,6 +143,21 @@ export default function GameDetailsPage() {
           setIsInterested(true)
           if (interestData.status === 'accepted') {
             setShowContactInfo(true)
+          }
+        }
+
+        // Check if user already rated (for matched games)
+        if (gameData.status === 'matched') {
+          const { data: ratingData } = await supabase
+            .from('game_ratings')
+            .select('*')
+            .eq('game_id', params.id)
+            .eq('rater_id', user.id)
+            .single()
+          
+          if (ratingData) {
+            setHasRated(true)
+            setUserRating(ratingData.rating)
           }
         }
       }
@@ -221,6 +243,71 @@ export default function GameDetailsPage() {
       }
     } catch (error) {
       console.error('Error handling interest:', error)
+    }
+  }
+
+  const handleSubmitRating = async () => {
+    if (!currentUser || tempRating === 0) return
+    
+    try {
+      const supabase = createClient()
+      
+      // Find opponent ID
+      let opponentId = null
+      if (isCreator) {
+        // If creator, find interested user
+        const { data } = await supabase
+          .from('game_interests')
+          .select('user_id')
+          .eq('game_id', params.id)
+          .single()
+        opponentId = data?.user_id
+      } else {
+        // If participant, rate the creator
+        opponentId = game?.created_by
+      }
+
+      if (!opponentId) {
+        alert('Cannot determine opponent')
+        return
+      }
+      
+      const { error } = await supabase
+        .from('game_ratings')
+        .insert({
+          game_id: params.id,
+          rater_id: currentUser.id,
+          rated_user_id: opponentId,
+          rating: tempRating,
+          comment: ratingComment.trim() || null
+        })
+      
+      if (!error) {
+        setHasRated(true)
+        setUserRating(tempRating)
+        
+        // Update user's average rating
+        const { data: ratings } = await supabase
+          .from('game_ratings')
+          .select('rating')
+          .eq('rated_user_id', opponentId)
+
+        if (ratings && ratings.length > 0) {
+          const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+          await supabase
+            .from('profiles')
+            .update({ 
+              average_rating: avg,
+              total_ratings: ratings.length
+            })
+            .eq('id', opponentId)
+        }
+        
+        alert('Rating submitted successfully!')
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error)
+      alert('Failed to submit rating')
     }
   }
 
@@ -425,7 +512,7 @@ export default function GameDetailsPage() {
               ) : (
                 <div>
                   <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
-                  <a
+                  
                     href="/login"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
                   >
@@ -434,6 +521,52 @@ export default function GameDetailsPage() {
                 </div>
               )}
             </div>
+
+            {/* Rating Section - NEW */}
+            {game.status === 'matched' && currentUser && (isCreator || isInterested) && (
+              <div className="border-t mt-6 pt-6">
+                <h3 className="font-semibold mb-4">Rate This Game</h3>
+                
+                {hasRated ? (
+                  <div className="bg-gray-50 p-4 rounded">
+                    <p className="text-gray-600">✅ You have already rated this game</p>
+                    <div className="mt-2">
+                      <RatingStars rating={userRating} readonly showNumber />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        How was your experience?
+                      </label>
+                      <RatingStars 
+                        rating={tempRating} 
+                        onChange={setTempRating}
+                        size="lg"
+                      />
+                    </div>
+                    
+                    <textarea
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                      placeholder="Share your experience (optional)"
+                      className="w-full p-3 border rounded-lg resize-none"
+                      rows={3}
+                      maxLength={500}
+                    />
+                    
+                    <button
+                      onClick={handleSubmitRating}
+                      disabled={tempRating === 0}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      Submit Rating
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
