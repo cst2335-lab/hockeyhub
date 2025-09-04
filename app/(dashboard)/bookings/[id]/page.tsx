@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 
 /**
- * Booking detail page (Client Component)
- * - Read dynamic route param via useParams() to satisfy Next 15 PageProps typing.
- * - Wrap the data loader in useCallback and include it in useEffect deps.
+ * Booking detail page
+ * - Read param via useParams(), wrap loader with useCallback.
  */
 export default function BookingDetailPage() {
   const [booking, setBooking] = useState<any>(null)
@@ -15,7 +15,6 @@ export default function BookingDetailPage() {
   const router = useRouter()
   const { id: bookingId } = useParams<{ id: string }>()
 
-  /** Load booking by id */
   const fetchBookingDetail = useCallback(async () => {
     if (!bookingId) return
     const supabase = createClient()
@@ -28,11 +27,11 @@ export default function BookingDetailPage() {
       .eq('id', bookingId)
       .single()
 
-    if (data) {
-      setBooking(data)
-    } else if (error) {
+    if (error) {
       console.error('Error fetching booking:', error)
       router.push('/bookings')
+    } else {
+      setBooking(data)
     }
     setLoading(false)
   }, [bookingId, router])
@@ -41,21 +40,21 @@ export default function BookingDetailPage() {
     fetchBookingDetail()
   }, [fetchBookingDetail])
 
-  /** Cancel booking by id */
   const handleCancel = async () => {
     if (!bookingId) return
     if (!confirm('Are you sure you want to cancel this booking?')) return
-
     const supabase = createClient()
     const { error } = await supabase
       .from('bookings')
       .update({ status: 'cancelled' })
       .eq('id', bookingId)
 
-    if (!error) {
-      alert('Booking cancelled successfully')
-      router.push('/bookings')
+    if (error) {
+      console.error('Cancel failed:', error)
+      return
     }
+    alert('Booking cancelled successfully')
+    router.push('/bookings')
   }
 
   if (loading) {
@@ -80,8 +79,7 @@ export default function BookingDetailPage() {
     cancelled: 'bg-red-100 text-red-800',
     completed: 'bg-gray-100 text-gray-800',
   }
-  const statusColor =
-    statusColors[booking.status] || 'bg-gray-100 text-gray-800'
+  const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800'
 
   return (
     <div className="container mx-auto p-8">
@@ -103,7 +101,7 @@ export default function BookingDetailPage() {
             </span>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-blue-600">${booking.total}</p>
+            <p className="text-3xl font-bold text-blue-600">{formatCurrency(booking.total)}</p>
             <p className="text-sm text-gray-600">Total Amount</p>
           </div>
         </div>
@@ -118,15 +116,11 @@ export default function BookingDetailPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Date</p>
-                <p className="font-medium">
-                  {new Date(booking.booking_date).toLocaleDateString()}
-                </p>
+                <p className="font-medium">{formatDate(booking.booking_date)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Time</p>
-                <p className="font-medium">
-                  {booking.start_time} - {booking.end_time}
-                </p>
+                <p className="font-medium">{booking.start_time} - {booking.end_time}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Duration</p>
@@ -150,9 +144,7 @@ export default function BookingDetailPage() {
               )}
               <div>
                 <p className="text-sm text-gray-600">Hourly Rate</p>
-                <p className="font-medium">
-                  ${booking.rinks?.hourly_rate}/hour
-                </p>
+                <p className="font-medium">{formatCurrency(booking.rinks?.hourly_rate)}</p>
               </div>
             </div>
           </div>
@@ -162,18 +154,16 @@ export default function BookingDetailPage() {
           <h2 className="text-xl font-semibold mb-4">Price Breakdown</h2>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>
-                Ice Time ({booking.hours} hours × ${booking.rinks?.hourly_rate})
-              </span>
-              <span>${booking.subtotal}</span>
+              <span>Ice Time ({booking.hours} hours × {formatCurrency(booking.rinks?.hourly_rate)})</span>
+              <span>{formatCurrency(booking.subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Platform Fee (8%)</span>
-              <span>${booking.platform_fee}</span>
+              <span>{formatCurrency(booking.platform_fee)}</span>
             </div>
             <div className="flex justify-between font-bold text-lg pt-2 border-t">
               <span>Total</span>
-              <span>${booking.total}</span>
+              <span>{formatCurrency(booking.total)}</span>
             </div>
           </div>
         </div>
