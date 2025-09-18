@@ -1,7 +1,15 @@
 // app/(dashboard)/notifications/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+/**
+ * Notifications page
+ * - Fetches notifications for the current user with lightweight pagination.
+ * - Subscribes to realtime changes (only for the current user).
+ * - Supports mark-as-read, mark-all-as-read, and delete with optimistic UI + rollback.
+ * - Uses head:true + count:'exact' for total/unread counters to reduce payload.
+ */
+
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
@@ -19,127 +27,149 @@ interface Notification {
   created_at: string;
 }
 
-export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+const PAGE_SIZE = 20;
 
+export default function NotificationsPage() {
+  const supabase = useMemo(() => createClient(), []);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Pagination + data
+  const [page, setPage] = useState(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // Derived counters
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const hasPrev = page > 0;
+  const hasNext = (page + 1) * PAGE_SIZE < totalCount;
+
+  // Load current user once
   useEffect(() => {
-    loadNotifications();
-    
-    // Subscribe to real-time notifications
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (error) {
+        console.error('[notifications] getUser error:', error);
+        return;
+      }
+      setUserId(data.user?.id ?? null);
+    });
+  }, [supabase]);
+
+  // Fetch total count (head-only, cheaper)
+  const fetchTotalCount = async (uid: string) => {
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', uid);
+
+    if (error) {
+      console.error('[notifications] count error:', error);
+      return;
+    }
+    setTotalCount(count ?? 0);
+  };
+
+  // Load one page of notifications
+  const loadPage = async (uid: string, pageIndex: number) => {
+    setLoading(true);
+    try {
+      const from = pageIndex * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('id, user_id, type, title, message, link, related_id, is_read, created_at')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+
+      setNotifications(data ?? []);
+    } catch (e) {
+      console.error('[notifications] loadPage error:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load + subscribe to realtime changes (only current user)
+  useEffect(() => {
+    if (!userId) return;
+
+    // First load
+    fetchTotalCount(userId);
+    loadPage(userId, page);
+
+    // Realtime subscription
     const channel = supabase
-      .channel('notifications')
+      .channel('notifications-page')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'notifications'
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`, // only my rows
         },
         () => {
-          loadNotifications();
+          // On any change: refresh total & current page
+          fetchTotalCount(userId);
+          loadPage(userId, page);
         }
       )
       .subscribe();
 
+    // Cleanup on unmount / userId change
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [supabase, userId, page]);
 
-  async function loadNotifications() {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error('Error getting user:', userError);
-        return;
-      }
-      
-      if (!user) {
-        console.log('No user found');
-        return;
-      }
-
-      console.log('Loading notifications for user:', user.id);
-
-     const { data, error } = await supabase
-  .from('notifications')
-  .select('id, user_id, type, title, message, link, related_id, is_read, created_at')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false });
-
-      console.log('Notifications result:', { data, error });
-
-      if (error) {
-        console.error('Error loading notifications:', error);
-        throw error;
-      }
-      
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Error in loadNotifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Handlers — optimistic update with rollback on failure
   async function markAsRead(id: string) {
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      setNotifications(prev =>
-        prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
-      );
-    } catch (error) {
-      console.error('Error marking as read:', error);
+    const prev = notifications;
+    setNotifications(ns => ns.map(n => (n.id === id ? { ...n, is_read: true } : n)));
+    const { error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    if (error) {
+      console.error('[notifications] markAsRead error:', error);
+      setNotifications(prev); // rollback
     }
   }
 
   async function markAllAsRead() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-      if (error) throw error;
-      
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, is_read: true }))
-      );
-    } catch (error) {
-      console.error('Error marking all as read:', error);
+    if (!userId) return;
+    const prev = notifications;
+    setNotifications(ns => ns.map(n => ({ ...n, is_read: true })));
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
+    if (error) {
+      console.error('[notifications] markAllAsRead error:', error);
+      setNotifications(prev); // rollback
     }
   }
 
   async function deleteNotification(id: string) {
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    const prev = notifications;
+    setNotifications(ns => ns.filter(n => n.id !== id));
+    const { error } = await supabase.from('notifications').delete().eq('id', id);
+    if (error) {
+      console.error('[notifications] delete error:', error);
+      setNotifications(prev); // rollback
+    } else {
+      // Update total count and ensure pagination is consistent
+      fetchTotalCount(userId!);
+      if (notifications.length === 1 && page > 0) {
+        // If we removed the last item on this page, go back one page
+        setPage(p => Math.max(0, p - 1));
+      }
     }
   }
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
+  // Type → icon / color helpers
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'game_interest':
@@ -170,6 +200,7 @@ export default function NotificationsPage() {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -186,13 +217,14 @@ export default function NotificationsPage() {
           <Bell className="h-8 w-8 text-blue-600" />
           <div>
             <h1 className="text-2xl font-bold">Notifications</h1>
-            {unreadCount > 0 && (
+            {totalCount > 0 && (
               <p className="text-sm text-gray-600">
-                You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                You have {totalCount} notification{totalCount !== 1 ? 's' : ''}
               </p>
             )}
           </div>
         </div>
+
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
@@ -208,9 +240,7 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-600 mb-2">
-            No notifications yet
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-600 mb-2">No notifications yet</h2>
           <p className="text-gray-500">
             When someone shows interest in your games or accepts your requests, you'll see it here.
           </p>
@@ -232,20 +262,14 @@ export default function NotificationsPage() {
                       {notification.type.replace('_', ' ').toUpperCase()}
                     </span>
                     {!notification.is_read && (
-                      <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
-                        NEW
-                      </span>
+                      <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">NEW</span>
                     )}
                   </div>
-                  
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {notification.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 mb-2">
-                    {notification.message}
-                  </p>
-                  
+
+                  <h3 className="font-semibold text-gray-900 mb-1">{notification.title}</h3>
+
+                  <p className="text-gray-600 mb-2">{notification.message}</p>
+
                   <div className="flex items-center gap-4">
                     {notification.link && (
                       <Link
@@ -256,13 +280,13 @@ export default function NotificationsPage() {
                         View Details
                       </Link>
                     )}
-                    
+
                     <span className="text-xs text-gray-500">
                       {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 ml-4">
                   {!notification.is_read && (
                     <button
@@ -273,7 +297,7 @@ export default function NotificationsPage() {
                       <Check className="h-4 w-4" />
                     </button>
                   )}
-                  
+
                   <button
                     onClick={() => deleteNotification(notification.id)}
                     className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -285,6 +309,24 @@ export default function NotificationsPage() {
               </div>
             </div>
           ))}
+
+          {/* Pagination controls */}
+          <div className="flex justify-center gap-3 mt-4">
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={!hasPrev}
+            >
+              Prev
+            </button>
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setPage(p => p + 1)}
+              disabled={!hasNext}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

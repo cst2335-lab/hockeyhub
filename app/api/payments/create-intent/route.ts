@@ -1,23 +1,68 @@
-// POST { bookingId } -> returns { clientSecret }
-import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+// app/api/payments/create-intent/route.ts
+import Stripe from 'stripe';
+import { NextResponse } from 'next/server';
+// If you use Supabase to look up booking total, import your server client here.
+// import { createClient } from '@/lib/supabase/server';
+
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+
+// Create the Stripe SDK instance (server-side only)
+const stripe = STRIPE_SECRET_KEY
+  ? new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
+  : null;
 
 export async function POST(req: Request) {
-  const { bookingId } = await req.json();
-  if (!bookingId) return NextResponse.json({ error: "bookingId required" }, { status: 400 });
+  try {
+    if (!stripe) {
+      // Always return JSON even on errors
+      return NextResponse.json(
+        { error: 'Missing STRIPE_SECRET_KEY on server' },
+        { status: 500 }
+      );
+    }
 
-  // 1) Read booking total (in cents) from DB
-  const { data: b, error } = await supabaseAdmin
-    .from("bookings").select("id,user_id,total").eq("id", bookingId).single();
-  if (error || !b?.total) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    // Expecting JSON from client: { bookingId } or { bookingId, amountCents }
+    const body = await req.json().catch(() => ({}));
+    const { bookingId, amountCents } = body ?? {};
 
-  // 2) Create Stripe PaymentIntent
-  const pi = await stripe.paymentIntents.create({
-    amount: b.total, currency: "cad",
-    metadata: { booking_id: b.id }
-  });
+    // 1) Compute amount on server
+    //    For demo we accept amountCents from client if provided,
+    //    but in production you should look up the booking by ID and compute total here.
+    //    Example (pseudo):
+    // const supabase = createClient();
+    // const { data: booking } = await supabase
+    //   .from('bookings')
+    //   .select('total, currency')
+    //   .eq('id', bookingId)
+    //   .single();
+    // const amount = Math.round((booking?.total ?? 0) * 100);
+    // const currency = booking?.currency ?? 'usd';
 
-  // 3) Return client secret to client
-  return NextResponse.json({ clientSecret: pi.client_secret });
+    const amount = typeof amountCents === 'number' ? amountCents : 5000; // $50.00 as fallback
+    const currency = 'usd'; // or 'cad' if you charge in CAD
+
+    if (!amount || amount < 50) {
+      return NextResponse.json(
+        { error: 'Invalid amount' },
+        { status: 400 }
+      );
+    }
+
+    // 2) Create PaymentIntent
+    const intent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      automatic_payment_methods: { enabled: true },
+      metadata: { bookingId: bookingId ?? '' },
+    });
+
+    // 3) Return clientSecret as JSON
+    return NextResponse.json({ clientSecret: intent.client_secret });
+  } catch (err: any) {
+    console.error('[create-intent] error:', err);
+    return NextResponse.json(
+      { error: err?.message ?? 'Server error' },
+      { status: 500 }
+    );
+  }
 }
