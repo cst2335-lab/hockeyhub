@@ -1,0 +1,5 @@
+﻿{
+  "nav": { "home": "Accueil", "rinks": "Patinoires", "games": "Matchs", "coaches": "Entraîneurs", "equipment": "Équipement", "login": "Connexion" },
+  "actions": { "join": "Rejoindre", "book": "Réserver", "rent": "Louer", "pay": "Payer" },
+  "onboarding": { "title": "Guide pour débutants", "stepRole": "Choisissez votre rôle", "stepLang": "Choisissez votre langue", "stepCity": "Définissez votre ville" }
+}

@@ -1,0 +1,5 @@
+﻿{
+  "nav": { "home": "Home", "rinks": "Rinks", "games": "Games", "coaches": "Coaches", "equipment": "Equipment", "login": "Log in" },
+  "actions": { "join": "Join", "book": "Book", "rent": "Rent", "pay": "Pay" },
+  "onboarding": { "title": "Newcomer Guide", "stepRole": "Choose your role", "stepLang": "Choose your language", "stepCity": "Set your city" }
+}
