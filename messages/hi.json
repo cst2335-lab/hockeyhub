@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "home": "होम",
+    "rinks": "रिंक",
+    "games": "गेम्स",
+    "coaches": "कोच",
+    "equipment": "उपकरण",
+    "login": "लॉग इन",
+    "signup": "साइन अप",
+    "clubs": "क्लब्स",
+    "profile": "प्रोफ़ाइल",
+    "notifications": "सूचनाएँ",
+    "logout": "लॉग आउट",
+    "settings": "सेटिंग्स"
+  },
+  "actions": { "join": "गेम पोस्ट करें", "book": "बुक", "rent": "किराए पर लें", "pay": "भुगतान" },
+  "onboarding": { "title": "नए उपयोगकर्ताओं के लिए गाइड", "stepRole": "अपनी भूमिका चुनें", "stepLang": "भाषा चुनें", "stepCity": "शहर सेट करें" }
+}

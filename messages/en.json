@@ -1,5 +1,59 @@
 ﻿{
-  "nav": { "home": "Home", "rinks": "Rinks", "games": "Games", "coaches": "Coaches", "equipment": "Equipment", "login": "Log in" },
-  "actions": { "join": "Join", "book": "Book", "rent": "Rent", "pay": "Pay" },
-  "onboarding": { "title": "Newcomer Guide", "stepRole": "Choose your role", "stepLang": "Choose your language", "stepCity": "Set your city" }
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "games": "Find Games",
+    "rinks": "Ice Rinks",
+    "clubs": "Clubs",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "logout": "Sign Out",
+    "login": "Sign In",
+    "register": "Get Started"
+  },
+  "actions": {
+    "join": "Post Game",
+    "book": "Book",
+    "rent": "Rent",
+    "pay": "Pay",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search",
+    "filter": "Filter"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!",
+    "confirm": "Are you sure?",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit"
+  },
+  "games": {
+    "title": "Available Games",
+    "noGames": "No games available",
+    "ageGroup": "Age Group",
+    "skillLevel": "Skill Level",
+    "location": "Location",
+    "date": "Date",
+    "time": "Time",
+    "contact": "Contact",
+    "maxPlayers": "Max Players",
+    "currentPlayers": "Current Players",
+    "description": "Description"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "serverError": "Server error",
+    "networkError": "Network error",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access forbidden"
+  }
 }
