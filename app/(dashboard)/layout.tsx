@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Trophy, MapPin, Calendar, Users, Bell, User, LogOut, FileText } from 'lucide-react';
+import { Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -14,37 +14,47 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  
+
+  // Derive locale from the first path segment: /{locale}/...
+  const locale = (pathname?.split('/')?.[1] || '').trim();
+
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     checkUser();
     loadUnreadCount();
-    
-    // 设置实时订阅通知
-    const setupSubscription = async () => {
+
+    // Subscribe to realtime notifications for the current user
+    let cleanup: (() => void) | undefined;
+
+    (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const channel = supabase
-          .channel('unread-notifications')
-          .on('postgres_changes', {
+      if (!user) return;
+
+      const channel = supabase
+        .channel('unread-notifications')
+        .on(
+          'postgres_changes',
+          {
             event: '*',
             schema: 'public',
             table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          }, () => {
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
             loadUnreadCount();
-          })
-          .subscribe();
+          }
+        )
+        .subscribe();
 
-        return () => {
-          supabase.removeChannel(channel);
-        };
-      }
+      cleanup = () => supabase.removeChannel(channel);
+    })();
+
+    return () => {
+      if (cleanup) cleanup();
     };
-
-    setupSubscription();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function checkUser() {
@@ -52,7 +62,8 @@ export default function DashboardLayout({
     if (user) {
       setUserEmail(user.email || null);
     } else {
-      router.push('/login');
+      // Localized redirect to login when no user
+      router.push(`/${locale || ''}/login`.replace('//', '/'));
     }
   }
 
@@ -75,42 +86,49 @@ export default function DashboardLayout({
 
   async function handleLogout() {
     await supabase.auth.signOut();
-    router.push('/login');
+    // Localized redirect after logout
+    router.push(`/${locale || ''}/login`.replace('//', '/'));
   }
 
+  // Define nav items without the locale prefix; we will prepend /{locale}
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: Home },
-    { href: '/games', label: 'Games', icon: Trophy },
-    { href: '/my-games', label: 'My Games', icon: FileText },
-    { href: '/rinks', label: 'Rinks', icon: MapPin },
-    { href: '/bookings', label: 'My Bookings', icon: Calendar },
-    { href: '/clubs', label: 'Clubs', icon: Users },
-  ];
+    { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/games', label: 'Games', icon: Trophy },
+    { path: '/my-games', label: 'My Games', icon: FileText },
+    { path: '/rinks', label: 'Rinks', icon: MapPin },
+    { path: '/bookings', label: 'My Bookings', icon: Calendar },
+    { path: '/clubs', label: 'Clubs', icon: Users },
+  ] as const;
+
+  // Helper to build a localized href
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
+      {/* Top Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo and main nav */}
             <div className="flex">
-              <Link href="/dashboard" className="flex items-center px-2">
+              <Link href={withLocale('/dashboard')} className="flex items-center px-2">
                 <span className="text-2xl">🏒</span>
                 <span className="ml-2 text-xl font-bold text-gray-900">HockeyHub</span>
               </Link>
-              
+
               {/* Desktop Navigation */}
               <div className="hidden md:ml-8 md:flex md:space-x-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href || 
-                    (item.href !== '/dashboard' && pathname.startsWith(item.href));
-                  
+                  const href = withLocale(item.path);
+                  const isActive =
+                    pathname === href ||
+                    (item.path !== '/dashboard' && pathname?.startsWith(href));
+
                   return (
                     <Link
-                      key={item.href}
-                      href={item.href}
+                      key={item.path}
+                      href={href}
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
                         isActive
                           ? 'text-blue-600 bg-blue-50'
@@ -129,9 +147,9 @@ export default function DashboardLayout({
             <div className="flex items-center space-x-4">
               {/* Notifications */}
               <Link
-                href="/notifications"
+                href={withLocale('/notifications')}
                 className={`relative p-2 rounded-full transition ${
-                  pathname === '/notifications'
+                  pathname === withLocale('/notifications')
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
@@ -144,7 +162,7 @@ export default function DashboardLayout({
                 )}
               </Link>
 
-              {/* User Menu */}
+              {/* User section */}
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-700 hidden sm:block">
                   {userEmail}
@@ -166,13 +184,15 @@ export default function DashboardLayout({
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || 
-                (item.href !== '/dashboard' && pathname.startsWith(item.href));
-              
+              const href = withLocale(item.path);
+              const isActive =
+                pathname === href ||
+                (item.path !== '/dashboard' && pathname?.startsWith(href));
+
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item.path}
+                  href={href}
                   className={`block px-3 py-2 rounded-md text-base font-medium ${
                     isActive
                       ? 'text-blue-600 bg-blue-50'
