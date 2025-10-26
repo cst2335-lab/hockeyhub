@@ -1,11 +1,12 @@
 // app/(dashboard)/notifications/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
+import {useEffect, useState, useMemo} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {Bell, Check, CheckCheck, Trash2, ExternalLink} from 'lucide-react';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import {format} from 'date-fns';
+import {usePathname, useRouter} from 'next/navigation';
 
 interface Notification {
   id: string;
@@ -22,21 +23,35 @@ interface Notification {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+
   const supabase = createClient();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Derive locale from the first URL segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+
+  // Helper to prefix a path with current locale (keeps external links intact)
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
+  const localizeLink = (href: string) => {
+    if (!href) return href;
+    // Keep full URLs and mailto/tel as-is
+    if (/^(https?:)?\/\//i.test(href) || /^(mailto:|tel:)/i.test(href)) return href;
+    // Already localized?
+    if (href.startsWith(`/${locale}/`)) return href;
+    // Prefix with current locale
+    return withLocale(href.startsWith('/') ? href : `/${href}`);
+  };
 
   useEffect(() => {
     loadNotifications();
-    
-    // Subscribe to real-time notifications
+
+    // Subscribe to real-time notifications (current user only)
     const channel = supabase
       .channel('notifications')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications'
-        },
+        {event: '*', schema: 'public', table: 'notifications'},
         () => {
           loadNotifications();
         }
@@ -46,37 +61,40 @@ export default function NotificationsPage() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadNotifications() {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
+      const {
+        data: {user},
+        error: userError
+      } = await supabase.auth.getUser();
+
       if (userError) {
         console.error('Error getting user:', userError);
         return;
       }
-      
+
       if (!user) {
-        console.log('No user found');
+        // Localized redirect when unauthenticated
+        router.push(withLocale('/login'));
         return;
       }
 
-      console.log('Loading notifications for user:', user.id);
-
-     const { data, error } = await supabase
-  .from('notifications')
-  .select('id, user_id, type, title, message, link, related_id, is_read, created_at')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false });
-
-      console.log('Notifications result:', { data, error });
+      const {data, error} = await supabase
+        .from('notifications')
+        .select(
+          'id, user_id, type, title, message, link, related_id, is_read, created_at'
+        )
+        .eq('user_id', user.id)
+        .order('created_at', {ascending: false});
 
       if (error) {
         console.error('Error loading notifications:', error);
         throw error;
       }
-      
+
       setNotifications(data || []);
     } catch (error) {
       console.error('Error in loadNotifications:', error);
@@ -87,16 +105,9 @@ export default function NotificationsPage() {
 
   async function markAsRead(id: string) {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
-
+      const {error} = await supabase.from('notifications').update({is_read: true}).eq('id', id);
       if (error) throw error;
-      
-      setNotifications(prev =>
-        prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
-      );
+      setNotifications(prev => prev.map(n => (n.id === id ? {...n, is_read: true} : n)));
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -104,20 +115,19 @@ export default function NotificationsPage() {
 
   async function markAllAsRead() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      const {error} = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({is_read: true})
         .eq('user_id', user.id)
         .eq('is_read', false);
 
       if (error) throw error;
-      
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, is_read: true }))
-      );
+      setNotifications(prev => prev.map(n => ({...n, is_read: true})));
     } catch (error) {
       console.error('Error marking all as read:', error);
     }
@@ -125,13 +135,8 @@ export default function NotificationsPage() {
 
   async function deleteNotification(id: string) {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id);
-
+      const {error} = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
-      
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -208,83 +213,84 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-600 mb-2">
-            No notifications yet
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-600 mb-2">No notifications yet</h2>
           <p className="text-gray-500">
             When someone shows interest in your games or accepts your requests, you'll see it here.
           </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`bg-white rounded-lg shadow p-4 transition-all ${
-                !notification.is_read ? 'border-l-4 border-blue-600' : ''
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">{getTypeIcon(notification.type)}</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(notification.type)}`}>
-                      {notification.type.replace('_', ' ').toUpperCase()}
-                    </span>
-                    {!notification.is_read && (
-                      <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
-                        NEW
-                      </span>
-                    )}
-                  </div>
-                  
-                  <h3 className="font-semibold text-gray-900 mb-1">
-                    {notification.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 mb-2">
-                    {notification.message}
-                  </p>
-                  
-                  <div className="flex items-center gap-4">
-                    {notification.link && (
-                      <Link
-                        href={notification.link}
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+          {notifications.map(notification => {
+            const href = notification.link ? localizeLink(notification.link) : null;
+            return (
+              <div
+                key={notification.id}
+                className={`bg-white rounded-lg shadow p-4 transition-all ${
+                  !notification.is_read ? 'border-l-4 border-blue-600' : ''
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{getTypeIcon(notification.type)}</span>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(
+                          notification.type
+                        )}`}
                       >
-                        <ExternalLink className="h-3 w-3" />
-                        View Details
-                      </Link>
-                    )}
-                    
-                    <span className="text-xs text-gray-500">
-                      {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
-                    </span>
+                        {notification.type.replace('_', ' ').toUpperCase()}
+                      </span>
+                      {!notification.is_read && (
+                        <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
+                          NEW
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="font-semibold text-gray-900 mb-1">{notification.title}</h3>
+
+                    <p className="text-gray-600 mb-2">{notification.message}</p>
+
+                    <div className="flex items-center gap-4">
+                      {href && (
+                        <Link
+                          href={href}
+                          className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          View Details
+                        </Link>
+                      )}
+
+                      <span className="text-xs text-gray-500">
+                        {format(new Date(notification.created_at), 'MMM d, yyyy h:mm a')}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-2 ml-4">
-                  {!notification.is_read && (
+
+                  <div className="flex items-center gap-2 ml-4">
+                    {!notification.is_read && (
+                      <button
+                        onClick={() => markAsRead(notification.id)}
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Mark as read"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    )}
+
                     <button
-                      onClick={() => markAsRead(notification.id)}
-                      className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Mark as read"
+                      onClick={() => deleteNotification(notification.id)}
+                      className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete notification"
                     >
-                      <Check className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
-                  )}
-                  
-                  <button
-                    onClick={() => deleteNotification(notification.id)}
-                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete notification"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
