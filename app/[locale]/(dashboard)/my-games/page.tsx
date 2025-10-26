@@ -1,567 +1,499 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Eye, 
-  Heart, 
-  Plus,
-  Trophy,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-} from 'lucide-react';
+import Link from 'next/link';
+import RatingStars from '@/components/rating/RatingStars';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy } from 'lucide-react';
 
 interface Game {
   id: string;
   title: string;
   game_date: string;
   game_time: string;
-  location: string;
   age_group: string;
   skill_level: string;
   description: string;
   status: string;
-  view_count: number;
-  interested_count: number;
+  created_by: string;
+  rink_id: string;
+  host_club_id: string;
+  guest_club_id: string | null;
+  view_count?: number;
+  interested_count?: number;
   created_at: string;
+  creator?: {
+    full_name: string;
+    email: string;
+    phone: string;
+  };
+  host_club?: {
+    name: string;
+    contact_email: string;
+    contact_phone: string;
+  };
+  rink?: {
+    name: string;
+    address: string;
+    phone: string;
+  };
 }
 
-interface GameInterest {
-  id: string;
-  game_id: string;
-  user_id: string;
-  status: string;
-  created_at: string;
-  game_invitations: Game;
-}
-
-interface Stats {
-  total: number;
-  open: number;
-  matched: number;
-  cancelled: number;
-  totalViews: number;
-  totalInterested: number;
-}
-
-export default function MyGamesPage() {
-  const { locale } = useParams<{ locale: string }>();
-  const [games, setGames] = useState<Game[]>([]);
-  const [interestedGames, setInterestedGames] = useState<GameInterest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<Stats>({
-    total: 0,
-    open: 0,
-    matched: 0,
-    cancelled: 0,
-    totalViews: 0,
-    totalInterested: 0
-  });
-  const [filter, setFilter] = useState<'all' | 'open' | 'matched' | 'cancelled'>('all');
-  const [activeTab, setActiveTab] = useState<'posted' | 'interested'>('posted');
-  
+export default function GameDetailsPage() {
+  const { id, locale } = useParams<{ id: string; locale: string }>();
   const router = useRouter();
-  const supabase = createClient();
+  const [game, setGame] = useState<Game | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isInterested, setIsInterested] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
+  const [message, setMessage] = useState('');
+  const [showMessageForm, setShowMessageForm] = useState(false);
+
+  // Rating states
+  const [hasRated, setHasRated] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [tempRating, setTempRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
 
   useEffect(() => {
-    loadMyGames();
+    loadGameDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
-  async function loadMyGames() {
+  const loadGameDetails = async () => {
     try {
+      const supabase = createClient();
+
+      // current user
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push(`/${locale}/login`);
+      setCurrentUser(user);
+
+      // game
+      const { data: gameData, error: gameError } = await supabase
+        .from('game_invitations')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (gameError) {
+        console.error('Error loading game:', gameError);
         return;
       }
 
-      // Posted games
-      const { data, error } = await supabase
-        .from('game_invitations')
-        .select('*')
-        .eq('created_by', user.id)
-        .order('created_at', { ascending: false });
+      // creator
+      if (gameData?.created_by) {
+        const { data: creatorData } = await supabase
+          .from('profiles')
+          .select('full_name, email, phone')
+          .eq('id', gameData.created_by)
+          .single();
+        if (creatorData) gameData.creator = creatorData;
+      }
 
-      // Interested games
-      const { data: interests } = await supabase
-        .from('game_interests')
-        .select(`*, game_invitations (*)`)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      // host club
+      if (gameData?.host_club_id) {
+        const { data: clubData } = await supabase
+          .from('clubs')
+          .select('name, contact_email, contact_phone')
+          .eq('id', gameData.host_club_id)
+          .single();
+        if (clubData) gameData.host_club = clubData;
+      }
 
-      if (error) throw error;
+      // rink
+      if (gameData?.rink_id) {
+        const { data: rinkData } = await supabase
+          .from('rinks')
+          .select('name, address, phone')
+          .eq('id', gameData.rink_id)
+          .single();
+        if (rinkData) gameData.rink = rinkData;
+      }
 
-      const gamesData = data || [];
-      setGames(gamesData);
-      setInterestedGames(interests || []);
+      setGame(gameData);
 
-      // Stats
-      const statsData = {
-        total: gamesData.length,
-        open: gamesData.filter(g => g.status === 'open').length,
-        matched: gamesData.filter(g => g.status === 'matched').length,
-        cancelled: gamesData.filter(g => g.status === 'cancelled').length,
-        totalViews: gamesData.reduce((sum, g) => sum + (g.view_count || 0), 0),
-        totalInterested: gamesData.reduce((sum, g) => sum + (g.interested_count || 0), 0)
-      };
-      setStats(statsData);
+      // interest & rating
+      if (user) {
+        const { data: interestData } = await supabase
+          .from('game_interests')
+          .select('*')
+          .eq('game_id', id)
+          .eq('user_id', user.id)
+          .maybeSingle();
 
+        if (interestData) {
+          setIsInterested(true);
+          if (interestData.status === 'accepted') setShowContactInfo(true);
+        }
+
+        if (gameData.status === 'matched') {
+          const { data: ratingData } = await supabase
+            .from('game_ratings')
+            .select('*')
+            .eq('game_id', id)
+            .eq('rater_id', user.id)
+            .maybeSingle();
+          if (ratingData) {
+            setHasRated(true);
+            setUserRating(ratingData.rating);
+          }
+        }
+      }
+
+      // view count
+      if (user && gameData.created_by !== user.id) {
+        await supabase
+          .from('game_invitations')
+          .update({ view_count: (gameData.view_count || 0) + 1 })
+          .eq('id', id);
+      }
     } catch (error) {
-      console.error('Error loading games:', error);
+      console.error('Error in loadGameDetails:', error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function updateGameStatus(gameId: string, newStatus: string) {
-    try {
-      const { error } = await supabase
-        .from('game_invitations')
-        .update({ status: newStatus })
-        .eq('id', gameId);
+  const isCreator = currentUser?.id === game?.created_by;
 
-      if (error) throw error;
-
-      loadMyGames();
-      if (newStatus === 'cancelled') {
-        alert('Game cancelled successfully');
-      } else if (newStatus === 'matched') {
-        alert('Game marked as matched');
-      }
-    } catch (error) {
-      console.error('Error updating game:', error);
-      alert('Failed to update game status');
-    }
-  }
-
-  async function deleteGame(gameId: string) {
-    if (!confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
+  const handleInterest = async () => {
+    if (!currentUser) {
+      router.push(`/${locale}/login`);
       return;
     }
     try {
-      const { error } = await supabase
-        .from('game_invitations')
-        .delete()
-        .eq('id', gameId);
+      const supabase = createClient();
 
-      if (error) throw error;
-
-      loadMyGames();
-      alert('Game deleted successfully');
+      if (!isInterested) {
+        const { error } = await supabase.from('game_interests').insert({
+          game_id: id,
+          user_id: currentUser.id,
+          message,
+          status: 'pending',
+        });
+        if (!error) {
+          setIsInterested(true);
+          setShowMessageForm(false);
+          setMessage('');
+          if (game) {
+            await supabase
+              .from('game_invitations')
+              .update({ interested_count: (game.interested_count || 0) + 1 })
+              .eq('id', id);
+            loadGameDetails();
+          }
+        }
+      } else {
+        await supabase
+          .from('game_interests')
+          .delete()
+          .eq('game_id', id)
+          .eq('user_id', currentUser.id);
+        setIsInterested(false);
+        setShowContactInfo(false);
+        if (game) {
+          await supabase
+            .from('game_invitations')
+            .update({ interested_count: Math.max((game.interested_count || 0) - 1, 0) })
+            .eq('id', id);
+          loadGameDetails();
+        }
+      }
     } catch (error) {
-      console.error('Error deleting game:', error);
-      alert('Failed to delete game');
+      console.error('Error handling interest:', error);
     }
-  }
+  };
 
-  async function removeInterest(interestId: string) {
-    if (!confirm('Remove your interest in this game?')) return;
+  const handleSubmitRating = async () => {
+    if (!currentUser || tempRating === 0 || !game) return;
     try {
-      const { error } = await supabase
-        .from('game_interests')
-        .delete()
-        .eq('id', interestId);
+      const supabase = createClient();
 
-      if (error) throw error;
+      // resolve opponent
+      let opponentId: string | null = null;
+      if (isCreator) {
+        const { data } = await supabase
+          .from('game_interests')
+          .select('user_id')
+          .eq('game_id', id)
+          .maybeSingle();
+        opponentId = data?.user_id ?? null;
+      } else {
+        opponentId = game.created_by;
+      }
+      if (!opponentId) {
+        alert('Cannot determine opponent');
+        return;
+      }
 
-      loadMyGames();
+      const { error } = await supabase.from('game_ratings').insert({
+        game_id: id,
+        rater_id: currentUser.id,
+        rated_user_id: opponentId,
+        rating: tempRating,
+        comment: ratingComment.trim() || null,
+      });
+      if (!error) {
+        setHasRated(true);
+        setUserRating(tempRating);
+
+        // update rated user's average
+        const { data: ratings } = await supabase
+          .from('game_ratings')
+          .select('rating')
+          .eq('rated_user_id', opponentId);
+        if (ratings && ratings.length > 0) {
+          const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
+          await supabase
+            .from('profiles')
+            .update({ average_rating: avg, total_ratings: ratings.length })
+            .eq('id', opponentId);
+        }
+        alert('Rating submitted successfully!');
+      }
     } catch (error) {
-      console.error('Error removing interest:', error);
-      alert('Failed to remove interest');
+      console.error('Error submitting rating:', error);
+      alert('Failed to submit rating');
     }
-  }
-
-  function formatDate(dateStr: string) {
-    if (!dateStr) return 'TBD';
-    const date = new Date(dateStr);
-    const today = new Date();
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    let relativeTime = '';
-    if (diffDays === 0) relativeTime = ' (Today)';
-    else if (diffDays === 1) relativeTime = ' (Tomorrow)';
-    else if (diffDays === -1) relativeTime = ' (Yesterday)';
-    else if (diffDays < -1) relativeTime = ` (${Math.abs(diffDays)} days ago)`;
-    else if (diffDays > 1 && diffDays <= 7) relativeTime = ` (in ${diffDays} days)`;
-    
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
-    }) + relativeTime;
-  }
-
-  function getStatusBadge(status: string) {
-    switch (status) {
-      case 'open':
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Open</span>;
-      case 'matched':
-        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Matched</span>;
-      case 'cancelled':
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Cancelled</span>;
-      default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{status}</span>;
-    }
-  }
-
-  const filteredGames = filter === 'all' ? games : games.filter(g => g.status === filter);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p>Loading game details...</p>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Games</h1>
-            <p className="mt-2 text-gray-600">
-              {activeTab === 'posted' ? 'Manage your posted games' : 'Games you\'re interested in'}
-            </p>
-          </div>
-          <Link
-            href={`/${locale}/games/new`}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Post New Game
+  if (!game) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <p>Game not found</p>
+          <Link href={`/${locale}/games`} className="text-blue-600 hover:underline">
+            Back to games
           </Link>
         </div>
+      </div>
+    );
+  }
 
-        {/* Main Tabs */}
-        <div className="mb-6 flex space-x-1 bg-gray-100 p-1 rounded-lg">
-          <button
-            onClick={() => setActiveTab('posted')}
-            className={`flex-1 py-2 px-4 rounded-md transition ${
-              activeTab === 'posted'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            My Posted Games ({games.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('interested')}
-            className={`flex-1 py-2 px-4 rounded-md transition ${
-              activeTab === 'interested'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Games I'm Interested In ({interestedGames.length})
-          </button>
-        </div>
+  const gameDate = new Date(game.game_date).toLocaleDateString();
 
-        {activeTab === 'posted' ? (
-          <>
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                <div className="text-sm text-gray-500">Total Games</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-green-600">{stats.open}</div>
-                <div className="text-sm text-gray-500">Open</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-blue-600">{stats.matched}</div>
-                <div className="text-sm text-gray-500">Matched</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-600">{stats.cancelled}</div>
-                <div className="text-sm text-gray-500">Cancelled</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-purple-600">{stats.totalViews}</div>
-                <div className="text-sm text-gray-500">Total Views</div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-red-600">{stats.totalInterested}</div>
-                <div className="text-sm text-gray-500">Total Interested</div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <Link href={`/${locale}/games`} className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Games
+        </Link>
+      </div>
+
+      {/* Game Details */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold mb-2">{game.title}</h1>
+              <div className="flex gap-4 text-sm text-gray-600">
+                <span>📅 {gameDate}</span>
+                <span>⏰ {game.game_time}</span>
+                <span>👁 {game.view_count || 0} views</span>
+                <span>🏒 {game.interested_count || 0} interested</span>
               </div>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="mb-6 flex space-x-4 border-b">
-              <button
-                onClick={() => setFilter('all')}
-                className={`pb-2 px-1 border-b-2 transition ${
-                  filter === 'all' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                All ({games.length})
-              </button>
-              <button
-                onClick={() => setFilter('open')}
-                className={`pb-2 px-1 border-b-2 transition ${
-                  filter === 'open' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Open ({stats.open})
-              </button>
-              <button
-                onClick={() => setFilter('matched')}
-                className={`pb-2 px-1 border-b-2 transition ${
-                  filter === 'matched' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Matched ({stats.matched})
-              </button>
-              <button
-                onClick={() => setFilter('cancelled')}
-                className={`pb-2 px-1 border-b-2 transition ${
-                  filter === 'cancelled' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Cancelled ({stats.cancelled})
-              </button>
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="font-semibold mb-2">Game Details</h3>
+                <div className="space-y-2 text-gray-700">
+                  <p><strong>Age Group:</strong> {game.age_group}</p>
+                  <p><strong>Skill Level:</strong> {game.skill_level}</p>
+                  <p>
+                    <strong>Status:</strong>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded text-sm ${
+                        game.status === 'open'
+                          ? 'bg-green-100 text-green-800'
+                          : game.status === 'matched'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {game.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">Venue</h3>
+                <div className="space-y-2 text-gray-700">
+                  {game.rink && (
+                    <>
+                      <p><strong>{game.rink.name}</strong></p>
+                      <p>{game.rink.address}</p>
+                      {game.rink.phone && <p>📞 {game.rink.phone}</p>}
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Posted Games List */}
-            {filteredGames.length > 0 ? (
-              <div className="space-y-4">
-                {filteredGames.map((game) => (
-                  <div key={game.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{game.title}</h3>
-                            {getStatusBadge(game.status)}
-                          </div>
-
-                          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                            <div className="space-y-1">
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-2" />
-                                {formatDate(game.game_date)} at {game.game_time || 'TBD'}
-                              </div>
-                              <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-2" />
-                                {game.location || 'Location TBD'}
-                              </div>
-                              <div className="flex items-center">
-                                <Users className="h-4 w-4 mr-2" />
-                                {game.age_group} - {game.skill_level}
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-1">
-                              <div className="flex items-center">
-                                <Eye className="h-4 w-4 mr-2" />
-                                {game.view_count || 0} views
-                              </div>
-                              <div className="flex items-center">
-                                <Heart className="h-4 w-4 mr-2" />
-                                {game.interested_count || 0} interested
-                              </div>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-2" />
-                                Created {new Date(game.created_at).toLocaleDateString()}
-                              </div>
-                            </div>
-                          </div>
-
-                          {game.description && (
-                            <p className="mt-3 text-sm text-gray-500 line-clamp-2">
-                              {game.description}
-                            </p>
-                          )}
-
-                          {/* Interest Alert */}
-                          {game.interested_count > 0 && game.status === 'open' && (
-                            <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                              <AlertCircle className="inline h-4 w-4 text-blue-600 mr-1" />
-                              <span className="text-blue-800">
-                                {game.interested_count} team{game.interested_count > 1 ? 's are' : ' is'} interested! 
-                                <Link href={`/${locale}/notifications`} className="ml-2 underline font-medium">
-                                  View in notifications
-                                </Link>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="ml-4 flex flex-col space-y-2">
-                          <Link
-                            href={`/${locale}/games/${game.id}`}
-                            className="text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            View Details
-                          </Link>
-                          
-                          <Link
-                            href={`/${locale}/games/${game.id}/edit`}
-                            className="text-purple-600 hover:text-purple-800 text-sm"
-                          >
-                            Edit Game
-                          </Link>
-                          
-                          {game.status === 'open' && (
-                            <>
-                              <button
-                                onClick={() => updateGameStatus(game.id, 'matched')}
-                                className="text-green-600 hover:text-green-800 text-sm text-left"
-                              >
-                                Mark as Matched
-                              </button>
-                              <button
-                                onClick={() => updateGameStatus(game.id, 'cancelled')}
-                                className="text-orange-600 hover:text-orange-800 text-sm text-left"
-                              >
-                                Cancel Game
-                              </button>
-                            </>
-                          )}
-                          
-                          {game.status === 'cancelled' && (
-                            <button
-                              onClick={() => updateGameStatus(game.id, 'open')}
-                              className="text-green-600 hover:text-green-800 text-sm text-left"
-                            >
-                              Reopen Game
-                            </button>
-                          )}
-                          
-                          <button
-                            onClick={() => deleteGame(game.id)}
-                            className="text-red-600 hover:text-red-800 text-sm text-left"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {filter === 'all' ? 'No games posted yet' : `No ${filter} games`}
-                </h3>
-                <p className="text-gray-500 mb-6">Start by posting your first game invitation</p>
-                <Link
-                  href={`/${locale}/games/new`}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Post Your First Game
-                </Link>
+            {game.description && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-2">Description</h3>
+                <p className="text-gray-700 whitespace-pre-wrap">{game.description}</p>
               </div>
             )}
-          </>
-        ) : (
-          /* Interested Games Tab */
-          <div className="space-y-4">
-            {interestedGames.length > 0 ? (
-              interestedGames.map((interest) => (
-                <div key={interest.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {interest.game_invitations?.title}
-                          </h3>
-                          {getStatusBadge(interest.game_invitations?.status)}
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-2" />
-                              {formatDate(interest.game_invitations?.game_date)} at {interest.game_invitations?.game_time || 'TBD'}
-                            </div>
-                            <div className="flex items-center">
-                              <MapPin className="h-4 w-4 mr-2" />
-                              {interest.game_invitations?.location || 'Location TBD'}
-                            </div>
-                            <div className="flex items-center">
-                              <Users className="h-4 w-4 mr-2" />
-                              {interest.game_invitations?.age_group} - {interest.game_invitations?.skill_level}
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <Heart className="h-4 w-4 mr-2" />
-                              Interested since {new Date(interest.created_at).toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center">
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Status: {interest.status || 'pending'}
-                            </div>
-                          </div>
-                        </div>
+            {game.host_club && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-2">Host Club</h3>
+                <div className="bg-gray-50 p-4 rounded">
+                  <p className="font-medium">{game.host_club.name}</p>
+                  {(showContactInfo || isCreator) && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>📧 {game.host_club.contact_email}</p>
+                      {game.host_club.contact_phone && <p>📞 {game.host_club.contact_phone}</p>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
-                        {interest.game_invitations?.description && (
-                          <p className="mt-3 text-sm text-gray-500 line-clamp-2">
-                            {interest.game_invitations.description}
-                          </p>
-                        )}
-                      </div>
+            {(showContactInfo || isCreator) && game.creator && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-2">Contact Person</h3>
+                <div className="bg-blue-50 p-4 rounded">
+                  <p className="font-medium">{game.creator.full_name}</p>
+                  <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
+                  {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
+                </div>
+              </div>
+            )}
 
-                      {/* Actions */}
-                      <div className="ml-4 flex flex-col space-y-2">
-                        <Link
-                          href={`/${locale}/games/${interest.game_invitations?.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          View Details
-                        </Link>
-                        
+            {/* Actions */}
+            <div className="border-t pt-6">
+              {isCreator ? (
+                <div>
+                  <p className="text-green-600 font-medium mb-2">
+                    You created this game. {(game.interested_count || 0) > 0
+                      ? `${game.interested_count || 0} teams have shown interest.`
+                      : 'No teams have shown interest yet.'}
+                  </p>
+                </div>
+              ) : currentUser ? (
+                <div>
+                  {!isInterested && !showMessageForm && (
+                    <button
+                      onClick={() => setShowMessageForm(true)}
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                      I'm Interested
+                    </button>
+                  )}
+
+                  {showMessageForm && !isInterested && (
+                    <div className="space-y-4">
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Add a message (optional)"
+                        className="w-full p-3 border rounded-lg"
+                        rows={3}
+                      />
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => removeInterest(interest.id)}
-                          className="text-red-600 hover:text-red-800 text-sm text-left"
+                          onClick={handleInterest}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
                         >
-                          Remove Interest
+                          Send Interest
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowMessageForm(false);
+                            setMessage('');
+                          }}
+                          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                        >
+                          Cancel
                         </button>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {isInterested && (
+                    <div>
+                      <p className="text-green-600 font-medium mb-2">✅ You've expressed interest in this game</p>
+                      {showContactInfo && (
+                        <p className="text-sm text-gray-600 mb-4">Contact information is now visible to you.</p>
+                      )}
+                      <button
+                        onClick={handleInterest}
+                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                      >
+                        Remove Interest
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Heart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No games interested yet</h3>
-                <p className="text-gray-500 mb-6">Browse available games and show your interest</p>
-                <Link
-                  href={`/${locale}/games`}
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Browse Games
-                </Link>
+              ) : (
+                <div>
+                  <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
+                  <Link
+                    href={`/${locale}/login`}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Rating */}
+            {game.status === 'matched' && currentUser && (isCreator || isInterested) && (
+              <div className="border-t mt-6 pt-6">
+                <h3 className="font-semibold mb-4">Rate This Game</h3>
+                {hasRated ? (
+                  <div className="bg-gray-50 p-4 rounded">
+                    <p className="text-gray-600">✅ You have already rated this game</p>
+                    <div className="mt-2">
+                      <RatingStars rating={userRating} readonly showNumber />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">How was your experience?</label>
+                      <RatingStars rating={tempRating} onChange={setTempRating} size="lg" />
+                    </div>
+
+                    <textarea
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                      placeholder="Share your experience (optional)"
+                      className="w-full p-3 border rounded-lg resize-none"
+                      rows={3}
+                      maxLength={500}
+                    />
+
+                    <button
+                      onClick={handleSubmitRating}
+                      disabled={tempRating === 0}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      Submit Rating
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
