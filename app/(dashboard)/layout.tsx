@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import {useEffect, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText } from 'lucide-react';
+import {usePathname, useRouter} from 'next/navigation';
+import {Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText} from 'lucide-react';
 
+/**
+ * Dashboard shell (top nav + children)
+ * - Derives `locale` from the first URL segment: /{locale}/...
+ * - Localizes all nav links and redirects to `/${locale}/...`
+ */
 export default function DashboardLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
@@ -15,11 +20,14 @@ export default function DashboardLayout({
   const router = useRouter();
   const supabase = createClient();
 
-  // Derive locale from the first path segment: /{locale}/...
+  // Resolve locale from path: ['', '{locale}', ...]
   const locale = (pathname?.split('/')?.[1] || '').trim();
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Build a localized href safely (avoid double slashes)
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   useEffect(() => {
     checkUser();
@@ -29,7 +37,9 @@ export default function DashboardLayout({
     let cleanup: (() => void) | undefined;
 
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       const channel = supabase
@@ -40,7 +50,7 @@ export default function DashboardLayout({
             event: '*',
             schema: 'public',
             table: 'notifications',
-            filter: `user_id=eq.${user.id}`,
+            filter: `user_id=eq.${user.id}`
           },
           () => {
             loadUnreadCount();
@@ -58,23 +68,27 @@ export default function DashboardLayout({
   }, []);
 
   async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {user}
+    } = await supabase.auth.getUser();
     if (user) {
       setUserEmail(user.email || null);
     } else {
-      // Localized redirect to login when no user
-      router.push(`/${locale || ''}/login`.replace('//', '/'));
+      // Localized redirect when unauthenticated
+      router.push(withLocale('/login'));
     }
   }
 
   async function loadUnreadCount() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { count } = await supabase
+      const {count} = await supabase
         .from('notifications')
-        .select('*', { count: 'exact', head: true })
+        .select('*', {count: 'exact', head: true})
         .eq('user_id', user.id)
         .eq('is_read', false);
 
@@ -87,21 +101,18 @@ export default function DashboardLayout({
   async function handleLogout() {
     await supabase.auth.signOut();
     // Localized redirect after logout
-    router.push(`/${locale || ''}/login`.replace('//', '/'));
+    router.push(withLocale('/login'));
   }
 
-  // Define nav items without the locale prefix; we will prepend /{locale}
+  // Define nav items without locale; we prepend it via `withLocale`
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/games', label: 'Games', icon: Trophy },
-    { path: '/my-games', label: 'My Games', icon: FileText },
-    { path: '/rinks', label: 'Rinks', icon: MapPin },
-    { path: '/bookings', label: 'My Bookings', icon: Calendar },
-    { path: '/clubs', label: 'Clubs', icon: Users },
+    {path: '/dashboard', label: 'Dashboard', icon: Home},
+    {path: '/games', label: 'Games', icon: Trophy},
+    {path: '/my-games', label: 'My Games', icon: FileText},
+    {path: '/rinks', label: 'Rinks', icon: MapPin},
+    {path: '/bookings', label: 'My Bookings', icon: Calendar},
+    {path: '/clubs', label: 'Clubs', icon: Users}
   ] as const;
-
-  // Helper to build a localized href
-  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,14 +120,13 @@ export default function DashboardLayout({
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            {/* Logo and main nav */}
+            {/* Logo + Desktop Nav */}
             <div className="flex">
               <Link href={withLocale('/dashboard')} className="flex items-center px-2">
                 <span className="text-2xl">🏒</span>
                 <span className="ml-2 text-xl font-bold text-gray-900">HockeyHub</span>
               </Link>
 
-              {/* Desktop Navigation */}
               <div className="hidden md:ml-8 md:flex md:space-x-4">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -143,7 +153,7 @@ export default function DashboardLayout({
               </div>
             </div>
 
-            {/* Right side */}
+            {/* Right Side */}
             <div className="flex items-center space-x-4">
               {/* Notifications */}
               <Link
@@ -164,9 +174,7 @@ export default function DashboardLayout({
 
               {/* User section */}
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-700 hidden sm:block">
-                  {userEmail}
-                </span>
+                <span className="text-sm text-gray-700 hidden sm:block">{userEmail}</span>
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition"
@@ -186,8 +194,7 @@ export default function DashboardLayout({
               const Icon = item.icon;
               const href = withLocale(item.path);
               const isActive =
-                pathname === href ||
-                (item.path !== '/dashboard' && pathname?.startsWith(href));
+                pathname === href || (item.path !== '/dashboard' && pathname?.startsWith(href));
 
               return (
                 <Link
@@ -208,7 +215,7 @@ export default function DashboardLayout({
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Page Content */}
       <main>{children}</main>
     </div>
   );
