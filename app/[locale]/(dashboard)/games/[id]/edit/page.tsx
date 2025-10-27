@@ -1,10 +1,13 @@
+// app/[locale]/(dashboard)/games/[id]/edit/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
+
+type GameStatus = 'open' | 'matched' | 'cancelled' | 'closed';
 
 interface GameData {
   title: string;
@@ -16,14 +19,14 @@ interface GameData {
   description: string;
   max_players: string;
   contact_info: string;
-  status: string;
+  status: GameStatus;
 }
 
 export default function EditGamePage() {
   const router = useRouter();
   const { locale, id: gameId } = useParams<{ locale: string; id: string }>();
-  const supabase = createClient();
-  
+  const supabase = useMemo(() => createClient(), []);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
@@ -37,23 +40,27 @@ export default function EditGamePage() {
     description: '',
     max_players: '',
     contact_info: '',
-    status: 'open'
+    status: 'open',
   });
 
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
+  // 统一状态：允许 cancelled/closed（二者在不同页面曾用过）
+  const statusOptions: { value: GameStatus; label: string }[] = [
+    { value: 'open',      label: 'Open - Accepting responses' },
+    { value: 'matched',   label: 'Matched - Found opponent' },
+    { value: 'cancelled', label: 'Cancelled - No longer available' },
+    { value: 'closed',    label: 'Closed' },
+  ];
 
-  useEffect(() => {
-    loadGame();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameId]);
+  const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
 
-  async function loadGame() {
+  const loadGame = useCallback(async () => {
     try {
       // Require auth
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        router.push(`/${locale}/login`);
+        router.push(withLocale('/login'));
         return;
       }
 
@@ -66,14 +73,14 @@ export default function EditGamePage() {
 
       if (error || !game) {
         alert('Game not found');
-        router.push(`/${locale}/my-games`);
+        router.push(withLocale('/my-games'));
         return;
       }
 
       // Ownership check
       if (game.created_by !== user.id) {
         alert('You can only edit your own games');
-        router.push(`/${locale}/games/${gameId}`);
+        router.push(withLocale(`/games/${gameId}`));
         return;
       }
 
@@ -88,23 +95,33 @@ export default function EditGamePage() {
         description: game.description || '',
         max_players: game.max_players?.toString() || '',
         contact_info: game.contact_info || '',
-        status: game.status || 'open'
+        status: (game.status as GameStatus) || 'open',
       });
-
-    } catch (error) {
-      console.error('Error loading game:', error);
+    } catch (err) {
+      console.error('Error loading game:', err);
       alert('Failed to load game');
-      router.push(`/${locale}/my-games`);
+      router.push(withLocale('/my-games'));
     } finally {
       setLoading(false);
     }
-  }
+  }, [gameId, router, supabase, withLocale]);
+
+  useEffect(() => {
+    loadGame();
+  }, [loadGame]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
 
     try {
+      // 再做一次鉴权，且在 UPDATE 时附带 created_by 限制，防越权
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push(withLocale('/login'));
+        return;
+      }
+
       const { error } = await supabase
         .from('game_invitations')
         .update({
@@ -115,20 +132,20 @@ export default function EditGamePage() {
           age_group: formData.age_group,
           skill_level: formData.skill_level,
           description: formData.description,
-          max_players: formData.max_players ? parseInt(formData.max_players) : null,
+          max_players: formData.max_players ? parseInt(formData.max_players, 10) : null,
           contact_info: formData.contact_info,
-          status: formData.status
+          status: formData.status,
         })
-        .eq('id', gameId);
+        .eq('id', gameId)
+        .eq('created_by', user.id); // 只更新本人创建的
 
       if (error) throw error;
 
       // Go to details (localized)
-      router.push(`/${locale}/games/${gameId}`);
-      
-    } catch (error: any) {
-      console.error('Error updating game:', error);
-      alert(error.message || 'Failed to update game');
+      router.push(withLocale(`/games/${gameId}`));
+    } catch (err: any) {
+      console.error('Error updating game:', err);
+      alert(err.message || 'Failed to update game');
     } finally {
       setSaving(false);
     }
@@ -137,7 +154,7 @@ export default function EditGamePage() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   }
 
@@ -154,7 +171,7 @@ export default function EditGamePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500">You don't have permission to edit this game</p>
-          <Link href={`/${locale}/my-games`} className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+          <Link href={withLocale('/my-games')} className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
             Back to My Games
           </Link>
         </div>
@@ -168,7 +185,7 @@ export default function EditGamePage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href={`/${locale}/my-games`}
+            href={withLocale('/my-games')}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -192,9 +209,9 @@ export default function EditGamePage() {
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="open">Open - Accepting responses</option>
-              <option value="matched">Matched - Found opponent</option>
-              <option value="cancelled">Cancelled - No longer available</option>
+              {statusOptions.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
             </select>
           </div>
 
@@ -371,7 +388,7 @@ export default function EditGamePage() {
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
             <Link
-              href={`/${locale}/my-games`}
+              href={withLocale('/my-games')}
               className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition flex items-center justify-center gap-2"
             >
               <X className="h-4 w-4" />
