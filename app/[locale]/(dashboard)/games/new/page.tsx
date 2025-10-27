@@ -1,3 +1,4 @@
+// app/[locale]/(dashboard)/games/new/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -32,9 +33,8 @@ export default function CreateGamePage() {
     setLoading(true);
 
     try {
-      // Get current user
+      // Require auth
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         alert('Please login to post a game');
         router.push(`/${locale}/login`);
@@ -64,7 +64,7 @@ export default function CreateGamePage() {
 
       if (error) throw error;
 
-      // Success - redirect to game details (localized)
+      // Localized redirect to game details
       router.push(`/${locale}/games/${data.id}`);
       
     } catch (error: any) {
@@ -82,7 +82,7 @@ export default function CreateGamePage() {
     }));
   }
 
-  // Get tomorrow's date as default
+  // Tomorrow as min date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
