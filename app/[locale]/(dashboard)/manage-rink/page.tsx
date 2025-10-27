@@ -177,7 +177,7 @@ export default function ManageRinkPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
-          <Link href={withLocale('/manage-rink')} className="text-gray-600 hover:underline">
+          <Link href={withLocale('/dashboard')} className="text-gray-600 hover:underline">
             ← Back
           </Link>
         </div>
