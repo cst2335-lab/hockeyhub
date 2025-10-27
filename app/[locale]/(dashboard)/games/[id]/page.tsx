@@ -382,10 +382,10 @@ export default function GameDetailsPage() {
               {isCreator ? (
                 <div>
                   <p className="text-green-600 font-medium mb-2">
-                    You created this game.{' '}
+                    You created this game{' '}
                     {(game.interested_count || 0) > 0
-                      ? `${game.interested_count || 0} teams have shown interest.`
-                      : 'No teams have shown interest yet.'}
+                      ? `— ${game.interested_count || 0} teams have shown interest.`
+                      : '— No teams have shown interest yet.'}
                   </p>
                 </div>
               ) : currentUser ? (
