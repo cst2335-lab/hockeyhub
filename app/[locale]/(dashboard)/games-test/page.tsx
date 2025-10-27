@@ -1,116 +1,115 @@
+// app/[locale]/(dashboard)/games-test/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {useParams, useRouter} from 'next/navigation';
+import Link from 'next/link';
+
+type Game = {
+  id: string;
+  title: string | null;
+  game_date: string | null; // yyyy-mm-dd
+  game_time: string | null; // HH:mm
+  age_group: string | null;
+  skill_level: string | null;
+  status: string | null;
+  view_count?: number | null;
+  interested_count?: number | null;
+};
 
 export default function GamesTestPage() {
-  const [data, setData] = useState<any>(null);
+  const {locale} = useParams<{locale: string}>();
+  const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
+
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
 
-  useEffect(() => {
-    testDatabase();
-  }, []);
+  const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
 
-  async function testDatabase() {
-    console.log('=== GAMES TEST PAGE LOADED ===');
-    console.log('Time:', new Date().toISOString());
-    
-    const supabase = createClient();
-    
+  const load = useCallback(async () => {
     try {
-      // Test 1: Basic query
-      console.log('Test 1: Basic query...');
-      const { data: games, error: gamesError } = await supabase
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user) {
+        router.push(withLocale('/login'));
+        return;
+      }
+
+      // 这里作为“测试页”，取最近 30 天内创建的 invitation 做演示
+      const {data, error} = await supabase
         .from('game_invitations')
-        .select('id, title, status, game_date')
-        .limit(10);
-      
-      console.log('Query result:', { games, gamesError });
-      
-      // Test 2: Count
-      const { count, error: countError } = await supabase
-        .from('game_invitations')
-        .select('*', { count: 'exact', head: true });
-      
-      console.log('Total count:', { count, countError });
-      
-      // Test 3: Open games
-      const { data: openGames, error: openError } = await supabase
-        .from('game_invitations')
-        .select('*')
-        .eq('status', 'open');
-      
-      console.log('Open games:', { openGames: openGames?.length, openError });
-      
-      setData({
-        allGames: games,
-        totalCount: count,
-        openGames: openGames,
-        errors: {
-          games: gamesError,
-          count: countError,
-          open: openError
-        }
-      });
-      
-    } catch (err: any) {
-      console.error('Test failed:', err);
-      setError(err);
+        .select('id,title,game_date,game_time,age_group,skill_level,status,view_count,interested_count')
+        .order('created_at', {ascending: false})
+        .limit(20);
+
+      if (error) throw error;
+      setGames(data || []);
+    } catch (e) {
+      console.error('load games-test error:', e);
+      setGames([]);
     } finally {
       setLoading(false);
     }
+  }, [router, supabase, withLocale]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
   }
 
-  if (loading) return <div className="p-8">Loading test...</div>;
-  
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Database Test Page</h1>
-      
-      <div className="bg-gray-100 p-4 rounded mb-4">
-        <p className="font-mono text-sm">Check browser console for detailed logs</p>
-        <p className="text-xs text-gray-500 mt-2">Page loaded at: {new Date().toISOString()}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Games Test</h1>
+        <Link
+          href={withLocale('/games/new')}
+          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Post a Game
+        </Link>
       </div>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-bold">Error:</p>
-          <pre className="text-xs">{JSON.stringify(error, null, 2)}</pre>
+
+      {games.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <p className="text-gray-600">No sample data yet.</p>
+          <p className="text-gray-500 mt-1">Try posting a game, then refresh this page.</p>
         </div>
-      )}
-      
-      {data && (
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded shadow">
-            <h2 className="font-bold mb-2">Results:</h2>
-            <ul className="space-y-2 text-sm">
-              <li>Total games in DB: <span className="font-mono">{data.totalCount || 0}</span></li>
-              <li>Games returned: <span className="font-mono">{data.allGames?.length || 0}</span></li>
-              <li>Open games: <span className="font-mono">{data.openGames?.length || 0}</span></li>
-            </ul>
-          </div>
-          
-          {data.openGames && data.openGames.length > 0 && (
-            <div className="bg-white p-4 rounded shadow">
-              <h2 className="font-bold mb-2">Open Games:</h2>
-              <div className="space-y-2">
-                {data.openGames.map((game: any) => (
-                  <div key={game.id} className="border-l-4 border-blue-500 pl-4 py-2">
-                    <p className="font-semibold">{game.title || 'No title'}</p>
-                    <p className="text-sm text-gray-600">
-                      {game.game_date} | {game.age_group} - {game.skill_level}
-                    </p>
+      ) : (
+        <div className="grid gap-4">
+          {games.map((g) => (
+            <Link
+              key={g.id}
+              href={withLocale(`/games/${g.id}`)}
+              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{g.title || 'Untitled Game'}</h3>
+                  <p className="text-gray-600 mt-1">
+                    📅 {g.game_date || 'TBD'} ⏰ {g.game_time || 'TBD'}
+                  </p>
+                  <p className="text-gray-600">
+                    {g.age_group || 'Age?'} · {g.skill_level || 'Level?'}
+                  </p>
+                </div>
+                <div className="text-right text-sm text-gray-600">
+                  <div>👁 {g.view_count ?? 0}</div>
+                  <div>❤️ {g.interested_count ?? 0}</div>
+                  <div className="mt-1 inline-block px-2 py-0.5 rounded bg-gray-100">
+                    {g.status ?? 'open'}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          )}
-          
-          <details className="bg-white p-4 rounded shadow">
-            <summary className="cursor-pointer font-bold">Raw Data (click to expand)</summary>
-            <pre className="text-xs mt-4 overflow-auto">{JSON.stringify(data, null, 2)}</pre>
-          </details>
+            </Link>
+          ))}
         </div>
       )}
     </div>
