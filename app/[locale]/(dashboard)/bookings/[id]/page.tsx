@@ -1,71 +1,91 @@
-'use client'
+// app/[locale]/(dashboard)/bookings/[id]/page.tsx
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter, useParams } from 'next/navigation'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import {useState, useEffect, useCallback} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {useRouter, useParams} from 'next/navigation';
+import {formatCurrency, formatDate} from '@/lib/utils/format';
 
 /**
  * Booking detail page
  * - Read params via useParams() to get locale and id.
+ * - Require auth: unauthenticated users are redirected to /{locale}/login.
+ * - Only allow the owner to read the booking (filter by user_id).
  * - Wrap data loader with useCallback to satisfy exhaustive-deps.
  */
 export default function BookingDetailPage() {
-  const [booking, setBooking] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const router = useRouter()
-  const { locale, id: bookingId } = useParams<{ locale: string; id: string }>()
+  const router = useRouter();
+  const {locale, id: bookingId} = useParams<{locale: string; id: string}>();
 
   const fetchBookingDetail = useCallback(async () => {
-    if (!bookingId) return
-    const supabase = createClient()
-    const { data, error } = await supabase
+    if (!bookingId) return;
+
+    const supabase = createClient();
+
+    // Auth check: redirect to localized login if no user
+    const {
+      data: {user}
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push(`/${locale}/login`);
+      setLoading(false);
+      return;
+    }
+
+    // Fetch booking that belongs to the current user
+    const {data, error} = await supabase
       .from('bookings')
-      .select(`
+      .select(
+        `
         *,
         rinks (name, address, phone, hourly_rate)
-      `)
+      `
+      )
       .eq('id', bookingId)
-      .single()
+      .eq('user_id', user.id)
+      .single();
 
-    if (error) {
-      console.error('Error fetching booking:', error)
-      router.push(`/${locale}/bookings`)
+    if (error || !data) {
+      console.error('Error fetching booking:', error);
+      router.push(`/${locale}/bookings`);
     } else {
-      setBooking(data)
+      setBooking(data);
     }
-    setLoading(false)
-  }, [bookingId, locale, router])
+    setLoading(false);
+  }, [bookingId, locale, router]);
 
   useEffect(() => {
-    fetchBookingDetail()
-  }, [fetchBookingDetail])
+    fetchBookingDetail();
+  }, [fetchBookingDetail]);
 
   const handleCancel = async () => {
-    if (!bookingId) return
-    if (!confirm('Are you sure you want to cancel this booking?')) return
+    if (!bookingId) return;
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
 
-    const supabase = createClient()
-    const { error } = await supabase
+    const supabase = createClient();
+    const {error} = await supabase
       .from('bookings')
-      .update({ status: 'cancelled' })
-      .eq('id', bookingId)
+      .update({status: 'cancelled'})
+      .eq('id', bookingId);
 
     if (error) {
-      console.error('Cancel failed:', error)
-      return
+      console.error('Cancel failed:', error);
+      return;
     }
-    alert('Booking cancelled successfully')
-    router.push(`/${locale}/bookings`)
-  }
+    alert('Booking cancelled successfully');
+    router.push(`/${locale}/bookings`);
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
-    )
+    );
   }
 
   if (!booking) {
@@ -73,16 +93,16 @@ export default function BookingDetailPage() {
       <div className="container mx-auto p-8">
         <p>Booking not found</p>
       </div>
-    )
+    );
   }
 
   const statusColors: Record<string, string> = {
     confirmed: 'bg-green-100 text-green-800',
     pending: 'bg-yellow-100 text-yellow-800',
     cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-gray-100 text-gray-800',
-  }
-  const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800'
+    completed: 'bg-gray-100 text-gray-800'
+  };
+  const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800';
 
   return (
     <div className="container mx-auto p-8">
@@ -99,9 +119,7 @@ export default function BookingDetailPage() {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{booking.rinks?.name}</h1>
-            <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>
-              {booking.status}
-            </span>
+            <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>{booking.status}</span>
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold text-blue-600">{formatCurrency(booking.total)}</p>
@@ -123,7 +141,9 @@ export default function BookingDetailPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Time</p>
-                <p className="font-medium">{booking.start_time} - {booking.end_time}</p>
+                <p className="font-medium">
+                  {booking.start_time} - {booking.end_time}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Duration</p>
@@ -157,7 +177,9 @@ export default function BookingDetailPage() {
           <h2 className="text-xl font-semibold mb-4">Price Breakdown</h2>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span>Ice Time ({booking.hours} hours × {formatCurrency(booking.rinks?.hourly_rate)})</span>
+              <span>
+                Ice Time ({booking.hours} hours × {formatCurrency(booking.rinks?.hourly_rate)})
+              </span>
               <span>{formatCurrency(booking.subtotal)}</span>
             </div>
             <div className="flex justify-between">
@@ -183,5 +205,5 @@ export default function BookingDetailPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
