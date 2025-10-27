@@ -1,96 +1,122 @@
-'use client'
+//app/[locale]/(dashboard)/book/[rinkId]/page.tsx
+'use client';
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter, useParams } from 'next/navigation'
+import {useState, useEffect, useMemo, useCallback} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {useRouter, useParams} from 'next/navigation';
 
 export default function BookRinkPage() {
-  const router = useRouter()
+  const router = useRouter();
   // Read locale and rinkId from URL params (client-side)
-  const { locale, rinkId } = useParams<{ locale: string; rinkId: string }>()
-  
-  const [rink, setRink] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  
+  const { locale, rinkId } = useParams<{ locale: string; rinkId: string }>();
+
+  const supabase = useMemo(() => createClient(), []);
+
+  const [rink, setRink] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   // Form fields
-  const [bookingDate, setBookingDate] = useState('')
-  const [startTime, setStartTime] = useState('')
-  const [hours, setHours] = useState(1)
+  const [bookingDate, setBookingDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [hours, setHours] = useState<number>(1);
 
-  useEffect(() => {
-    fetchRink()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rinkId])
+  // locale-aware link helper
+  const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
 
-  const fetchRink = async () => {
-    const supabase = createClient()
+  const fetchRink = useCallback(async () => {
+    if (!rinkId) return;
     const { data, error } = await supabase
       .from('rinks')
       .select('*')
       .eq('id', rinkId)
-      .single()
-    
-    if (data) {
-      setRink(data)
-    } else if (error) {
-      console.error('Error fetching rink:', error)
+      .single();
+
+    if (error) {
+      console.error('Error fetching rink:', error);
+      setRink(null);
+    } else {
+      setRink(data);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  }, [rinkId, supabase]);
+
+  useEffect(() => {
+    fetchRink();
+  }, [fetchRink]);
+
+  // pad hour/minute to HH:mm
+  const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+
+  const calcEndTime = (start: string, durHours: number) => {
+    // start expected "HH:mm"
+    const [hStr = '0', mStr = '00'] = start.split(':');
+    const h = Math.max(0, Math.min(23, parseInt(hStr, 10) || 0));
+    const m = Math.max(0, Math.min(59, parseInt(mStr, 10) || 0));
+    // simple wraparound by 24h
+    const endH = (h + Math.max(1, durHours)) % 24;
+    return `${pad2(endH)}:${pad2(m)}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      // Localized redirect to login
-      router.push(`/${locale}/login`)
-      setSubmitting(false)
-      return
-    }
+    e.preventDefault();
+    setSubmitting(true);
 
-    const hourlyRate = rink?.hourly_rate || 150
-    const subtotal = hourlyRate * hours
-    const platformFee = subtotal * 0.08
-    const total = subtotal + platformFee
-    const endHour = parseInt(startTime.split(':')[0]) + hours
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from('bookings')
-      .insert({
+      if (!user) {
+        // Localized redirect to login
+        router.push(withLocale('/login'));
+        return;
+      }
+
+      if (!bookingDate || !startTime || !hours) {
+        alert('Please fill date, start time and duration.');
+        return;
+      }
+
+      const hourlyRate: number = typeof rink?.hourly_rate === 'number'
+        ? rink.hourly_rate
+        : Number(rink?.hourly_rate) || 150;
+
+      const subtotal = hourlyRate * hours;
+      const platformFee = +(subtotal * 0.08).toFixed(2);
+      const total = +(subtotal + platformFee).toFixed(2);
+      const endTime = calcEndTime(startTime, hours);
+
+      const { error } = await supabase.from('bookings').insert({
         user_id: user.id,
         rink_id: rinkId,
-        booking_date: bookingDate,
-        start_time: startTime,
-        end_time: `${endHour}:00`,
-        hours: hours,
-        subtotal: subtotal,
-        platform_fee: platformFee.toFixed(2),
-        total: total.toFixed(2),
-        status: 'pending'
-      })
+        booking_date: bookingDate, // yyyy-mm-dd
+        start_time: startTime,     // HH:mm
+        end_time: endTime,         // HH:mm
+        hours,
+        subtotal,
+        platform_fee: platformFee,
+        total,
+        status: 'pending',
+      });
 
-    if (!error) {
-      alert('Booking created successfully! Redirecting to your bookings...')
+      if (error) throw error;
+
+      alert('Booking created successfully! Redirecting to your bookings...');
       // Localized redirect to bookings
-      router.push(`/${locale}/bookings`)
-    } else {
-      console.error('Booking error:', error)
-      alert('Failed to create booking. Please try again.')
+      router.push(withLocale('/bookings'));
+    } catch (err) {
+      console.error('Booking error:', err);
+      alert('Failed to create booking. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false)
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
-    )
+    );
   }
 
   if (!rink) {
@@ -98,21 +124,24 @@ export default function BookRinkPage() {
       <div className="container mx-auto p-8">
         <p>Rink not found</p>
       </div>
-    )
+    );
   }
 
-  const hourlyRate = rink.hourly_rate || 150
-  const subtotal = hourlyRate * hours
-  const platformFee = subtotal * 0.08
-  const total = subtotal + platformFee
+  const hourlyRate: number = typeof rink.hourly_rate === 'number'
+    ? rink.hourly_rate
+    : Number(rink.hourly_rate) || 150;
+
+  const subtotal = hourlyRate * hours;
+  const platformFee = +(subtotal * 0.08).toFixed(2);
+  const total = +(subtotal + platformFee).toFixed(2);
 
   // Today's date for min attribute
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">Book {rink.name}</h1>
-      
+
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Rink Details</h2>
         <p className="text-gray-600">{rink.address}</p>
@@ -122,7 +151,7 @@ export default function BookRinkPage() {
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Booking Information</h2>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -149,9 +178,9 @@ export default function BookRinkPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select time</option>
-              {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map(hour => (
-                <option key={hour} value={`${hour}:00`}>
-                  {hour}:00
+              {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map((hour) => (
+                <option key={hour} value={`${pad2(hour)}:00`}>
+                  {pad2(hour)}:00
                 </option>
               ))}
             </select>
@@ -163,11 +192,13 @@ export default function BookRinkPage() {
             </label>
             <select
               value={hours}
-              onChange={(e) => setHours(parseInt(e.target.value))}
+              onChange={(e) => setHours(parseInt(e.target.value, 10))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              {[1,2,3,4].map(h => (
-                <option key={h} value={h}>{h} hour{h > 1 ? 's' : ''}</option>
+              {[1,2,3,4].map((h) => (
+                <option key={h} value={h}>
+                  {h} hour{h > 1 ? 's' : ''}
+                </option>
               ))}
             </select>
           </div>
@@ -200,5 +231,5 @@ export default function BookRinkPage() {
         </div>
       </form>
     </div>
-  )
+  );
 }
