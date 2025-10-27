@@ -1,19 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-import { 
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Trophy, 
+import {useEffect, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {User} from '@supabase/supabase-js';
+import {useRouter, useParams} from 'next/navigation';
+import {
+  User as UserIcon,
+  Mail,
+  Phone,
+  MapPin,
+  Trophy,
   Calendar,
   Shield,
   Target,
-  Hash,
   Edit2,
   AlertCircle
 } from 'lucide-react';
@@ -35,6 +34,9 @@ interface Profile {
 }
 
 export default function ProfilePage() {
+  // Read locale from the URL segment: /{locale}/...
+  const {locale} = useParams<{locale: string}>();
+
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,110 +46,94 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function getProfile() {
     try {
       setError(null);
-      
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error('User error:', userError);
-        throw userError;
-      }
-      
+      const {
+        data: {user},
+        error: userError
+      } = await supabase.auth.getUser();
+
+      if (userError) throw userError;
+
       if (!user) {
-        router.push('/login');
+        // Localized login redirect
+        router.push(`/${locale}/login`);
         return;
       }
 
       setUser(user);
-      console.log('Current user:', user.id, user.email);
 
-      // Try to get profile
-      const { data: profileData, error: profileError } = await supabase
+      const {data: profileData, error: profileError} = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      console.log('Profile query result:', { profileData, profileError });
+      // Create a profile row if not found
+      if (profileError && (profileError as any).code === 'PGRST116') {
+        const fallbackName =
+          user.user_metadata?.full_name ||
+          user.email?.split('@')[0] ||
+          'Hockey Player';
 
-      // If profile doesn't exist, create it
-      if (profileError && profileError.code === 'PGRST116') {
-        console.log('Profile not found, creating new profile...');
-        
-        const { data: newProfile, error: insertError } = await supabase
+        const {data: newProfile, error: insertError} = await supabase
           .from('profiles')
-          .insert([
-            {
-              id: user.id,
-              full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hockey Player',
-              email: user.email
-            }
-          ])
+          .insert([{id: user.id, full_name: fallbackName, email: user.email}])
           .select()
           .single();
 
         if (insertError) {
-          console.error('Insert error:', insertError);
-          // Try upsert as fallback
-          const { data: upsertProfile, error: upsertError } = await supabase
+          // Fallback to upsert
+          const {data: upsertProfile, error: upsertError} = await supabase
             .from('profiles')
-            .upsert({
-              id: user.id,
-              full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Hockey Player',
-              email: user.email
-            })
+            .upsert({id: user.id, full_name: fallbackName, email: user.email})
             .select()
             .single();
 
-          if (upsertError) {
-            console.error('Upsert error:', upsertError);
-            throw upsertError;
-          } else {
-            setProfile(upsertProfile);
-          }
+          if (upsertError) throw upsertError;
+          setProfile(upsertProfile);
         } else {
           setProfile(newProfile);
         }
       } else if (profileError) {
-        console.error('Profile query error:', profileError);
         throw profileError;
       } else {
         setProfile(profileData);
       }
     } catch (error: any) {
-      console.error('Error in getProfile:', error);
       setError(error.message || 'Failed to load profile');
     } finally {
       setLoading(false);
     }
   }
 
-  // Function to get badge color based on skill level
   const getSkillLevelColor = (level: string) => {
     const colors: Record<string, string> = {
-      'AAA': 'bg-purple-100 text-purple-800',
-      'AA': 'bg-indigo-100 text-indigo-800',
-      'A': 'bg-blue-100 text-blue-800',
-      'B': 'bg-green-100 text-green-800',
-      'C': 'bg-yellow-100 text-yellow-800',
+      AAA: 'bg-purple-100 text-purple-800',
+      AA: 'bg-indigo-100 text-indigo-800',
+      A: 'bg-blue-100 text-blue-800',
+      B: 'bg-green-100 text-green-800',
+      C: 'bg-yellow-100 text-yellow-800',
       'House League': 'bg-orange-100 text-orange-800',
-      'Beginner': 'bg-gray-100 text-gray-800'
+      Beginner: 'bg-gray-100 text-gray-800'
     };
     return colors[level] || 'bg-gray-100 text-gray-800';
   };
 
-  // Function to get position icon
   const getPositionIcon = (position: string) => {
-    switch(position) {
-      case 'Forward': return '⚡';
-      case 'Defense': return '🛡️';
-      case 'Goalie': return '🥅';
-      default: return '🏒';
+    switch (position) {
+      case 'Forward':
+        return '⚡';
+      case 'Defense':
+        return '🛡️';
+      case 'Goalie':
+        return '🥅';
+      default:
+        return '🏒';
     }
   };
 
@@ -197,13 +183,13 @@ export default function ProfilePage() {
     );
   }
 
-  // Check if profile is incomplete (new user)
-  const isIncomplete = !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
+  const isIncomplete =
+    !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Alert for incomplete profile */}
+        {/* Incomplete profile alert */}
         {isIncomplete && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex">
@@ -216,7 +202,7 @@ export default function ProfilePage() {
                   Add your hockey details to find better game matches and connect with other players.
                 </p>
                 <button
-                  onClick={() => router.push('/profile/edit')}
+                  onClick={() => router.push(`/${locale}/profile/edit`)}
                   className="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900 underline"
                 >
                   Complete now →
@@ -226,12 +212,10 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Header Card */}
+        {/* Header card */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-          {/* Cover Image */}
           <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-          
-          {/* Profile Header */}
+
           <div className="relative px-6 pb-6">
             {/* Avatar */}
             <div className="absolute -top-12 left-6">
@@ -240,10 +224,10 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Edit Button */}
+            {/* Edit button */}
             <div className="flex justify-end pt-4">
               <button
-                onClick={() => router.push('/profile/edit')}
+                onClick={() => router.push(`/${locale}/profile/edit`)}
                 className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 <Edit2 className="h-4 w-4" />
@@ -251,13 +235,12 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Name and Basic Info */}
+            {/* Name and badges */}
             <div className="mt-4">
               <h1 className="text-3xl font-bold text-gray-900">
                 {profile.full_name || 'Hockey Player'}
               </h1>
-              
-              {/* Quick Stats Badges */}
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.age_group && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
@@ -265,7 +248,11 @@ export default function ProfilePage() {
                   </span>
                 )}
                 {profile.skill_level && (
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSkillLevelColor(profile.skill_level)}`}>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSkillLevelColor(
+                      profile.skill_level
+                    )}`}
+                  >
                     {profile.skill_level}
                   </span>
                 )}
@@ -284,9 +271,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Details Cards */}
+        {/* Details */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Contact Information */}
+          {/* Contact */}
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
             <div className="space-y-3">
@@ -309,7 +296,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Hockey Details */}
+          {/* Hockey profile */}
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Hockey Profile</h2>
             <div className="space-y-3">
@@ -353,7 +340,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats Preview */}
+        {/* Stats preview (placeholder) */}
         <div className="mt-6 bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
