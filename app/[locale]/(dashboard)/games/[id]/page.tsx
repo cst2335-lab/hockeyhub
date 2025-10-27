@@ -1,17 +1,17 @@
 'use client';
 
-import {useEffect, useMemo, useState, useCallback} from 'react';
-import {createClient} from '@/lib/supabase/client';
-import {useParams, useRouter} from 'next/navigation';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
-import {ArrowLeft} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 type Game = {
   id: string;
   title: string;
-  game_date: string;     // ISO date (yyyy-mm-dd)
-  game_time: string;     // HH:mm
+  game_date: string; // ISO (yyyy-mm-dd)
+  game_time: string; // HH:mm
   age_group: string;
   skill_level: string;
   description: string | null;
@@ -23,15 +23,14 @@ type Game = {
   view_count?: number | null;
   interested_count?: number | null;
   created_at: string;
-  // Expanded fields (hydrated below)
-  creator?: {full_name: string; email: string; phone: string | null};
-  host_club?: {name: string; contact_email: string | null; contact_phone: string | null};
-  rink?: {name: string; address: string | null; phone: string | null};
+  creator?: { full_name: string; email: string; phone: string | null };
+  host_club?: { name: string; contact_email: string | null; contact_phone: string | null };
+  rink?: { name: string; address: string | null; phone: string | null };
 };
 
 export default function GameDetailsPage() {
   const router = useRouter();
-  const {locale, id} = useParams<{locale: string; id: string}>();
+  const { locale, id } = useParams<{ locale: string; id: string }>();
   const supabase = useMemo(() => createClient(), []);
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,19 +48,18 @@ export default function GameDetailsPage() {
   const [tempRating, setTempRating] = useState(0);
   const [ratingComment, setRatingComment] = useState('');
 
-  // Helper to build a locale-prefixed path
+  // locale helper
   const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
 
   const isCreator = currentUser && game ? currentUser.id === game.created_by : false;
 
   const loadGameDetails = useCallback(async () => {
     try {
-      // Auth (optional: viewing is allowed for anonymous)
-      const {data: auth} = await supabase.auth.getUser();
+      const { data: auth } = await supabase.auth.getUser();
       setCurrentUser(auth.user || null);
 
-      // Base game
-      const {data: g, error: gameError} = await supabase
+      // base game
+      const { data: g, error: gameError } = await supabase
         .from('game_invitations')
         .select('*')
         .eq('id', id)
@@ -73,9 +71,9 @@ export default function GameDetailsPage() {
         return;
       }
 
-      // Hydrate creator
+      // hydrate creator
       if (g.created_by) {
-        const {data: creator} = await supabase
+        const { data: creator } = await supabase
           .from('profiles')
           .select('full_name, email, phone')
           .eq('id', g.created_by)
@@ -83,9 +81,9 @@ export default function GameDetailsPage() {
         if (creator) g.creator = creator;
       }
 
-      // Hydrate host club
+      // hydrate club
       if (g.host_club_id) {
-        const {data: club} = await supabase
+        const { data: club } = await supabase
           .from('clubs')
           .select('name, contact_email, contact_phone')
           .eq('id', g.host_club_id)
@@ -93,9 +91,9 @@ export default function GameDetailsPage() {
         if (club) g.host_club = club;
       }
 
-      // Hydrate rink
+      // hydrate rink
       if (g.rink_id) {
-        const {data: rink} = await supabase
+        const { data: rink } = await supabase
           .from('rinks')
           .select('name, address, phone')
           .eq('id', g.rink_id)
@@ -105,15 +103,15 @@ export default function GameDetailsPage() {
 
       setGame(g);
 
-      // Interest + rating status (only for logged-in users)
+      // interest + rating (for logged-in)
       if (auth.user) {
-        // Interest
-        const {data: interest} = await supabase
+        const { data: interest } = await supabase
           .from('game_interests')
           .select('*')
           .eq('game_id', id)
           .eq('user_id', auth.user.id)
           .maybeSingle();
+
         if (interest) {
           setIsInterested(true);
           if (interest.status === 'accepted') setShowContactInfo(true);
@@ -122,14 +120,14 @@ export default function GameDetailsPage() {
           setShowContactInfo(false);
         }
 
-        // Rating (only when matched)
         if (g.status === 'matched') {
-          const {data: rating} = await supabase
+          const { data: rating } = await supabase
             .from('game_ratings')
             .select('*')
             .eq('game_id', id)
             .eq('rater_id', auth.user.id)
             .maybeSingle();
+
           if (rating) {
             setHasRated(true);
             setUserRating(rating.rating);
@@ -143,12 +141,9 @@ export default function GameDetailsPage() {
         }
       }
 
-      // Increment view count for non-creator users
+      // increment views (only non-creator & logged-in)
       if (auth.user && g.created_by !== auth.user.id) {
-        await supabase
-          .from('game_invitations')
-          .update({view_count: (g.view_count || 0) + 1})
-          .eq('id', id);
+        await supabase.from('game_invitations').update({ view_count: (g.view_count || 0) + 1 }).eq('id', id);
       }
     } catch (e) {
       console.error('loadGameDetails error:', e);
@@ -161,7 +156,7 @@ export default function GameDetailsPage() {
     loadGameDetails();
   }, [loadGameDetails]);
 
-  // Express or remove interest
+  // interest toggle
   const handleInterest = useCallback(async () => {
     if (!currentUser) {
       router.push(withLocale('/login'));
@@ -169,8 +164,7 @@ export default function GameDetailsPage() {
     }
     try {
       if (!isInterested) {
-        // Add interest
-        const {error} = await supabase.from('game_interests').insert({
+        const { error } = await supabase.from('game_interests').insert({
           game_id: id,
           user_id: currentUser.id,
           message,
@@ -185,12 +179,11 @@ export default function GameDetailsPage() {
         if (game) {
           await supabase
             .from('game_invitations')
-            .update({interested_count: (game.interested_count || 0) + 1})
+            .update({ interested_count: (game.interested_count || 0) + 1 })
             .eq('id', id);
         }
       } else {
-        // Remove interest
-        const {error} = await supabase
+        const { error } = await supabase
           .from('game_interests')
           .delete()
           .eq('game_id', id)
@@ -203,26 +196,25 @@ export default function GameDetailsPage() {
         if (game) {
           await supabase
             .from('game_invitations')
-            .update({interested_count: Math.max((game.interested_count || 0) - 1, 0)})
+            .update({ interested_count: Math.max((game.interested_count || 0) - 1, 0) })
             .eq('id', id);
         }
       }
-      // Refresh hydrated values
+      // refresh hydrated state
       loadGameDetails();
     } catch (e) {
       console.error('handleInterest error:', e);
     }
   }, [currentUser, game, id, isInterested, message, router, supabase, withLocale, loadGameDetails]);
 
-  // Submit rating once the game is matched
+  // submit rating
   const handleSubmitRating = useCallback(async () => {
     if (!currentUser || !game || tempRating === 0) return;
 
     try {
-      // Find opponent user id
       let opponentId: string | null = null;
       if (isCreator) {
-        const {data} = await supabase
+        const { data } = await supabase
           .from('game_interests')
           .select('user_id')
           .eq('game_id', id)
@@ -236,7 +228,7 @@ export default function GameDetailsPage() {
         return;
       }
 
-      const {error} = await supabase.from('game_ratings').insert({
+      const { error } = await supabase.from('game_ratings').insert({
         game_id: id,
         rater_id: currentUser.id,
         rated_user_id: opponentId,
@@ -248,8 +240,7 @@ export default function GameDetailsPage() {
       setHasRated(true);
       setUserRating(tempRating);
 
-      // Update rated user's average
-      const {data: ratings} = await supabase
+      const { data: ratings } = await supabase
         .from('game_ratings')
         .select('rating')
         .eq('rated_user_id', opponentId);
@@ -258,7 +249,7 @@ export default function GameDetailsPage() {
         const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
         await supabase
           .from('profiles')
-          .update({average_rating: avg, total_ratings: ratings.length})
+          .update({ average_rating: avg, total_ratings: ratings.length })
           .eq('id', opponentId);
       }
 
@@ -296,10 +287,7 @@ export default function GameDetailsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
-        <Link
-          href={withLocale('/games')}
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
-        >
+        <Link href={withLocale('/games')} className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Games
         </Link>
@@ -323,12 +311,8 @@ export default function GameDetailsPage() {
               <div>
                 <h3 className="font-semibold mb-2">Game Details</h3>
                 <div className="space-y-2 text-gray-700">
-                  <p>
-                    <strong>Age Group:</strong> {game.age_group}
-                  </p>
-                  <p>
-                    <strong>Skill Level:</strong> {game.skill_level}
-                  </p>
+                  <p><strong>Age Group:</strong> {game.age_group}</p>
+                  <p><strong>Skill Level:</strong> {game.skill_level}</p>
                   <p>
                     <strong>Status:</strong>
                     <span
@@ -351,9 +335,7 @@ export default function GameDetailsPage() {
                 <div className="space-y-2 text-gray-700">
                   {game.rink && (
                     <>
-                      <p>
-                        <strong>{game.rink.name}</strong>
-                      </p>
+                      <p><strong>{game.rink.name}</strong></p>
                       <p>{game.rink.address}</p>
                       {game.rink.phone && <p>📞 {game.rink.phone}</p>}
                     </>
@@ -390,9 +372,7 @@ export default function GameDetailsPage() {
                 <div className="bg-blue-50 p-4 rounded">
                   <p className="font-medium">{game.creator.full_name}</p>
                   <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
-                  {game.creator.phone && (
-                    <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>
-                  )}
+                  {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
                 </div>
               </div>
             )}
@@ -450,13 +430,9 @@ export default function GameDetailsPage() {
 
                   {isInterested && (
                     <div>
-                      <p className="text-green-600 font-medium mb-2">
-                        ✅ You've expressed interest in this game
-                      </p>
+                      <p className="text-green-600 font-medium mb-2">✅ You've expressed interest in this game</p>
                       {showContactInfo && (
-                        <p className="text-sm text-gray-600 mb-4">
-                          Contact information is now visible to you.
-                        </p>
+                        <p className="text-sm text-gray-600 mb-4">Contact information is now visible to you.</p>
                       )}
                       <button
                         onClick={handleInterest}
@@ -494,9 +470,7 @@ export default function GameDetailsPage() {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">
-                        How was your experience?
-                      </label>
+                      <label className="block text-sm font-medium mb-2">How was your experience?</label>
                       <RatingStars rating={tempRating} onChange={setTempRating} size="lg" />
                     </div>
 
