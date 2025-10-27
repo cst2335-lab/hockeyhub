@@ -1,4 +1,4 @@
-//app/[locale]/(dashboard)/book/[rinkId]/page.tsx
+// app/[locale]/(dashboard)/book/[rinkId]/page.tsx
 'use client';
 
 import {useState, useEffect, useMemo, useCallback} from 'react';
@@ -68,17 +68,20 @@ export default function BookRinkPage() {
       if (!user) {
         // Localized redirect to login
         router.push(withLocale('/login'));
+        setSubmitting(false);
         return;
       }
 
       if (!bookingDate || !startTime || !hours) {
         alert('Please fill date, start time and duration.');
+        setSubmitting(false);
         return;
       }
 
-      const hourlyRate: number = typeof rink?.hourly_rate === 'number'
-        ? rink.hourly_rate
-        : Number(rink?.hourly_rate) || 150;
+      const hourlyRate: number =
+        typeof rink?.hourly_rate === 'number'
+          ? rink.hourly_rate
+          : Number(rink?.hourly_rate) || 150;
 
       const subtotal = hourlyRate * hours;
       const platformFee = +(subtotal * 0.08).toFixed(2);
@@ -106,7 +109,6 @@ export default function BookRinkPage() {
     } catch (err) {
       console.error('Booking error:', err);
       alert('Failed to create booking. Please try again.');
-    } finally {
       setSubmitting(false);
     }
   };
@@ -127,9 +129,10 @@ export default function BookRinkPage() {
     );
   }
 
-  const hourlyRate: number = typeof rink.hourly_rate === 'number'
-    ? rink.hourly_rate
-    : Number(rink.hourly_rate) || 150;
+  const hourlyRate: number =
+    typeof rink.hourly_rate === 'number'
+      ? rink.hourly_rate
+      : Number(rink.hourly_rate) || 150;
 
   const subtotal = hourlyRate * hours;
   const platformFee = +(subtotal * 0.08).toFixed(2);
