@@ -1,7 +1,7 @@
 // app/[locale]/(dashboard)/bookings/[id]/page.tsx
 'use client';
 
-import {useState, useEffect, useCallback} from 'react';
+import {useState, useEffect, useCallback, useMemo} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams} from 'next/navigation';
 import {formatCurrency, formatDate} from '@/lib/utils/format';
@@ -14,36 +14,38 @@ import {formatCurrency, formatDate} from '@/lib/utils/format';
  * - Wrap data loader with useCallback to satisfy exhaustive-deps.
  */
 export default function BookingDetailPage() {
+  const router = useRouter();
+  const { locale, id: bookingId } = useParams<{ locale: string; id: string }>();
+
+  const supabase = useMemo(() => createClient(), []);
+  const withLocale = useCallback(
+    (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
+    [locale]
+  );
+
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
-  const {locale, id: bookingId} = useParams<{locale: string; id: string}>();
 
   const fetchBookingDetail = useCallback(async () => {
     if (!bookingId) return;
 
-    const supabase = createClient();
-
     // Auth check: redirect to localized login if no user
-    const {
-      data: {user}
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      router.push(`/${locale}/login`);
+      router.push(withLocale('/login'));
       setLoading(false);
       return;
     }
 
     // Fetch booking that belongs to the current user
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from('bookings')
       .select(
         `
-        *,
-        rinks (name, address, phone, hourly_rate)
-      `
+          *,
+          rinks (name, address, phone, hourly_rate)
+        `
       )
       .eq('id', bookingId)
       .eq('user_id', user.id)
@@ -51,12 +53,12 @@ export default function BookingDetailPage() {
 
     if (error || !data) {
       console.error('Error fetching booking:', error);
-      router.push(`/${locale}/bookings`);
+      router.push(withLocale('/bookings'));
     } else {
       setBooking(data);
     }
     setLoading(false);
-  }, [bookingId, locale, router]);
+  }, [bookingId, router, supabase, withLocale]);
 
   useEffect(() => {
     fetchBookingDetail();
@@ -66,10 +68,9 @@ export default function BookingDetailPage() {
     if (!bookingId) return;
     if (!confirm('Are you sure you want to cancel this booking?')) return;
 
-    const supabase = createClient();
-    const {error} = await supabase
+    const { error } = await supabase
       .from('bookings')
-      .update({status: 'cancelled'})
+      .update({ status: 'cancelled' })
       .eq('id', bookingId);
 
     if (error) {
@@ -77,13 +78,13 @@ export default function BookingDetailPage() {
       return;
     }
     alert('Booking cancelled successfully');
-    router.push(`/${locale}/bookings`);
+    router.push(withLocale('/bookings'));
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -100,7 +101,7 @@ export default function BookingDetailPage() {
     confirmed: 'bg-green-100 text-green-800',
     pending: 'bg-yellow-100 text-yellow-800',
     cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-gray-100 text-gray-800'
+    completed: 'bg-gray-100 text-gray-800',
   };
   const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800';
 
@@ -108,7 +109,7 @@ export default function BookingDetailPage() {
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <button
-          onClick={() => router.push(`/${locale}/bookings`)}
+          onClick={() => router.push(withLocale('/bookings'))}
           className="text-gray-600 hover:text-gray-800"
         >
           ← Back to My Bookings
@@ -122,7 +123,9 @@ export default function BookingDetailPage() {
             <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>{booking.status}</span>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(booking.total)}</p>
+            <p className="text-3xl font-bold text-blue-600">
+              {formatCurrency(booking.total)}
+            </p>
             <p className="text-sm text-gray-600">Total Amount</p>
           </div>
         </div>
