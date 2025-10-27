@@ -1,11 +1,11 @@
 // app/[locale]/(dashboard)/my-games/page.tsx
 'use client';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {createClient} from '@/lib/supabase/client';
-import {useParams, useRouter} from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {Calendar, Clock, Eye, Users, MapPin, PlusCircle} from 'lucide-react';
+import { Calendar, Clock, Eye, Users, MapPin, PlusCircle } from 'lucide-react';
 
 type Game = {
   id: string;
@@ -25,7 +25,7 @@ type Game = {
 
 export default function MyGamesPage() {
   // Read locale from the dynamic segment: /{locale}/...
-  const {locale} = useParams<{locale: string}>();
+  const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
   const supabase = createClient();
 
@@ -41,8 +41,8 @@ export default function MyGamesPage() {
   const loadMyGames = useCallback(async () => {
     try {
       const {
-        data: {user},
-        error: userError
+        data: { user },
+        error: userError,
       } = await supabase.auth.getUser();
 
       if (userError) throw userError;
@@ -52,13 +52,13 @@ export default function MyGamesPage() {
         return;
       }
 
-      const {data, error} = await supabase
+      const { data, error } = await supabase
         .from('game_invitations')
         .select(
           'id,title,game_date,game_time,age_group,skill_level,status,created_by,location,rink_id,view_count,interested_count,created_at'
         )
         .eq('created_by', user.id)
-        .order('created_at', {ascending: false});
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -108,7 +108,7 @@ export default function MyGamesPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">My Games</h1>
         <Link
-          href={withLocale('/games/create')}
+          href={withLocale('/games/new')}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
         >
           <PlusCircle className="h-4 w-4" />
@@ -121,7 +121,7 @@ export default function MyGamesPage() {
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <p className="text-gray-600">You have not posted any games yet.</p>
           <Link
-            href={withLocale('/games/create')}
+            href={withLocale('/games/new')}
             className="inline-block mt-4 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
           >
             Create your first game
