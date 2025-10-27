@@ -1,15 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import {useMemo, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy } from 'lucide-react';
+import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
 
 export default function CreateGamePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
-  
+
+  // Derive locale from the first path segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+
+  // Helper to build a locale-prefixed path
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -31,17 +38,18 @@ export default function CreateGamePage() {
     setLoading(true);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      // Require auth and redirect to localized login
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
+
       if (!user) {
-        alert('Please login to post a game');
-        router.push('/login');
+        router.push(withLocale('/login'));
         return;
       }
 
       // Create game invitation
-      const { data, error } = await supabase
+      const {data, error} = await supabase
         .from('game_invitations')
         .insert({
           title: formData.title,
@@ -63,9 +71,8 @@ export default function CreateGamePage() {
 
       if (error) throw error;
 
-      // Success - redirect to game details
-      router.push(`/games/${data.id}`);
-      
+      // Localized redirect to details page
+      router.push(withLocale(`/games/${data.id}`));
     } catch (error: any) {
       console.error('Error creating game:', error);
       alert(error.message || 'Failed to create game');
@@ -74,14 +81,16 @@ export default function CreateGamePage() {
     }
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
   }
 
-  // Get tomorrow's date as default
+  // Use tomorrow as the earliest selectable date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
@@ -92,7 +101,7 @@ export default function CreateGamePage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/games"
+            href={withLocale('/games')}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -190,7 +199,9 @@ export default function CreateGamePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {ageGroups.map(group => (
-                  <option key={group} value={group}>{group}</option>
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
                 ))}
               </select>
             </div>
@@ -208,7 +219,9 @@ export default function CreateGamePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {skillLevels.map(level => (
-                  <option key={level} value={level}>{level}</option>
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
                 ))}
               </select>
             </div>
@@ -262,9 +275,7 @@ export default function CreateGamePage() {
               placeholder="e.g., Coach John - 613-555-0123"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="mt-1 text-sm text-gray-500">
-              This will be shared only with interested teams
-            </p>
+            <p className="mt-1 text-sm text-gray-500">This will be shared only with interested teams</p>
           </div>
 
           {/* Submit Buttons */}
@@ -277,7 +288,7 @@ export default function CreateGamePage() {
               {loading ? 'Creating...' : 'Post Game'}
             </button>
             <Link
-              href="/games"
+              href={withLocale('/games')}
               className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition"
             >
               Cancel
