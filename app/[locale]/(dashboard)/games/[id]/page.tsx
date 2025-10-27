@@ -1,323 +1,280 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import RatingStars from '@/components/rating/RatingStars'
+import {useEffect, useMemo, useState, useCallback} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {useParams, useRouter} from 'next/navigation';
+import Link from 'next/link';
+import RatingStars from '@/components/rating/RatingStars';
+import {ArrowLeft} from 'lucide-react';
 
-interface Game {
-  id: string
-  title: string
-  game_date: string
-  game_time: string
-  age_group: string
-  skill_level: string
-  description: string
-  status: string
-  created_by: string
-  rink_id: string
-  host_club_id: string
-  guest_club_id: string | null
-  view_count?: number
-  interested_count?: number
-  created_at: string
-  creator?: {
-    full_name: string
-    email: string
-    phone: string
-  }
-  host_club?: {
-    name: string
-    contact_email: string
-    contact_phone: string
-  }
-  rink?: {
-    name: string
-    address: string
-    phone: string
-  }
-}
-
-interface GameInterest {
-  id: string
-  game_id: string
-  user_id: string
-  message: string
-  status: string
-  created_at: string
-}
+type Game = {
+  id: string;
+  title: string;
+  game_date: string;     // ISO date (yyyy-mm-dd)
+  game_time: string;     // HH:mm
+  age_group: string;
+  skill_level: string;
+  description: string | null;
+  status: 'open' | 'matched' | 'closed';
+  created_by: string;
+  rink_id: string | null;
+  host_club_id: string | null;
+  guest_club_id: string | null;
+  view_count?: number | null;
+  interested_count?: number | null;
+  created_at: string;
+  // Expanded fields (hydrated below)
+  creator?: {full_name: string; email: string; phone: string | null};
+  host_club?: {name: string; contact_email: string | null; contact_phone: string | null};
+  rink?: {name: string; address: string | null; phone: string | null};
+};
 
 export default function GameDetailsPage() {
-  const router = useRouter()
-  const { locale, id } = useParams<{ locale: string; id: string }>()
-  const [game, setGame] = useState<Game | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [isInterested, setIsInterested] = useState(false)
-  const [showContactInfo, setShowContactInfo] = useState(false)
-  const [message, setMessage] = useState('')
-  const [showMessageForm, setShowMessageForm] = useState(false)
-  
-  // Rating states
-  const [hasRated, setHasRated] = useState(false)
-  const [userRating, setUserRating] = useState(0)
-  const [tempRating, setTempRating] = useState(0)
-  const [ratingComment, setRatingComment] = useState('')
+  const router = useRouter();
+  const {locale, id} = useParams<{locale: string; id: string}>();
+  const supabase = useMemo(() => createClient(), []);
+  const [game, setGame] = useState<Game | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
-  useEffect(() => {
-    loadGameDetails()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  // Interest UI state
+  const [isInterested, setIsInterested] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
+  const [message, setMessage] = useState('');
+  const [showMessageForm, setShowMessageForm] = useState(false);
 
-  const loadGameDetails = async () => {
+  // Rating UI state
+  const [hasRated, setHasRated] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [tempRating, setTempRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
+
+  // Helper to build a locale-prefixed path
+  const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
+
+  const isCreator = currentUser && game ? currentUser.id === game.created_by : false;
+
+  const loadGameDetails = useCallback(async () => {
     try {
-      const supabase = createClient()
-      
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      setCurrentUser(user)
+      // Auth (optional: viewing is allowed for anonymous)
+      const {data: auth} = await supabase.auth.getUser();
+      setCurrentUser(auth.user || null);
 
-      // Load game details
-      const { data: gameData, error: gameError } = await supabase
+      // Base game
+      const {data: g, error: gameError} = await supabase
         .from('game_invitations')
         .select('*')
         .eq('id', id)
-        .single()
+        .single();
 
-      if (gameError) {
-        console.error('Error loading game:', gameError)
-        return
+      if (gameError || !g) {
+        console.error('Game not found:', gameError);
+        setGame(null);
+        return;
       }
 
-      // Load creator info
-      if (gameData?.created_by) {
-        const { data: creatorData } = await supabase
+      // Hydrate creator
+      if (g.created_by) {
+        const {data: creator} = await supabase
           .from('profiles')
           .select('full_name, email, phone')
-          .eq('id', gameData.created_by)
-          .single()
-
-        if (creatorData) {
-          gameData.creator = creatorData
-        }
+          .eq('id', g.created_by)
+          .single();
+        if (creator) g.creator = creator;
       }
 
-      // Load host club info
-      if (gameData?.host_club_id) {
-        const { data: clubData } = await supabase
+      // Hydrate host club
+      if (g.host_club_id) {
+        const {data: club} = await supabase
           .from('clubs')
           .select('name, contact_email, contact_phone')
-          .eq('id', gameData.host_club_id)
-          .single()
-
-        if (clubData) {
-          gameData.host_club = clubData
-        }
+          .eq('id', g.host_club_id)
+          .single();
+        if (club) g.host_club = club;
       }
 
-      // Load rink info
-      if (gameData?.rink_id) {
-        const { data: rinkData } = await supabase
+      // Hydrate rink
+      if (g.rink_id) {
+        const {data: rink} = await supabase
           .from('rinks')
           .select('name, address, phone')
-          .eq('id', gameData.rink_id)
-          .single()
-
-        if (rinkData) {
-          gameData.rink = rinkData
-        }
+          .eq('id', g.rink_id)
+          .single();
+        if (rink) g.rink = rink;
       }
 
-      setGame(gameData)
+      setGame(g);
 
-      // Check if current user is interested
-      if (user) {
-        const { data: interestData } = await supabase
+      // Interest + rating status (only for logged-in users)
+      if (auth.user) {
+        // Interest
+        const {data: interest} = await supabase
           .from('game_interests')
           .select('*')
           .eq('game_id', id)
-          .eq('user_id', user.id)
-          .single()
-
-        if (interestData) {
-          setIsInterested(true)
-          if (interestData.status === 'accepted') {
-            setShowContactInfo(true)
-          }
+          .eq('user_id', auth.user.id)
+          .maybeSingle();
+        if (interest) {
+          setIsInterested(true);
+          if (interest.status === 'accepted') setShowContactInfo(true);
+        } else {
+          setIsInterested(false);
+          setShowContactInfo(false);
         }
 
-        // Check if user already rated (for matched games)
-        if (gameData.status === 'matched') {
-          const { data: ratingData } = await supabase
+        // Rating (only when matched)
+        if (g.status === 'matched') {
+          const {data: rating} = await supabase
             .from('game_ratings')
             .select('*')
             .eq('game_id', id)
-            .eq('rater_id', user.id)
-            .single()
-          
-          if (ratingData) {
-            setHasRated(true)
-            setUserRating(ratingData.rating)
+            .eq('rater_id', auth.user.id)
+            .maybeSingle();
+          if (rating) {
+            setHasRated(true);
+            setUserRating(rating.rating);
+          } else {
+            setHasRated(false);
+            setUserRating(0);
           }
+        } else {
+          setHasRated(false);
+          setUserRating(0);
         }
       }
 
-      // Update view count (only if not the creator)
-      if (user && gameData.created_by !== user.id) {
+      // Increment view count for non-creator users
+      if (auth.user && g.created_by !== auth.user.id) {
         await supabase
           .from('game_invitations')
-          .update({ 
-            view_count: (gameData.view_count || 0) + 1 
-          })
-          .eq('id', id)
+          .update({view_count: (g.view_count || 0) + 1})
+          .eq('id', id);
       }
-
-    } catch (error) {
-      console.error('Error in loadGameDetails:', error)
+    } catch (e) {
+      console.error('loadGameDetails error:', e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  }, [id, supabase]);
 
-  const handleInterest = async () => {
+  useEffect(() => {
+    loadGameDetails();
+  }, [loadGameDetails]);
+
+  // Express or remove interest
+  const handleInterest = useCallback(async () => {
     if (!currentUser) {
-      router.push(`/${locale}/login`)
-      return
+      router.push(withLocale('/login'));
+      return;
     }
-
     try {
-      const supabase = createClient()
-
       if (!isInterested) {
-        // Express interest
-        const { error } = await supabase
-          .from('game_interests')
-          .insert({
-            game_id: id,
-            user_id: currentUser.id,
-            message: message,
-            status: 'pending'
-          })
+        // Add interest
+        const {error} = await supabase.from('game_interests').insert({
+          game_id: id,
+          user_id: currentUser.id,
+          message,
+          status: 'pending'
+        });
+        if (error) throw error;
 
-        if (!error) {
-          setIsInterested(true)
-          setShowMessageForm(false)
-          setMessage('')
-          
-          // Update interested count
-          if (game) {
-            await supabase
-              .from('game_invitations')
-              .update({ 
-                interested_count: (game.interested_count || 0) + 1 
-              })
-              .eq('id', id)
+        setIsInterested(true);
+        setShowMessageForm(false);
+        setMessage('');
 
-            // Reload game data
-            loadGameDetails()
-          }
-        }
-      } else {
-        // Remove interest
-        await supabase
-          .from('game_interests')
-          .delete()
-          .eq('game_id', id)
-          .eq('user_id', currentUser.id)
-
-        setIsInterested(false)
-        setShowContactInfo(false)
-
-        // Update interested count
         if (game) {
           await supabase
             .from('game_invitations')
-            .update({ 
-              interested_count: Math.max((game.interested_count || 0) - 1, 0)
-            })
-            .eq('id', id)
+            .update({interested_count: (game.interested_count || 0) + 1})
+            .eq('id', id);
+        }
+      } else {
+        // Remove interest
+        const {error} = await supabase
+          .from('game_interests')
+          .delete()
+          .eq('game_id', id)
+          .eq('user_id', currentUser.id);
+        if (error) throw error;
 
-          // Reload game data
-          loadGameDetails()
+        setIsInterested(false);
+        setShowContactInfo(false);
+
+        if (game) {
+          await supabase
+            .from('game_invitations')
+            .update({interested_count: Math.max((game.interested_count || 0) - 1, 0)})
+            .eq('id', id);
         }
       }
-    } catch (error) {
-      console.error('Error handling interest:', error)
+      // Refresh hydrated values
+      loadGameDetails();
+    } catch (e) {
+      console.error('handleInterest error:', e);
     }
-  }
+  }, [currentUser, game, id, isInterested, message, router, supabase, withLocale, loadGameDetails]);
 
-  const handleSubmitRating = async () => {
-    if (!currentUser || tempRating === 0) return
-    
+  // Submit rating once the game is matched
+  const handleSubmitRating = useCallback(async () => {
+    if (!currentUser || !game || tempRating === 0) return;
+
     try {
-      const supabase = createClient()
-      
-      // Find opponent ID
-      let opponentId = null
+      // Find opponent user id
+      let opponentId: string | null = null;
       if (isCreator) {
-        // If creator, find interested user
-        const { data } = await supabase
+        const {data} = await supabase
           .from('game_interests')
           .select('user_id')
           .eq('game_id', id)
-          .single()
-        opponentId = data?.user_id
+          .maybeSingle();
+        opponentId = data?.user_id ?? null;
       } else {
-        // If participant, rate the creator
-        opponentId = game?.created_by
+        opponentId = game.created_by;
       }
-
       if (!opponentId) {
-        alert('Cannot determine opponent')
-        return
+        alert('Cannot determine opponent');
+        return;
       }
-      
-      const { error } = await supabase
-        .from('game_ratings')
-        .insert({
-          game_id: id,
-          rater_id: currentUser.id,
-          rated_user_id: opponentId,
-          rating: tempRating,
-          comment: ratingComment.trim() || null
-        })
-      
-      if (!error) {
-        setHasRated(true)
-        setUserRating(tempRating)
-        
-        // Update user's average rating
-        const { data: ratings } = await supabase
-          .from('game_ratings')
-          .select('rating')
-          .eq('rated_user_id', opponentId)
 
-        if (ratings && ratings.length > 0) {
-          const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
-          await supabase
-            .from('profiles')
-            .update({ 
-              average_rating: avg,
-              total_ratings: ratings.length
-            })
-            .eq('id', opponentId)
-        }
-        
-        alert('Rating submitted successfully!')
+      const {error} = await supabase.from('game_ratings').insert({
+        game_id: id,
+        rater_id: currentUser.id,
+        rated_user_id: opponentId,
+        rating: tempRating,
+        comment: ratingComment.trim() || null
+      });
+      if (error) throw error;
+
+      setHasRated(true);
+      setUserRating(tempRating);
+
+      // Update rated user's average
+      const {data: ratings} = await supabase
+        .from('game_ratings')
+        .select('rating')
+        .eq('rated_user_id', opponentId);
+
+      if (ratings && ratings.length > 0) {
+        const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
+        await supabase
+          .from('profiles')
+          .update({average_rating: avg, total_ratings: ratings.length})
+          .eq('id', opponentId);
       }
-    } catch (error) {
-      console.error('Error submitting rating:', error)
-      alert('Failed to submit rating')
+
+      alert('Rating submitted successfully!');
+    } catch (e) {
+      console.error('handleSubmitRating error:', e);
+      alert('Failed to submit rating');
     }
-  }
+  }, [currentUser, game, id, isCreator, ratingComment, tempRating, supabase]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p>Loading game details...</p>
       </div>
-    )
+    );
   }
 
   if (!game) {
@@ -325,63 +282,64 @@ export default function GameDetailsPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <p>Game not found</p>
-          <Link href={`/${locale}/games`} className="text-blue-600 hover:underline">Back to games</Link>
+          <Link href={withLocale('/games')} className="text-blue-600 hover:underline">
+            Back to games
+          </Link>
         </div>
       </div>
-    )
+    );
   }
 
-  const isCreator = currentUser?.id === game.created_by
-  const gameDate = new Date(game.game_date).toLocaleDateString()
+  const gameDateFormatted = new Date(game.game_date).toLocaleDateString();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href={`/${locale}`} className="text-xl font-bold">🏒 HockeyHub</Link>
-          <div className="flex gap-4">
-            <Link href={`/${locale}/games`} className="text-gray-600">Games</Link>
-            <Link href={`/${locale}/rinks`} className="text-gray-600">Rinks</Link>
-            <Link href={`/${locale}/clubs`} className="text-gray-600">Clubs</Link>
-            <Link href={`/${locale}/profile`} className="text-gray-600">Profile</Link>
-          </div>
-        </div>
-      </nav>
+      {/* Header */}
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <Link
+          href={withLocale('/games')}
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Games
+        </Link>
+      </div>
 
       {/* Game Details */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          {/* Back button */}
-          <Link href={`/${locale}/games`} className="text-blue-600 hover:underline mb-4 inline-block">
-            ← Back to games
-          </Link>
-
-          {/* Main content */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="mb-6">
               <h1 className="text-3xl font-bold mb-2">{game.title}</h1>
-              <div className="flex gap-4 text-sm text-gray-600">
-                <span>📅 {gameDate}</span>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                <span>📅 {gameDateFormatted}</span>
                 <span>⏰ {game.game_time}</span>
                 <span>👁 {game.view_count || 0} views</span>
                 <span>🏒 {game.interested_count || 0} interested</span>
               </div>
             </div>
 
-            {/* Game Info */}
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-2">Game Details</h3>
                 <div className="space-y-2 text-gray-700">
-                  <p><strong>Age Group:</strong> {game.age_group}</p>
-                  <p><strong>Skill Level:</strong> {game.skill_level}</p>
-                  <p><strong>Status:</strong> 
-                    <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                      game.status === 'open' ? 'bg-green-100 text-green-800' :
-                      game.status === 'matched' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                  <p>
+                    <strong>Age Group:</strong> {game.age_group}
+                  </p>
+                  <p>
+                    <strong>Skill Level:</strong> {game.skill_level}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded text-sm ${
+                        game.status === 'open'
+                          ? 'bg-green-100 text-green-800'
+                          : game.status === 'matched'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
                       {game.status}
                     </span>
                   </p>
@@ -393,7 +351,9 @@ export default function GameDetailsPage() {
                 <div className="space-y-2 text-gray-700">
                   {game.rink && (
                     <>
-                      <p><strong>{game.rink.name}</strong></p>
+                      <p>
+                        <strong>{game.rink.name}</strong>
+                      </p>
                       <p>{game.rink.address}</p>
                       {game.rink.phone && <p>📞 {game.rink.phone}</p>}
                     </>
@@ -402,7 +362,6 @@ export default function GameDetailsPage() {
               </div>
             </div>
 
-            {/* Description */}
             {game.description && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Description</h3>
@@ -410,7 +369,6 @@ export default function GameDetailsPage() {
               </div>
             )}
 
-            {/* Host Club */}
             {game.host_club && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Host Club</h3>
@@ -418,7 +376,7 @@ export default function GameDetailsPage() {
                   <p className="font-medium">{game.host_club.name}</p>
                   {(showContactInfo || isCreator) && (
                     <div className="mt-2 text-sm text-gray-600">
-                      <p>📧 {game.host_club.contact_email}</p>
+                      {game.host_club.contact_email && <p>📧 {game.host_club.contact_email}</p>}
                       {game.host_club.contact_phone && <p>📞 {game.host_club.contact_phone}</p>}
                     </div>
                   )}
@@ -426,30 +384,29 @@ export default function GameDetailsPage() {
               </div>
             )}
 
-            {/* Contact Information */}
             {(showContactInfo || isCreator) && game.creator && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Contact Person</h3>
                 <div className="bg-blue-50 p-4 rounded">
                   <p className="font-medium">{game.creator.full_name}</p>
                   <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
-                  {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
+                  {game.creator.phone && (
+                    <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="border-t pt-6">
               {isCreator ? (
                 <div>
                   <p className="text-green-600 font-medium mb-2">
-                    You created this game. {(game.interested_count || 0) > 0 ? `${game.interested_count || 0} teams have shown interest.` : 'No teams have shown interest yet.'}
+                    You created this game.{' '}
+                    {(game.interested_count || 0) > 0
+                      ? `${game.interested_count || 0} teams have shown interest.`
+                      : 'No teams have shown interest yet.'}
                   </p>
-                  {(game.interested_count || 0) > 0 && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      Check the notifications section to see who's interested.
-                    </p>
-                  )}
                 </div>
               ) : currentUser ? (
                 <div>
@@ -480,8 +437,8 @@ export default function GameDetailsPage() {
                         </button>
                         <button
                           onClick={() => {
-                            setShowMessageForm(false)
-                            setMessage('')
+                            setShowMessageForm(false);
+                            setMessage('');
                           }}
                           className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
                         >
@@ -513,8 +470,8 @@ export default function GameDetailsPage() {
               ) : (
                 <div>
                   <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
-                  <Link 
-                    href={`/${locale}/login`}
+                  <Link
+                    href={withLocale('/login')}
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
                   >
                     Sign In
@@ -523,11 +480,10 @@ export default function GameDetailsPage() {
               )}
             </div>
 
-            {/* Rating Section - NEW */}
+            {/* Rating */}
             {game.status === 'matched' && currentUser && (isCreator || isInterested) && (
               <div className="border-t mt-6 pt-6">
                 <h3 className="font-semibold mb-4">Rate This Game</h3>
-                
                 {hasRated ? (
                   <div className="bg-gray-50 p-4 rounded">
                     <p className="text-gray-600">✅ You have already rated this game</p>
@@ -541,13 +497,9 @@ export default function GameDetailsPage() {
                       <label className="block text-sm font-medium mb-2">
                         How was your experience?
                       </label>
-                      <RatingStars 
-                        rating={tempRating} 
-                        onChange={setTempRating}
-                        size="lg"
-                      />
+                      <RatingStars rating={tempRating} onChange={setTempRating} size="lg" />
                     </div>
-                    
+
                     <textarea
                       value={ratingComment}
                       onChange={(e) => setRatingComment(e.target.value)}
@@ -556,7 +508,7 @@ export default function GameDetailsPage() {
                       rows={3}
                       maxLength={500}
                     />
-                    
+
                     <button
                       onClick={handleSubmitRating}
                       disabled={tempRating === 0}
@@ -572,5 +524,5 @@ export default function GameDetailsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
