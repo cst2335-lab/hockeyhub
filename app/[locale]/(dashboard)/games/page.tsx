@@ -1,23 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Trophy, 
-  Eye, 
-  Heart, 
-  Clock, 
-  Plus, 
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Trophy,
+  Eye,
+  Heart,
+  Plus,
   AlertCircle,
   Search,
   Filter,
-  X
+  X,
 } from 'lucide-react';
 
 interface Game {
@@ -36,35 +34,37 @@ interface Game {
   isExpired?: boolean;
 }
 
+type DateFilter = 'all' | 'upcoming' | 'past';
+type SortBy = 'date' | 'interest' | 'views';
+
 export default function GamesPage() {
-  const { locale } = useParams<{ locale: string }>()
+  const { locale } = useParams<{ locale: string }>();
+  const supabase = useMemo(() => createClient(), []);
+
+  // list + ui state
   const [games, setGames] = useState<Game[]>([]);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Filter states
-  const [dateFilter, setDateFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
+
+  const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
   const [searchTerm, setSearchTerm] = useState('');
   const [ageGroupFilter, setAgeGroupFilter] = useState('all');
   const [skillLevelFilter, setSkillLevelFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState<'date' | 'interest' | 'views'>('date');
-  
-  const supabase = createClient();
+  const [sortBy, setSortBy] = useState<SortBy>('date');
 
+  // constants
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
 
-  useEffect(() => {
-    fetchGames();
-  }, []);
+  // locale-aware link helper
+  const withLocale = useCallback(
+    (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
+    [locale],
+  );
 
-  useEffect(() => {
-    applyFilters();
-  }, [games, dateFilter, searchTerm, ageGroupFilter, skillLevelFilter, locationFilter, sortBy]);
-
-  async function fetchGames() {
+  const fetchGames = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('game_invitations')
@@ -74,71 +74,61 @@ export default function GamesPage() {
 
       if (error) throw error;
 
-      // Process games with expiry status
+      // mark expired & hide games older than 7 days
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
-      
+
       const sevenDaysAgo = new Date(today);
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
 
-      const processedGames = (data || [])
-        .filter(game => {
-          if (!game.game_date) return true;
-          return game.game_date >= sevenDaysAgoStr;
-        })
-        .map(game => ({
-          ...game,
-          isExpired: game.game_date ? game.game_date < todayStr : false
+      const processed = (data || [])
+        .filter((g) => !g.game_date || g.game_date >= sevenDaysAgoStr)
+        .map((g) => ({
+          ...g,
+          isExpired: g.game_date ? g.game_date < todayStr : false,
         }));
 
-      setGames(processedGames);
-    } catch (error) {
-      console.error('Error:', error);
+      setGames(processed);
+    } catch (e) {
+      console.error('fetchGames error:', e);
+      setGames([]);
     } finally {
       setLoading(false);
     }
-  }
+  }, [supabase]);
 
-  function applyFilters() {
-    let filtered = [...games];
+  useEffect(() => {
+    fetchGames();
+  }, [fetchGames]);
 
-    // Date filter
-    if (dateFilter === 'upcoming') {
-      filtered = filtered.filter(game => !game.isExpired);
-    } else if (dateFilter === 'past') {
-      filtered = filtered.filter(game => game.isExpired);
-    }
+  useEffect(() => {
+    // apply filters + sorting
+    let list = [...games];
 
-    // Search filter
+    if (dateFilter === 'upcoming') list = list.filter((g) => !g.isExpired);
+    if (dateFilter === 'past') list = list.filter((g) => g.isExpired);
+
     if (searchTerm) {
-      filtered = filtered.filter(game =>
-        game.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      const q = searchTerm.toLowerCase();
+      list = list.filter(
+        (g) =>
+          g.title?.toLowerCase().includes(q) ||
+          g.description?.toLowerCase().includes(q) ||
+          g.location?.toLowerCase().includes(q),
       );
     }
 
-    // Age group filter
-    if (ageGroupFilter !== 'all') {
-      filtered = filtered.filter(game => game.age_group === ageGroupFilter);
-    }
+    if (ageGroupFilter !== 'all') list = list.filter((g) => g.age_group === ageGroupFilter);
+    if (skillLevelFilter !== 'all') list = list.filter((g) => g.skill_level === skillLevelFilter);
 
-    // Skill level filter
-    if (skillLevelFilter !== 'all') {
-      filtered = filtered.filter(game => game.skill_level === skillLevelFilter);
-    }
-
-    // Location filter
     if (locationFilter) {
-      filtered = filtered.filter(game =>
-        game.location?.toLowerCase().includes(locationFilter.toLowerCase())
-      );
+      const q = locationFilter.toLowerCase();
+      list = list.filter((g) => g.location?.toLowerCase().includes(q));
     }
 
-    // Sort
-    filtered.sort((a, b) => {
+    list.sort((a, b) => {
       switch (sortBy) {
         case 'interest':
           return (b.interested_count || 0) - (a.interested_count || 0);
@@ -146,59 +136,63 @@ export default function GamesPage() {
           return (b.view_count || 0) - (a.view_count || 0);
         case 'date':
         default:
-          // Upcoming games first, then by date
-          if (a.isExpired !== b.isExpired) {
-            return a.isExpired ? 1 : -1;
-          }
+          if (a.isExpired !== b.isExpired) return a.isExpired ? 1 : -1; // upcoming first
           return (a.game_date || '').localeCompare(b.game_date || '');
       }
     });
 
-    setFilteredGames(filtered);
-  }
+    setFilteredGames(list);
+  }, [
+    games,
+    dateFilter,
+    searchTerm,
+    ageGroupFilter,
+    skillLevelFilter,
+    locationFilter,
+    sortBy,
+  ]);
 
-  function clearFilters() {
+  const clearFilters = () => {
     setSearchTerm('');
     setAgeGroupFilter('all');
     setSkillLevelFilter('all');
     setLocationFilter('');
     setDateFilter('upcoming');
     setSortBy('date');
-  }
+  };
 
-  function hasActiveFilters() {
-    return searchTerm || 
-           ageGroupFilter !== 'all' || 
-           skillLevelFilter !== 'all' || 
-           locationFilter ||
-           sortBy !== 'date';
-  }
+  const hasActiveFilters = () =>
+    Boolean(
+      searchTerm ||
+        locationFilter ||
+        ageGroupFilter !== 'all' ||
+        skillLevelFilter !== 'all' ||
+        sortBy !== 'date',
+    );
 
-  function formatDate(dateStr: string) {
+  const formatDate = (dateStr: string) => {
     if (!dateStr) return 'TBD';
-    const date = new Date(dateStr);
+    const d = new Date(dateStr);
     const today = new Date();
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    let relativeTime = '';
-    if (diffDays === 0) relativeTime = ' (Today)';
-    else if (diffDays === 1) relativeTime = ' (Tomorrow)';
-    else if (diffDays === -1) relativeTime = ' (Yesterday)';
-    else if (diffDays < -1) relativeTime = ` (${Math.abs(diffDays)} days ago)`;
-    else if (diffDays > 1 && diffDays <= 7) relativeTime = ` (In ${diffDays} days)`;
-    
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
-    }) + relativeTime;
-  }
+    const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    let relative = '';
+    if (diffDays === 0) relative = ' (Today)';
+    else if (diffDays === 1) relative = ' (Tomorrow)';
+    else if (diffDays === -1) relative = ' (Yesterday)';
+    else if (diffDays < -1) relative = ` (${Math.abs(diffDays)} days ago)`;
+    else if (diffDays > 1 && diffDays <= 7) relative = ` (In ${diffDays} days)`;
+
+    return (
+      d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
+      relative
+    );
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -215,9 +209,9 @@ export default function GamesPage() {
               {hasActiveFilters() && ' (filtered)'}
             </p>
           </div>
-          
+
           <Link
-            href={`/${locale}/games/new`}
+            href={withLocale('/games/new')}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <Plus className="h-5 w-5 mr-2" />
@@ -225,12 +219,11 @@ export default function GamesPage() {
           </Link>
         </div>
 
-        {/* Search Bar */}
+        {/* Search + Filters */}
         <div className="mb-6 bg-white rounded-lg shadow p-4">
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search Input */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
                 placeholder="Search games by title, description, or location..."
@@ -239,10 +232,9 @@ export default function GamesPage() {
                 className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
-            {/* Filter Toggle Button */}
+
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => setShowFilters((v) => !v)}
               className={`px-4 py-2 border rounded-md transition flex items-center gap-2 ${
                 showFilters || hasActiveFilters()
                   ? 'bg-blue-50 border-blue-300 text-blue-700'
@@ -259,48 +251,42 @@ export default function GamesPage() {
             </button>
           </div>
 
-          {/* Expandable Filters */}
           {showFilters && (
             <div className="mt-4 pt-4 border-t grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {/* Age Group */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Age Group
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Age Group</label>
                 <select
                   value={ageGroupFilter}
                   onChange={(e) => setAgeGroupFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Ages</option>
-                  {ageGroups.map(group => (
-                    <option key={group} value={group}>{group}</option>
+                  {ageGroups.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              {/* Skill Level */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Skill Level
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Skill Level</label>
                 <select
                   value={skillLevelFilter}
                   onChange={(e) => setSkillLevelFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Levels</option>
-                  {skillLevels.map(level => (
-                    <option key={level} value={level}>{level}</option>
+                  {skillLevels.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              {/* Location */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                 <input
                   type="text"
                   placeholder="e.g., Kanata"
@@ -310,14 +296,11 @@ export default function GamesPage() {
                 />
               </div>
 
-              {/* Sort By */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sort By
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'date' | 'interest' | 'views')}
+                  onChange={(e) => setSortBy(e.target.value as SortBy)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="date">Date</option>
@@ -326,7 +309,6 @@ export default function GamesPage() {
                 </select>
               </div>
 
-              {/* Clear Filters */}
               <div className="flex items-end">
                 <button
                   onClick={clearFilters}
@@ -340,51 +322,37 @@ export default function GamesPage() {
           )}
         </div>
 
-        {/* Date Filter Tabs */}
+        {/* Date Tabs */}
         <div className="mb-6 flex space-x-4 border-b">
-          <button
-            onClick={() => setDateFilter('all')}
-            className={`pb-2 px-1 border-b-2 transition ${
-              dateFilter === 'all' 
-                ? 'border-blue-600 text-blue-600 font-medium' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            All Games ({games.length})
-          </button>
-          <button
-            onClick={() => setDateFilter('upcoming')}
-            className={`pb-2 px-1 border-b-2 transition ${
-              dateFilter === 'upcoming' 
-                ? 'border-blue-600 text-blue-600 font-medium' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Upcoming ({games.filter(g => !g.isExpired).length})
-          </button>
-          <button
-            onClick={() => setDateFilter('past')}
-            className={`pb-2 px-1 border-b-2 transition ${
-              dateFilter === 'past' 
-                ? 'border-blue-600 text-blue-600 font-medium' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Recent Past ({games.filter(g => g.isExpired).length})
-          </button>
+          {([
+            ['all', `All Games (${games.length})`],
+            ['upcoming', `Upcoming (${games.filter((g) => !g.isExpired).length})`],
+            ['past', `Recent Past (${games.filter((g) => g.isExpired).length})`],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setDateFilter(key)}
+              className={`pb-2 px-1 border-b-2 transition ${
+                dateFilter === key
+                  ? 'border-blue-600 text-blue-600 font-medium'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Games Grid */}
+        {/* Grid */}
         {filteredGames.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGames.map((game) => (
-              <div 
-                key={game.id} 
+              <div
+                key={game.id}
                 className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow relative ${
                   game.isExpired ? 'opacity-75' : ''
                 }`}
               >
-                {/* Expired Badge */}
                 {game.isExpired && (
                   <div className="absolute top-4 right-4 z-10">
                     <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
@@ -393,7 +361,7 @@ export default function GamesPage() {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 pr-16">
                     {game.title || 'Untitled Game'}
@@ -405,28 +373,26 @@ export default function GamesPage() {
                       <span className={game.isExpired ? 'line-through' : ''}>
                         {formatDate(game.game_date)}
                       </span>
-                      {game.game_time && (
-                        <span className="ml-1">at {game.game_time}</span>
-                      )}
+                      {game.game_time && <span className="ml-1">at {game.game_time}</span>}
                     </div>
-                    
+
                     {game.location && (
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 mr-2" />
                         <span>{game.location}</span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-2" />
-                      <span>{game.age_group} - {game.skill_level}</span>
+                      <span>
+                        {game.age_group} - {game.skill_level}
+                      </span>
                     </div>
                   </div>
 
                   {game.description && (
-                    <p className="mt-3 text-sm text-gray-500 line-clamp-2">
-                      {game.description}
-                    </p>
+                    <p className="mt-3 text-sm text-gray-500 line-clamp-2">{game.description}</p>
                   )}
 
                   <div className="mt-4 flex items-center space-x-4 text-xs text-gray-500">
@@ -441,10 +407,10 @@ export default function GamesPage() {
                   </div>
 
                   <Link
-                    href={`/${locale}/games/${game.id}`}
+                    href={withLocale(`/games/${game.id}`)}
                     className={`mt-4 block text-center px-4 py-2 rounded-md transition ${
-                      game.isExpired 
-                        ? 'bg-gray-400 text-white hover:bg-gray-500' 
+                      game.isExpired
+                        ? 'bg-gray-400 text-white hover:bg-gray-500'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
@@ -457,11 +423,9 @@ export default function GamesPage() {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No games found
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No games found</h3>
             <p className="text-gray-500 mb-6">
-              {hasActiveFilters() 
+              {hasActiveFilters()
                 ? 'Try adjusting your filters or search terms'
                 : 'Be the first to post a game invitation!'}
             </p>
@@ -475,7 +439,7 @@ export default function GamesPage() {
               </button>
             ) : (
               <Link
-                href={`/${locale}/games/new`}
+                href={withLocale('/games/new')}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 <Plus className="h-5 w-5 mr-2" />
