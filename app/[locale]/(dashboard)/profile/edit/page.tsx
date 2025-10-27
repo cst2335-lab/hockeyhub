@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Save } from 'lucide-react';
+import {useEffect, useMemo, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {usePathname, useRouter} from 'next/navigation';
+import {ArrowLeft, Save} from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -21,15 +21,18 @@ interface Profile {
 }
 
 export default function EditProfilePage() {
-  // Read locale from URL params
-  const { locale } = useParams<{ locale: string }>();
+  const router = useRouter();
+  const pathname = usePathname();
+  const supabase = createClient();
+
+  // Derive locale from the first path segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
+  const [message, setMessage] = useState<{type: 'success' | 'error'; text: string} | null>(null);
 
   useEffect(() => {
     loadProfile();
@@ -38,23 +41,28 @@ export default function EditProfilePage() {
 
   async function loadProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
+
       if (!user) {
-        router.push(`/${locale}/login`);
+        // Localized redirect to login
+        router.push(withLocale('/login'));
         return;
       }
 
-      const { data, error } = await supabase
+      const {data, error} = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
       if (error) throw error;
+
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
-      setMessage({ type: 'error', text: 'Failed to load profile' });
+      setMessage({type: 'error', text: 'Failed to load profile'});
     } finally {
       setLoading(false);
     }
@@ -68,7 +76,7 @@ export default function EditProfilePage() {
     setMessage(null);
 
     try {
-      const { error } = await supabase
+      const {error} = await supabase
         .from('profiles')
         .update({
           full_name: profile.full_name,
@@ -80,21 +88,20 @@ export default function EditProfilePage() {
           phone: profile.phone,
           jersey_number: profile.jersey_number,
           preferred_shot: profile.preferred_shot,
-          bio: profile.bio,
+          bio: profile.bio
         })
         .eq('id', profile.id);
 
       if (error) throw error;
 
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-
-      // Redirect back to localized profile after save
+      setMessage({type: 'success', text: 'Profile updated successfully!'});
+      // Localized redirect after successful save
       setTimeout(() => {
-        router.push(`/${locale}/profile`);
+        router.push(withLocale('/profile'));
       }, 1500);
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+      setMessage({type: 'error', text: error.message || 'Failed to update profile'});
     } finally {
       setSaving(false);
     }
@@ -124,7 +131,7 @@ export default function EditProfilePage() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => router.push(`/${locale}/profile`)}
+            onClick={() => router.push(withLocale('/profile'))}
             className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -161,7 +168,7 @@ export default function EditProfilePage() {
                   required
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.full_name || ''}
-                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                  onChange={e => setProfile({...profile, full_name: e.target.value})}
                 />
               </div>
 
@@ -172,7 +179,7 @@ export default function EditProfilePage() {
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="(613) 555-0100"
                   value={profile.phone || ''}
-                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  onChange={e => setProfile({...profile, phone: e.target.value})}
                 />
               </div>
 
@@ -182,7 +189,7 @@ export default function EditProfilePage() {
                   required
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.area || ''}
-                  onChange={(e) => setProfile({ ...profile, area: e.target.value })}
+                  onChange={e => setProfile({...profile, area: e.target.value})}
                 >
                   <option value="">Select your area</option>
                   <option value="Downtown Ottawa">Downtown Ottawa</option>
@@ -211,7 +218,7 @@ export default function EditProfilePage() {
                   required
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.age_group || ''}
-                  onChange={(e) => setProfile({ ...profile, age_group: e.target.value })}
+                  onChange={e => setProfile({...profile, age_group: e.target.value})}
                 >
                   <option value="">Select age group</option>
                   <option value="U7">U7</option>
@@ -230,7 +237,7 @@ export default function EditProfilePage() {
                   required
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.skill_level || ''}
-                  onChange={(e) => setProfile({ ...profile, skill_level: e.target.value })}
+                  onChange={e => setProfile({...profile, skill_level: e.target.value})}
                 >
                   <option value="">Select skill level</option>
                   <option value="AAA">AAA</option>
@@ -249,7 +256,7 @@ export default function EditProfilePage() {
                   required
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.position || ''}
-                  onChange={(e) => setProfile({ ...profile, position: e.target.value })}
+                  onChange={e => setProfile({...profile, position: e.target.value})}
                 >
                   <option value="">Select position</option>
                   <option value="Forward">Forward</option>
@@ -264,7 +271,7 @@ export default function EditProfilePage() {
                 <select
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.preferred_shot || ''}
-                  onChange={(e) => setProfile({ ...profile, preferred_shot: e.target.value })}
+                  onChange={e => setProfile({...profile, preferred_shot: e.target.value})}
                 >
                   <option value="">Select</option>
                   <option value="Left">Left</option>
@@ -273,15 +280,15 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text sm font-medium text-gray-700">Years Playing</label>
+                <label className="block text-sm font-medium text-gray-700">Years Playing</label>
                 <input
                   type="number"
                   min="0"
                   max="50"
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.years_playing || 0}
-                  onChange={(e) =>
-                    setProfile({ ...profile, years_playing: parseInt(e.target.value) || 0 })
+                  onChange={e =>
+                    setProfile({...profile, years_playing: parseInt(e.target.value) || 0})
                   }
                 />
               </div>
@@ -294,13 +301,13 @@ export default function EditProfilePage() {
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="99"
                   value={profile.jersey_number || ''}
-                  onChange={(e) => setProfile({ ...profile, jersey_number: e.target.value })}
+                  onChange={e => setProfile({...profile, jersey_number: e.target.value})}
                 />
               </div>
             </div>
           </div>
 
-          {/* Bio */}
+            {/* Bio */}
           <div className="bg-white shadow rounded-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">About You</h2>
             <textarea
@@ -308,7 +315,7 @@ export default function EditProfilePage() {
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Tell us about your hockey experience, favorite teams, or anything else..."
               value={profile.bio || ''}
-              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              onChange={e => setProfile({...profile, bio: e.target.value})}
             />
           </div>
 
@@ -316,7 +323,7 @@ export default function EditProfilePage() {
           <div className="flex justify-end space-x-4">
             <button
               type="button"
-              onClick={() => router.push(`/${locale}/profile`)}
+              onClick={() => router.push(withLocale('/profile'))}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Cancel

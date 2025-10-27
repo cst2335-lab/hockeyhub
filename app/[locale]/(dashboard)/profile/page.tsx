@@ -1,16 +1,15 @@
-// app/[locale]/(dashboard)/profile/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
-import { useRouter, useParams } from 'next/navigation';
-import { 
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Trophy, 
+import {useEffect, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {User} from '@supabase/supabase-js';
+import {useRouter, useParams} from 'next/navigation';
+import {
+  User as UserIcon,
+  Mail,
+  Phone,
+  MapPin,
+  Trophy,
   Calendar,
   Shield,
   Target,
@@ -35,8 +34,8 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-  // Read locale from URL params
-  const { locale } = useParams<{ locale: string }>();
+  // Read locale from the URL segment: /{locale}/...
+  const {locale} = useParams<{locale: string}>();
 
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -53,42 +52,45 @@ export default function ProfilePage() {
   async function getProfile() {
     try {
       setError(null);
-      
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: {user},
+        error: userError
+      } = await supabase.auth.getUser();
+
       if (userError) throw userError;
+
       if (!user) {
+        // Localized login redirect
         router.push(`/${locale}/login`);
         return;
       }
 
       setUser(user);
 
-      // Query profile
-      const { data: profileData, error: profileError } = await supabase
+      const {data: profileData, error: profileError} = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      // If profile not found, create one
+      // Create a profile row if not found
       if (profileError && (profileError as any).code === 'PGRST116') {
         const fallbackName =
           user.user_metadata?.full_name ||
           user.email?.split('@')[0] ||
           'Hockey Player';
 
-        const { data: newProfile, error: insertError } = await supabase
+        const {data: newProfile, error: insertError} = await supabase
           .from('profiles')
-          .insert([{ id: user.id, full_name: fallbackName, email: user.email }])
+          .insert([{id: user.id, full_name: fallbackName, email: user.email}])
           .select()
           .single();
 
         if (insertError) {
           // Fallback to upsert
-          const { data: upsertProfile, error: upsertError } = await supabase
+          const {data: upsertProfile, error: upsertError} = await supabase
             .from('profiles')
-            .upsert({ id: user.id, full_name: fallbackName, email: user.email })
+            .upsert({id: user.id, full_name: fallbackName, email: user.email})
             .select()
             .single();
 
@@ -109,7 +111,6 @@ export default function ProfilePage() {
     }
   }
 
-  // Badge color for skill level
   const getSkillLevelColor = (level: string) => {
     const colors: Record<string, string> = {
       AAA: 'bg-purple-100 text-purple-800',
@@ -118,18 +119,21 @@ export default function ProfilePage() {
       B: 'bg-green-100 text-green-800',
       C: 'bg-yellow-100 text-yellow-800',
       'House League': 'bg-orange-100 text-orange-800',
-      Beginner: 'bg-gray-100 text-gray-800',
+      Beginner: 'bg-gray-100 text-gray-800'
     };
     return colors[level] || 'bg-gray-100 text-gray-800';
   };
 
-  // Tiny icon for position
   const getPositionIcon = (position: string) => {
     switch (position) {
-      case 'Forward': return '⚡';
-      case 'Defense': return '🛡️';
-      case 'Goalie': return '🥅';
-      default: return '🏒';
+      case 'Forward':
+        return '⚡';
+      case 'Defense':
+        return '🛡️';
+      case 'Goalie':
+        return '🥅';
+      default:
+        return '🏒';
     }
   };
 
@@ -179,7 +183,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Incomplete profile hint
   const isIncomplete =
     !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
 
@@ -192,7 +195,9 @@ export default function ProfilePage() {
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800">Complete your profile</h3>
+                <h3 className="text-sm font-medium text-yellow-800">
+                  Complete your profile
+                </h3>
                 <p className="mt-1 text-sm text-yellow-700">
                   Add your hockey details to find better game matches and connect with other players.
                 </p>
@@ -210,6 +215,7 @@ export default function ProfilePage() {
         {/* Header card */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+
           <div className="relative px-6 pb-6">
             {/* Avatar */}
             <div className="absolute -top-12 left-6">
@@ -234,6 +240,7 @@ export default function ProfilePage() {
               <h1 className="text-3xl font-bold text-gray-900">
                 {profile.full_name || 'Hockey Player'}
               </h1>
+
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.age_group && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
@@ -241,7 +248,11 @@ export default function ProfilePage() {
                   </span>
                 )}
                 {profile.skill_level && (
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSkillLevelColor(profile.skill_level)}`}>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSkillLevelColor(
+                      profile.skill_level
+                    )}`}
+                  >
                     {profile.skill_level}
                   </span>
                 )}
@@ -329,7 +340,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats preview (static placeholder) */}
+        {/* Stats preview (placeholder) */}
         <div className="mt-6 bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h2>
           <div className="grid grid-cols-3 gap-4 text-center">

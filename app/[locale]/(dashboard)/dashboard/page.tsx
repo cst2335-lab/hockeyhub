@@ -2,15 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useParams } from 'next/navigation' // Added
 
 /**
  * Dashboard summary metrics
  * - Wrap data loader with useCallback to satisfy exhaustive-deps rule.
  */
 export default function DashboardPage() {
-  const { locale } = useParams<{ locale: string }>() // Read locale from URL params
-
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState({
     gamesOpen: 0,
@@ -59,10 +56,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div
-      className="container mx-auto px-4 py-8"
-      data-locale={locale} // Attach locale to DOM to avoid unused variable lint
-    >
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">

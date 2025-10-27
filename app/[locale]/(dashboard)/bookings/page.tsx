@@ -1,63 +1,75 @@
-'use client'
+// app/(dashboard)/bookings/page.tsx
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
-import { formatCurrency, formatDate } from '@/lib/utils/format'
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import Link from 'next/link';
+import {usePathname, useRouter} from 'next/navigation';
+import {formatCurrency, formatDate} from '@/lib/utils/format';
 
 /**
  * Bookings list page
- * - Localize routes with locale from useParams()
- * - Guard with auth; redirect to /{locale}/login when not signed in
- * - Keep data loader wrapped in useCallback
+ * - Derive locale from pathname and localize internal links.
+ * - Require auth: redirect unauthenticated users to /{locale}/login.
+ * - Wrap fetchBookings with useCallback and include in useEffect deps.
  */
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Read locale from URL for localized navigations/links
-  const { locale } = useParams<{ locale: string }>()
-  const router = useRouter()
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Derive locale from the first path segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+
+  // Helper to build a locale-prefixed path
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   const fetchBookings = useCallback(async () => {
-    const supabase = createClient()
+    const supabase = createClient();
 
-    // Require auth and redirect to localized login when not signed in
-    const { data: { user } } = await supabase.auth.getUser()
+    // Auth check: redirect to localized login when no user
+    const {
+      data: {user},
+    } = await supabase.auth.getUser();
     if (!user) {
-      router.push(`/${locale}/login`)
-      return
+      router.push(withLocale('/login'));
+      setLoading(false);
+      return;
     }
 
-    const { data, error } = await supabase
+    const {data, error} = await supabase
       .from('bookings')
-      .select(`
+      .select(
+        `
         *,
         rinks (name, address)
-      `)
+      `
+      )
+      // Show only current user's bookings (keeps intent of "My Bookings")
       .eq('user_id', user.id)
-      .order('booking_date', { ascending: true })
+      .order('booking_date', {ascending: true});
 
     if (error) {
-      console.error('Failed to load bookings:', error)
-      setBookings([])
+      console.error('Failed to load bookings:', error);
+      setBookings([]);
     } else {
-      setBookings(data || [])
+      setBookings(data || []);
     }
-    setLoading(false)
-  }, [locale, router])
+    setLoading(false);
+  }, [router, locale]); // locale affects redirect target
 
   useEffect(() => {
-    fetchBookings()
-  }, [fetchBookings])
+    fetchBookings();
+  }, [fetchBookings]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -75,7 +87,7 @@ export default function BookingsPage() {
           {bookings.map((b) => (
             <Link
               key={b.id}
-              href={`/${locale}/bookings/${b.id}`}
+              href={withLocale(`/bookings/${b.id}`)}
               className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
             >
               <div className="flex items-start justify-between">
@@ -96,5 +108,5 @@ export default function BookingsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

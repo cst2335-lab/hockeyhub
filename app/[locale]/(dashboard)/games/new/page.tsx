@@ -1,16 +1,21 @@
-// app/[locale]/(dashboard)/games/new/page.tsx
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter, useParams } from 'next/navigation';
+import {useMemo, useState} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy } from 'lucide-react';
+import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
 
 export default function CreateGamePage() {
   const router = useRouter();
-  const { locale } = useParams<{ locale: string }>();
-  const supabase = useMemo(() => createClient(), []);
+  const pathname = usePathname();
+  const supabase = createClient();
+
+  // Derive locale from the first path segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+
+  // Helper to build a locale-prefixed path
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,58 +27,51 @@ export default function CreateGamePage() {
     skill_level: 'Intermediate',
     description: '',
     max_players: '',
-    contact_info: '',
+    contact_info: ''
   });
 
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
 
-  // locale-aware link helper
-  const withLocale = useCallback(
-    (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
-    [locale]
-  );
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading) return;
     setLoading(true);
 
     try {
-      // Require auth
+      // Require auth and redirect to localized login
       const {
-        data: { user },
+        data: {user}
       } = await supabase.auth.getUser();
+
       if (!user) {
-        alert('Please login to post a game');
         router.push(withLocale('/login'));
         return;
       }
 
       // Create game invitation
-      const { data, error } = await supabase
+      const {data, error} = await supabase
         .from('game_invitations')
         .insert({
-          title: formData.title.trim(),
+          title: formData.title,
           game_date: formData.game_date,
           game_time: formData.game_time,
-          location: formData.location.trim(),
+          location: formData.location,
           age_group: formData.age_group,
           skill_level: formData.skill_level,
-          description: formData.description.trim(),
-          max_players: formData.max_players ? parseInt(formData.max_players, 10) : null,
-          contact_info: formData.contact_info.trim(),
+          description: formData.description,
+          max_players: formData.max_players ? parseInt(formData.max_players) : null,
+          contact_info: formData.contact_info,
           status: 'open',
           created_by: user.id,
           view_count: 0,
-          interested_count: 0,
+          interested_count: 0
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Localized redirect to game details
+      // Localized redirect to details page
       router.push(withLocale(`/games/${data.id}`));
     } catch (error: any) {
       console.error('Error creating game:', error);
@@ -86,14 +84,13 @@ export default function CreateGamePage() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value
     }));
   }
 
-  // Tomorrow as min date
+  // Use tomorrow as the earliest selectable date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
@@ -191,7 +188,8 @@ export default function CreateGamePage() {
             <div>
               <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
                 <Users className="inline h-4 w-4 mr-1" />
-                Age Group *</label>
+                Age Group *
+              </label>
               <select
                 id="age_group"
                 name="age_group"
@@ -200,7 +198,7 @@ export default function CreateGamePage() {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {ageGroups.map((group) => (
+                {ageGroups.map(group => (
                   <option key={group} value={group}>
                     {group}
                   </option>
@@ -210,7 +208,8 @@ export default function CreateGamePage() {
             <div>
               <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
                 <Trophy className="inline h-4 w-4 mr-1" />
-                Skill Level *</label>
+                Skill Level *
+              </label>
               <select
                 id="skill_level"
                 name="skill_level"
@@ -219,7 +218,7 @@ export default function CreateGamePage() {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {skillLevels.map((level) => (
+                {skillLevels.map(level => (
                   <option key={level} value={level}>
                     {level}
                   </option>

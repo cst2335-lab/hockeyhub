@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function NewClubPage() {
   const router = useRouter()
-  const { locale } = useParams<{ locale: string }>()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
@@ -40,13 +38,17 @@ export default function NewClubPage() {
 
     try {
       const supabase = createClient()
+      
+      // Get current user
       const { data: { user } } = await supabase.auth.getUser()
+      
       if (!user) {
         setMessage('Please login to create a club')
         setLoading(false)
         return
       }
 
+      // Create club
       const { data, error } = await supabase
         .from('clubs')
         .insert({
@@ -63,7 +65,7 @@ export default function NewClubPage() {
       } else {
         setMessage('Club created successfully!')
         setTimeout(() => {
-          router.push(`/${locale}/clubs`)
+          router.push('/clubs')
         }, 1500)
       }
     } catch (error) {
@@ -78,12 +80,12 @@ export default function NewClubPage() {
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href={`/${locale}`} className="text-xl font-bold">🏒 HockeyHub</Link>
+          <a href="/" className="text-xl font-bold">🏒 HockeyHub</a>
           <div className="flex gap-4">
-            <Link href={`/${locale}/games`} className="text-gray-600">Games</Link>
-            <Link href={`/${locale}/rinks`} className="text-gray-600">Rinks</Link>
-            <Link href={`/${locale}/clubs`} className="text-blue-600">Clubs</Link>
-            <Link href={`/${locale}/profile`} className="text-gray-600">Profile</Link>
+            <a href="/games" className="text-gray-600">Games</a>
+            <a href="/rinks" className="text-gray-600">Rinks</a>
+            <a href="/clubs" className="text-blue-600">Clubs</a>
+            <a href="/profile" className="text-gray-600">Profile</a>
           </div>
         </div>
       </nav>
@@ -240,7 +242,7 @@ export default function NewClubPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push(`/${locale}/clubs`)}
+                onClick={() => router.push('/clubs')}
                 className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
               >
                 Cancel

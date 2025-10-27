@@ -1,12 +1,12 @@
-// app/[locale]/(dashboard)/notifications/page.tsx
+// app/(dashboard)/notifications/page.tsx
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
+import {useEffect, useState, useMemo} from 'react';
+import {createClient} from '@/lib/supabase/client';
+import {Bell, Check, CheckCheck, Trash2, ExternalLink} from 'lucide-react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { useParams, useRouter } from 'next/navigation';
+import {format} from 'date-fns';
+import {usePathname, useRouter} from 'next/navigation';
 
 interface Notification {
   id: string;
@@ -23,21 +23,35 @@ interface Notification {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
-  // Read locale for localized routing/links
-  const { locale } = useParams<{ locale: string }>();
+  const supabase = createClient();
+  const pathname = usePathname();
   const router = useRouter();
+
+  // Derive locale from the first URL segment: /{locale}/...
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+
+  // Helper to prefix a path with current locale (keeps external links intact)
+  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
+  const localizeLink = (href: string) => {
+    if (!href) return href;
+    // Keep full URLs and mailto/tel as-is
+    if (/^(https?:)?\/\//i.test(href) || /^(mailto:|tel:)/i.test(href)) return href;
+    // Already localized?
+    if (href.startsWith(`/${locale}/`)) return href;
+    // Prefix with current locale
+    return withLocale(href.startsWith('/') ? href : `/${href}`);
+  };
 
   useEffect(() => {
     loadNotifications();
 
-    // Subscribe to real-time notifications
+    // Subscribe to real-time notifications (current user only)
     const channel = supabase
       .channel('notifications')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'notifications' },
+        {event: '*', schema: 'public', table: 'notifications'},
         () => {
           loadNotifications();
         }
@@ -52,25 +66,34 @@ export default function NotificationsPage() {
 
   async function loadNotifications() {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: {user},
+        error: userError
+      } = await supabase.auth.getUser();
+
       if (userError) {
         console.error('Error getting user:', userError);
-        setLoading(false);
         return;
       }
+
       if (!user) {
-        // Redirect to localized login when not signed in
-        router.push(`/${locale}/login`);
+        // Localized redirect when unauthenticated
+        router.push(withLocale('/login'));
         return;
       }
 
-      const { data, error } = await supabase
+      const {data, error} = await supabase
         .from('notifications')
-        .select('id, user_id, type, title, message, link, related_id, is_read, created_at')
+        .select(
+          'id, user_id, type, title, message, link, related_id, is_read, created_at'
+        )
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', {ascending: false});
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading notifications:', error);
+        throw error;
+      }
 
       setNotifications(data || []);
     } catch (error) {
@@ -82,13 +105,9 @@ export default function NotificationsPage() {
 
   async function markAsRead(id: string) {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
+      const {error} = await supabase.from('notifications').update({is_read: true}).eq('id', id);
       if (error) throw error;
-
-      setNotifications(prev => prev.map(n => (n.id === id ? { ...n, is_read: true } : n)));
+      setNotifications(prev => prev.map(n => (n.id === id ? {...n, is_read: true} : n)));
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -96,17 +115,19 @@ export default function NotificationsPage() {
 
   async function markAllAsRead() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {user}
+      } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      const {error} = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({is_read: true})
         .eq('user_id', user.id)
         .eq('is_read', false);
-      if (error) throw error;
 
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      if (error) throw error;
+      setNotifications(prev => prev.map(n => ({...n, is_read: true})));
     } catch (error) {
       console.error('Error marking all as read:', error);
     }
@@ -114,9 +135,8 @@ export default function NotificationsPage() {
 
   async function deleteNotification(id: string) {
     try {
-      const { error } = await supabase.from('notifications').delete().eq('id', id);
+      const {error} = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
-
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -153,19 +173,6 @@ export default function NotificationsPage() {
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  // Helper to localize internal links stored in notification.link
-  const localizeLink = (raw: string) => {
-    if (!raw) return '';
-    // external links unchanged
-    if (/^https?:\/\//i.test(raw)) return raw;
-    // already localized
-    if (raw.startsWith(`/${locale}/`)) return raw;
-    // absolute app path -> prefix with /{locale}
-    if (raw.startsWith('/')) return `/${locale}${raw}`;
-    // relative path -> make it /{locale}/{raw}
-    return `/${locale}/${raw}`;
   };
 
   if (loading) {
@@ -213,7 +220,7 @@ export default function NotificationsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {notifications.map((notification) => {
+          {notifications.map(notification => {
             const href = notification.link ? localizeLink(notification.link) : null;
             return (
               <div
@@ -226,11 +233,17 @@ export default function NotificationsPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{getTypeIcon(notification.type)}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(notification.type)}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getTypeColor(
+                          notification.type
+                        )}`}
+                      >
                         {notification.type.replace('_', ' ').toUpperCase()}
                       </span>
                       {!notification.is_read && (
-                        <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">NEW</span>
+                        <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded-full">
+                          NEW
+                        </span>
                       )}
                     </div>
 
