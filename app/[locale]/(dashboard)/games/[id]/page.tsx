@@ -1,4 +1,4 @@
-//app/[locale]/(dashboard)/games/[id]/page.tsx
+// app/[locale]/(dashboard)/games/[id]/page.tsx
 'use client';
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
@@ -8,6 +8,8 @@ import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
 import { ArrowLeft } from 'lucide-react';
 
+type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
+
 type Game = {
   id: string;
   title: string;
@@ -16,7 +18,7 @@ type Game = {
   age_group: string;
   skill_level: string;
   description: string | null;
-  status: 'open' | 'matched' | 'closed';
+  status: GameStatus;
   created_by: string;
   rink_id: string | null;
   host_club_id: string | null;
@@ -102,7 +104,12 @@ export default function GameDetailsPage() {
         if (rink) g.rink = rink;
       }
 
-      setGame(g);
+      // normalize status
+      if (g.status && !['open', 'matched', 'closed', 'cancelled'].includes(g.status)) {
+        g.status = 'open';
+      }
+
+      setGame(g as Game);
 
       // interest + rating (for logged-in)
       if (auth.user) {
@@ -121,7 +128,7 @@ export default function GameDetailsPage() {
           setShowContactInfo(false);
         }
 
-        if (g.status === 'matched') {
+        if ((g as Game).status === 'matched') {
           const { data: rating } = await supabase
             .from('game_ratings')
             .select('*')
@@ -282,7 +289,15 @@ export default function GameDetailsPage() {
     );
   }
 
+  // ✅ 这里不再重复声明 isCreator
   const gameDateFormatted = new Date(game.game_date).toLocaleDateString();
+
+  const statusBadge: Record<GameStatus, string> = {
+    open: 'bg-green-100 text-green-800',
+    matched: 'bg-blue-100 text-blue-800',
+    closed: 'bg-gray-100 text-gray-800',
+    cancelled: 'bg-red-100 text-red-800',
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -316,15 +331,7 @@ export default function GameDetailsPage() {
                   <p><strong>Skill Level:</strong> {game.skill_level}</p>
                   <p>
                     <strong>Status:</strong>
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-sm ${
-                        game.status === 'open'
-                          ? 'bg-green-100 text-green-800'
-                          : game.status === 'matched'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
+                    <span className={`ml-2 px-2 py-1 rounded text-sm ${statusBadge[game.status]}`}>
                       {game.status}
                     </span>
                   </p>
