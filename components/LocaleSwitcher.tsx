@@ -1,49 +1,24 @@
-// components/LocaleSwitcher.tsx
 'use client';
 
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {Globe} from 'lucide-react';
+import {locales as SUPPORTED_LIST} from '@/i18n';
 
-const LOCALES = [
-  {code: 'en', label: 'English'},
-  {code: 'fr', label: 'Français'}
-] as const;
+const SUPPORTED = new Set(SUPPORTED_LIST as readonly string[]);
+const DEFAULT_LOCALE = 'en';
 
-const SUPPORTED = new Set(LOCALES.map(l => l.code));
-const DEFAULT_LOCALE = 'en' as const;
-
-/**
- * Replace the first path segment with the new locale.
- * Keeps the rest of the path intact and preserves query params.
- */
 function buildPathWithLocale(pathname: string, newLocale: string): string {
-  // Normalize input
   const path = pathname || '/';
+  const segs = path.split('/'); // 保留空段，从而 se gs[1] 是第一层
+  const first = segs[1] ?? '';
 
-  // Split into segments, keep empty segments so index is stable:
-  // "/en/games" -> ["", "en", "games"]
-  const segments = path.split('/');
-
-  // If first segment isn't a supported locale, we treat it as no-locale path.
-  // Examples:
-  //   "/"              -> ["", ""]
-  //   "/about"         -> ["", "about"]
-  //   "/en"            -> ["", "en"]
-  //   "/fr/rinks"      -> ["", "fr", "rinks"]
-  const first = segments[1] ?? '';
-
-  if (SUPPORTED.has(first)) {
-    // Replace in-place
-    segments[1] = newLocale;
+  if (SUPPORTED.has(first as any)) {
+    segs[1] = newLocale;            // /en/... -> /fr/...
   } else {
-    // Insert locale after the leading empty segment
-    // "/about" -> "/en/about"
-    segments.splice(1, 0, newLocale);
+    segs.splice(1, 0, newLocale);   // /about -> /fr/about
   }
-
-  // Join back. Remove duplicate slashes, but keep leading slash.
-  const next = segments.join('/').replace(/\/{2,}/g, '/');
-
-  return next.endsWith('/') && next !== '/' ? next.slice(0, -1) : next;
+  const joined = segs.join('/').replace(/\/{2,}/g, '/');
+  return joined.endsWith('/') && joined !== '/' ? joined.slice(0, -1) : joined;
 }
 
 export default function LocaleSwitcher() {
@@ -51,50 +26,43 @@ export default function LocaleSwitcher() {
   const search = useSearchParams();
   const router = useRouter();
 
-  // Derive current locale from pathname’s first segment
   const currentLocale = (() => {
-    if (!pathname) return DEFAULT_LOCALE;
-    const seg = pathname.split('/').filter(Boolean)[0];
-    return SUPPORTED.has(seg as any) ? (seg as typeof DEFAULT_LOCALE) : DEFAULT_LOCALE;
+    const first = pathname?.split('/').filter(Boolean)[0];
+    return (first && SUPPORTED.has(first as any)) ? (first as string) : DEFAULT_LOCALE;
   })();
 
   const switchLocale = (newLocale: string) => {
-    if (!pathname) {
-      // Fallback if pathname is not yet available
-      router.push(`/${newLocale}`);
-      return;
-    }
-    if (newLocale === currentLocale) return;
-
+    if (!pathname || newLocale === currentLocale) return;
     const base = buildPathWithLocale(pathname, newLocale);
-
-    // Preserve query string if present
     const qs = search?.toString();
-    const url = qs && qs.length ? `${base}?${qs}` : base;
-
-    router.push(url);
+    const url = qs ? `${base}?${qs}` : base;
+    router.push(url); // 或 replace(url) 也可以
   };
 
   return (
-    <div className="inline-flex items-center gap-2" role="group" aria-label="Locale switcher">
-      <span aria-hidden>🌐</span>
-      {LOCALES.map(({code, label}) => {
+    <div
+      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-1 py-1"
+      role="group"
+      aria-label="Locale switcher"
+    >
+      <Globe className="h-4 w-4 mx-2 text-slate-500" aria-hidden />
+      {SUPPORTED_LIST.map(code => {
         const active = code === currentLocale;
         return (
           <button
             key={code}
-            type="button"
             onClick={() => switchLocale(code)}
-            className={`text-sm px-2 py-1 rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={[
+              'h-8 min-w-10 px-3 rounded-full text-sm transition',
               active
-                ? 'bg-gray-900 text-white border-gray-900 focus:ring-gray-900'
-                : 'bg-white hover:bg-gray-100 border-gray-300 focus:ring-gray-300'
-            }`}
+                ? 'bg-sky-600 text-white shadow'
+                : 'text-slate-700 hover:bg-slate-100'
+            ].join(' ')}
             aria-pressed={active}
             aria-current={active ? 'true' : undefined}
-            aria-label={`Switch language to ${label}`}
+            type="button"
           >
-            {label}
+            {code.toUpperCase()}
           </button>
         );
       })}
