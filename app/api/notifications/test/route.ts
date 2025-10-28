@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 export async function GET() {
   try {
     // 从cookies获取session
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createClient();
     
     // 获取session token
