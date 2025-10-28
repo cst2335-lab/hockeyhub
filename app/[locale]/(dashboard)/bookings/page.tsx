@@ -1,55 +1,49 @@
-// app/(dashboard)/bookings/page.tsx
+// app/[locale]/(dashboard)/bookings/page.tsx
 'use client';
 
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
-import {usePathname, useRouter} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {formatCurrency, formatDate} from '@/lib/utils/format';
 
 /**
  * Bookings list page
- * - Derive locale from pathname and localize internal links.
+ * - Read {locale} via useParams() and localize internal links.
  * - Require auth: redirect unauthenticated users to /{locale}/login.
- * - Wrap fetchBookings with useCallback and include in useEffect deps.
+ * - Only show current user's bookings.
+ * - Fetch wrapped in useCallback and used in useEffect deps.
  */
 export default function BookingsPage() {
+  const { locale } = useParams<{ locale: string }>();
+  const router = useRouter();
+
+  const supabase = useMemo(() => createClient(), []);
+  const withLocale = useCallback(
+    (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
+    [locale]
+  );
+
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const pathname = usePathname();
-  const router = useRouter();
-
-  // Derive locale from the first path segment: /{locale}/...
-  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
-
-  // Helper to build a locale-prefixed path
-  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
-
   const fetchBookings = useCallback(async () => {
-    const supabase = createClient();
-
-    // Auth check: redirect to localized login when no user
-    const {
-      data: {user},
-    } = await supabase.auth.getUser();
+    // Auth check
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push(withLocale('/login'));
       setLoading(false);
       return;
     }
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from('bookings')
-      .select(
-        `
+      .select(`
         *,
         rinks (name, address)
-      `
-      )
-      // Show only current user's bookings (keeps intent of "My Bookings")
+      `)
       .eq('user_id', user.id)
-      .order('booking_date', {ascending: true});
+      .order('booking_date', { ascending: true });
 
     if (error) {
       console.error('Failed to load bookings:', error);
@@ -58,7 +52,7 @@ export default function BookingsPage() {
       setBookings(data || []);
     }
     setLoading(false);
-  }, [router, locale]); // locale affects redirect target
+  }, [router, supabase, withLocale]);
 
   useEffect(() => {
     fetchBookings();
@@ -67,7 +61,7 @@ export default function BookingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -91,14 +85,16 @@ export default function BookingsPage() {
               className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
             >
               <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold">{b.rinks?.name ?? 'Rink'}</h3>
+                <div className="min-w-0">
+                  <h3 className="text-xl font-semibold truncate">
+                    {b.rinks?.name ?? 'Rink'}
+                  </h3>
                   <p className="text-gray-600 mt-1">
                     📅 {formatDate(b.booking_date)} — {b.start_time} ~ {b.end_time}
                   </p>
-                  <p className="text-gray-600">{b.rinks?.address}</p>
+                  <p className="text-gray-600 truncate">{b.rinks?.address}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <div className="text-sm text-gray-600 mb-1">Total</div>
                   <div className="font-bold">{formatCurrency(b.total)}</div>
                 </div>

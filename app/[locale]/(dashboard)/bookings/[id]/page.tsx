@@ -1,63 +1,64 @@
+// app/[locale]/(dashboard)/bookings/[id]/page.tsx
 'use client';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useState, useEffect, useCallback, useMemo} from 'react';
 import {createClient} from '@/lib/supabase/client';
-import {usePathname, useParams, useRouter} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import {formatCurrency, formatDate} from '@/lib/utils/format';
 
 /**
  * Booking detail page
- * - Derive locale from pathname and localize internal links.
- * - Require auth: redirect unauthenticated users to /{locale}/login.
- * - Read booking id via useParams(), wrap loader with useCallback.
+ * - Read params via useParams() to get locale and id.
+ * - Require auth: unauthenticated users are redirected to /{locale}/login.
+ * - Only allow the owner to read the booking (filter by user_id).
+ * - Wrap data loader with useCallback to satisfy exhaustive-deps.
  */
 export default function BookingDetailPage() {
+  const router = useRouter();
+  const { locale, id: bookingId } = useParams<{ locale: string; id: string }>();
+
+  const supabase = useMemo(() => createClient(), []);
+  const withLocale = useCallback(
+    (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
+    [locale]
+  );
+
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const {id: bookingId} = useParams<{id: string}>();
-
-  // Derive locale from the first path segment: /{locale}/...
-  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
-
-  // Helper to build a locale-prefixed path
-  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
-
   const fetchBookingDetail = useCallback(async () => {
     if (!bookingId) return;
-    const supabase = createClient();
 
-    // Auth check: redirect to localized login when no user
-    const {
-      data: {user},
-    } = await supabase.auth.getUser();
+    // Auth check: redirect to localized login if no user
+    const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) {
       router.push(withLocale('/login'));
       setLoading(false);
       return;
     }
 
-    const {data, error} = await supabase
+    // Fetch booking that belongs to the current user
+    const { data, error } = await supabase
       .from('bookings')
       .select(
         `
-        *,
-        rinks (name, address, phone, hourly_rate)
-      `
+          *,
+          rinks (name, address, phone, hourly_rate)
+        `
       )
       .eq('id', bookingId)
+      .eq('user_id', user.id)
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error('Error fetching booking:', error);
       router.push(withLocale('/bookings'));
     } else {
       setBooking(data);
     }
     setLoading(false);
-  }, [bookingId, router, locale]); // locale affects redirect target
+  }, [bookingId, router, supabase, withLocale]);
 
   useEffect(() => {
     fetchBookingDetail();
@@ -66,10 +67,10 @@ export default function BookingDetailPage() {
   const handleCancel = async () => {
     if (!bookingId) return;
     if (!confirm('Are you sure you want to cancel this booking?')) return;
-    const supabase = createClient();
-    const {error} = await supabase
+
+    const { error } = await supabase
       .from('bookings')
-      .update({status: 'cancelled'})
+      .update({ status: 'cancelled' })
       .eq('id', bookingId);
 
     if (error) {
@@ -83,7 +84,7 @@ export default function BookingDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -122,7 +123,9 @@ export default function BookingDetailPage() {
             <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>{booking.status}</span>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-blue-600">{formatCurrency(booking.total)}</p>
+            <p className="text-3xl font-bold text-blue-600">
+              {formatCurrency(booking.total)}
+            </p>
             <p className="text-sm text-gray-600">Total Amount</p>
           </div>
         </div>

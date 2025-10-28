@@ -1,24 +1,36 @@
+// app/[locale]/(dashboard)/games/[id]/edit/page.tsx
 'use client';
 
-import {useMemo, useState} from 'react';
-import {createClient} from '@/lib/supabase/client';
-import {usePathname, useRouter} from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
 
-export default function CreateGamePage() {
+type GameStatus = 'open' | 'matched' | 'cancelled' | 'closed';
+
+interface GameData {
+  title: string;
+  game_date: string;
+  game_time: string;
+  location: string;
+  age_group: string;
+  skill_level: string;
+  description: string;
+  max_players: string;
+  contact_info: string;
+  status: GameStatus;
+}
+
+export default function EditGamePage() {
   const router = useRouter();
-  const pathname = usePathname();
-  const supabase = createClient();
+  const { locale, id: gameId } = useParams<{ locale: string; id: string }>();
+  const supabase = useMemo(() => createClient(), []);
 
-  // Derive locale from the first path segment: /{locale}/...
-  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
-
-  // Helper to build a locale-prefixed path
-  const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
-
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [formData, setFormData] = useState<GameData>({
     title: '',
     game_date: '',
     game_time: '',
@@ -27,31 +39,92 @@ export default function CreateGamePage() {
     skill_level: 'Intermediate',
     description: '',
     max_players: '',
-    contact_info: ''
+    contact_info: '',
+    status: 'open',
   });
 
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
+  // 统一状态：允许 cancelled/closed（二者在不同页面曾用过）
+  const statusOptions: { value: GameStatus; label: string }[] = [
+    { value: 'open',      label: 'Open - Accepting responses' },
+    { value: 'matched',   label: 'Matched - Found opponent' },
+    { value: 'cancelled', label: 'Cancelled - No longer available' },
+    { value: 'closed',    label: 'Closed' },
+  ];
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
+  const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
 
+  const loadGame = useCallback(async () => {
     try {
-      // Require auth and redirect to localized login
-      const {
-        data: {user}
-      } = await supabase.auth.getUser();
-
+      // Require auth
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push(withLocale('/login'));
         return;
       }
 
-      // Create game invitation
-      const {data, error} = await supabase
+      // Load game
+      const { data: game, error } = await supabase
         .from('game_invitations')
-        .insert({
+        .select('*')
+        .eq('id', gameId)
+        .single();
+
+      if (error || !game) {
+        alert('Game not found');
+        router.push(withLocale('/my-games'));
+        return;
+      }
+
+      // Ownership check
+      if (game.created_by !== user.id) {
+        alert('You can only edit your own games');
+        router.push(withLocale(`/games/${gameId}`));
+        return;
+      }
+
+      setIsOwner(true);
+      setFormData({
+        title: game.title || '',
+        game_date: game.game_date || '',
+        game_time: game.game_time || '',
+        location: game.location || '',
+        age_group: game.age_group || 'U11',
+        skill_level: game.skill_level || 'Intermediate',
+        description: game.description || '',
+        max_players: game.max_players?.toString() || '',
+        contact_info: game.contact_info || '',
+        status: (game.status as GameStatus) || 'open',
+      });
+    } catch (err) {
+      console.error('Error loading game:', err);
+      alert('Failed to load game');
+      router.push(withLocale('/my-games'));
+    } finally {
+      setLoading(false);
+    }
+  }, [gameId, router, supabase, withLocale]);
+
+  useEffect(() => {
+    loadGame();
+  }, [loadGame]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      // 再做一次鉴权，且在 UPDATE 时附带 created_by 限制，防越权
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push(withLocale('/login'));
+        return;
+      }
+
+      const { error } = await supabase
+        .from('game_invitations')
+        .update({
           title: formData.title,
           game_date: formData.game_date,
           game_time: formData.game_time,
@@ -59,41 +132,52 @@ export default function CreateGamePage() {
           age_group: formData.age_group,
           skill_level: formData.skill_level,
           description: formData.description,
-          max_players: formData.max_players ? parseInt(formData.max_players) : null,
+          max_players: formData.max_players ? parseInt(formData.max_players, 10) : null,
           contact_info: formData.contact_info,
-          status: 'open',
-          created_by: user.id,
-          view_count: 0,
-          interested_count: 0
+          status: formData.status,
         })
-        .select()
-        .single();
+        .eq('id', gameId)
+        .eq('created_by', user.id); // 只更新本人创建的
 
       if (error) throw error;
 
-      // Localized redirect to details page
-      router.push(withLocale(`/games/${data.id}`));
-    } catch (error: any) {
-      console.error('Error creating game:', error);
-      alert(error.message || 'Failed to create game');
+      // Go to details (localized)
+      router.push(withLocale(`/games/${gameId}`));
+    } catch (err: any) {
+      console.error('Error updating game:', err);
+      alert(err.message || 'Failed to update game');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   }
 
-  // Use tomorrow as the earliest selectable date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isOwner) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">You don't have permission to edit this game</p>
+          <Link href={withLocale('/my-games')} className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+            Back to My Games
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -101,18 +185,36 @@ export default function CreateGamePage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href={withLocale('/games')}
+            href={withLocale('/my-games')}
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Games
+            Back to My Games
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Post a Game</h1>
-          <p className="mt-2 text-gray-600">Create a game invitation for other teams</p>
+          <h1 className="text-3xl font-bold text-gray-900">Edit Game</h1>
+          <p className="mt-2 text-gray-600">Update your game information</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+          {/* Status */}
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+              Game Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {statusOptions.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -142,7 +244,6 @@ export default function CreateGamePage() {
                 id="game_date"
                 name="game_date"
                 required
-                min={minDate}
                 value={formData.game_date}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -199,9 +300,7 @@ export default function CreateGamePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {ageGroups.map(group => (
-                  <option key={group} value={group}>
-                    {group}
-                  </option>
+                  <option key={group} value={group}>{group}</option>
                 ))}
               </select>
             </div>
@@ -219,9 +318,7 @@ export default function CreateGamePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {skillLevels.map(level => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
+                  <option key={level} value={level}>{level}</option>
                 ))}
               </select>
             </div>
@@ -275,37 +372,30 @@ export default function CreateGamePage() {
               placeholder="e.g., Coach John - 613-555-0123"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="mt-1 text-sm text-gray-500">This will be shared only with interested teams</p>
+            <p className="mt-1 text-sm text-gray-500">
+              This will be shared only with interested teams
+            </p>
           </div>
 
           {/* Submit Buttons */}
           <div className="flex gap-4 pt-4">
             <button
               type="submit"
-              disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              disabled={saving}
+              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
             >
-              {loading ? 'Creating...' : 'Post Game'}
+              <Save className="h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
             <Link
-              href={withLocale('/games')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition"
+              href={withLocale('/my-games')}
+              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition flex items-center justify-center gap-2"
             >
+              <X className="h-4 w-4" />
               Cancel
             </Link>
           </div>
         </form>
-
-        {/* Tips */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">Tips for a successful game post:</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Include specific time and location details</li>
-            <li>• Be clear about skill level expectations</li>
-            <li>• Mention if you have ice time already booked</li>
-            <li>• Provide contact information for quick responses</li>
-          </ul>
-        </div>
       </div>
     </div>
   );
