@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import {useEffect, useState, useMemo} from 'react';
+import {useEffect, useState, useMemo, Suspense} from 'react'; // ← 添加 Suspense
 import {usePathname} from 'next/navigation';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
@@ -20,7 +20,6 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
 
-  // === 从路径解析 locale（仅允许 en / fr），并提供 withLocale 助手 ===
   const seg = pathname?.split('/').filter(Boolean)[0] ?? '';
   const locale = SUPPORTED.has(seg as any) ? (seg as 'en' | 'fr') : 'en';
   const withLocale = (p: string) => (`/${locale}${p}`).replace(/\/{2,}/g, '/');
@@ -42,14 +41,12 @@ export default function Navbar() {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    // 回到当前语言首页
     window.location.href = withLocale('/');
   };
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
       <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
-        {/* 左侧：品牌（悬停浮起 + 发光） */}
         <Link href={withLocale('/')} className="flex items-center gap-3 group" aria-label="Go home">
           <span
             aria-hidden
@@ -71,7 +68,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* 中间：主导航 */}
         <ul className="hidden md:flex items-center gap-6 text-[15px]">
           <li>
             <Link
@@ -114,10 +110,11 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* 右侧：语言切换 + 登录/用户区 */}
         <div className="flex items-center gap-3">
-          {/* 🌐 语言切换（已在组件内处理切换路径） */}
-          <LocaleSwitcher />
+          {/* ✅ 用 Suspense 包裹 LocaleSwitcher */}
+          <Suspense fallback={<div className="w-20 h-8" />}>
+            <LocaleSwitcher />
+          </Suspense>
 
           {user ? (
             <>
@@ -185,7 +182,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* 顶部细蓝条 */}
       <div className="h-[3px] w-full bg-gradient-to-r from-blue-600 via-sky-400 to-blue-600" />
     </header>
   );
