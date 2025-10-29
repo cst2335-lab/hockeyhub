@@ -1,8 +1,11 @@
 // app/[locale]/layout.tsx
+import '../globals.css';
 import {NextIntlClientProvider} from 'next-intl';
 import {notFound} from 'next/navigation';
 import type {ReactNode} from 'react';
 import {locales} from '../../i18n';
+import Navbar from '@/components/layout/navbar';
+import Footer from '@/components/layout/footer';
 
 type Params = { locale: string };
 
@@ -19,9 +22,9 @@ export default async function LocaleLayout({
   params
 }: {
   children: ReactNode;
-  params: Promise<Params>; // ← 关键：这里是 Promise
+  params: Promise<Params>;
 }) {
-  const { locale } = await params; // ← 关键：需要 await
+  const { locale } = await params;
 
   // 严格校验 locale
   if (!(locales as readonly string[]).includes(locale)) {
@@ -32,8 +35,14 @@ export default async function LocaleLayout({
   const messages = (await import(`../../messages/${locale}.json`)).default;
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Navbar />
+          {children}
+          <Footer />
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }
