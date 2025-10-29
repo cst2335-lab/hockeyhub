@@ -1,12 +1,14 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 export default function LoginPage() {
-  const { locale } = useParams<{ locale: string }>() // read locale
+  const { locale } = useParams<{ locale: string }>()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -29,7 +31,6 @@ export default function LoginPage() {
       setMessage('Error: ' + error.message)
     } else {
       setMessage('Login successful!')
-      // localize redirect after successful login
       window.location.href = `/${locale}/games`
     }
     setLoading(false)
