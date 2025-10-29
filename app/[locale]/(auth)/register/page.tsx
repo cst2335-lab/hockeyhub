@@ -1,25 +1,26 @@
+//app/[locale]/(auth)/register/page.tsx
+
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useParams } from 'next/navigation'; // Added
+import { useParams } from 'next/navigation';
 
-export default function RegisterPage() {
+// 注册表单组件
+function RegisterForm() {
   const router = useRouter();
-  const { locale } = useParams<{ locale: string }>(); // Read locale
+  const { locale } = useParams<{ locale: string }>();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(1); // Two-step registration
+  const [step, setStep] = useState(1);
   
-  // Step 1: Basic info
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   
-  // Step 2: Hockey profile
   const [profile, setProfile] = useState({
     age_group: '',
     skill_level: '',
@@ -46,7 +47,6 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -55,7 +55,6 @@ export default function RegisterPage() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Update profile with hockey details
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
@@ -73,7 +72,6 @@ export default function RegisterPage() {
 
         if (profileError) throw profileError;
 
-        // Localized redirect after successful registration
         router.push(`/${locale}/dashboard`);
       }
     } catch (error: any) {
@@ -96,7 +94,6 @@ export default function RegisterPage() {
         </div>
 
         {step === 1 ? (
-          // Step 1: Basic Information
           <form className="mt-8 space-y-6" onSubmit={handleStep1Submit}>
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
@@ -154,10 +151,8 @@ export default function RegisterPage() {
             </button>
           </form>
         ) : (
-          // Step 2: Hockey Profile
           <form className="mt-8 space-y-4" onSubmit={handleRegister}>
             <div className="grid grid-cols-2 gap-4">
-              {/* Age Group */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Age Group *</label>
                 <select
@@ -177,7 +172,6 @@ export default function RegisterPage() {
                 </select>
               </div>
 
-              {/* Skill Level */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Skill Level *</label>
                 <select
@@ -197,7 +191,6 @@ export default function RegisterPage() {
                 </select>
               </div>
 
-              {/* Position */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Position *</label>
                 <select
@@ -214,7 +207,6 @@ export default function RegisterPage() {
                 </select>
               </div>
 
-              {/* Preferred Shot */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Shoots</label>
                 <select
@@ -229,7 +221,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Area */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Area/Location *</label>
               <select
@@ -253,7 +244,6 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {/* Years Playing */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Years Playing</label>
                 <input
@@ -266,7 +256,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Jersey Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Jersey #</label>
                 <input
@@ -279,7 +268,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Phone */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Phone Number</label>
               <input
@@ -324,5 +312,18 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ✅ 强制动态渲染
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// 页面导出：用 Suspense 包装
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

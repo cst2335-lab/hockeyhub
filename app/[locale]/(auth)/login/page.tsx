@@ -1,40 +1,40 @@
-'use client'
+//app/[locale]/login/page.tsx
+'use client';
 
-export const dynamic = 'force-dynamic'
+import { Suspense } from 'react';
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-
-export default function LoginPage() {
-  const { locale } = useParams<{ locale: string }>()
-
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+// 登录表单组件
+function LoginForm() {
+  const { locale } = useParams<{ locale: string }>();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage('')
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
 
-    const supabase = createClient()
+    const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
 
     if (error) {
-      setMessage('Error: ' + error.message)
+      setMessage('Error: ' + error.message);
     } else {
-      setMessage('Login successful!')
-      window.location.href = `/${locale}/games`
+      setMessage('Login successful!');
+      window.location.href = `/${locale}/games`;
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
@@ -96,5 +96,17 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
-  )
+  );
+}
+
+// ✅ 强制动态渲染
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
 }
