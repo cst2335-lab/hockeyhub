@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
@@ -10,11 +10,15 @@
     "notifications": "Notifications",
     "logout": "Sign Out",
     "login": "Sign In",
-    "register": "Get Started"
+    "register": "Get Started",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
   },
   "actions": {
     "join": "Post Game",
     "book": "Book",
+    "bookNow": "Book Now",
     "rent": "Rent",
     "pay": "Pay",
     "edit": "Edit",
@@ -22,7 +26,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "search": "Search",
-    "filter": "Filter"
+    "filter": "Filter",
+    "confirmBooking": "Confirm Booking"
   },
   "common": {
     "loading": "Loading...",
@@ -35,6 +40,56 @@
     "back": "Back",
     "next": "Next",
     "submit": "Submit"
+  },
+  "footer": {
+    "poweredBy": "Powered by Vercel"
+  },
+  "rinks": {
+    "title": "Ice Rinks in Ottawa",
+    "available": "{count} rinks available",
+    "searchPlaceholder": "Search rinks...",
+    "allPrices": "All Prices",
+    "budget": "Budget (< $170)",
+    "standard": "Standard ($170–$220)",
+    "premium": "Premium (> $220)",
+    "bandBudget": "Budget",
+    "bandStandard": "Standard",
+    "bandPremium": "Premium",
+    "sortByName": "Sort by Name",
+    "sortByPrice": "Price: Low → High",
+    "allCities": "All Cities",
+    "clearFilters": "Clear Filters",
+    "noMatch": "No rinks match your filters.",
+    "quickStats": "Quick Stats",
+    "totalRinks": "Total Rinks",
+    "avgPrice": "Average Price",
+    "lowestPrice": "Lowest Price",
+    "highestPrice": "Highest Price"
+  },
+  "book": {
+    "title": "Book {name}",
+    "rinkDetails": "Rink Details",
+    "bookingInfo": "Booking Information",
+    "date": "Date",
+    "startTime": "Start Time",
+    "duration": "Duration (hours)",
+    "selectTime": "Select time",
+    "hour": "{count} hour",
+    "hours": "{count} hours",
+    "priceSummary": "Price Summary",
+    "iceTime": "Ice Time ({hours} hours × ${rate})",
+    "platformFee": "Platform Fee (8%)",
+    "total": "Total",
+    "creating": "Creating Booking...",
+    "checkingAvailability": "checking availability...",
+    "booked": "booked",
+    "slotsBookedHint": "Some slots are already booked for this date. Booked slots are disabled."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "openGames": "Open Game Invitations",
+    "upcomingBookings": "Upcoming Bookings",
+    "totalRinks": "Total Rinks"
   },
   "games": {
     "title": "Available Games",

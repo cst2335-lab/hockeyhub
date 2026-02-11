@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 /**
@@ -8,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
  * - Wrap data loader with useCallback to satisfy exhaustive-deps rule.
  */
 export default function DashboardPage() {
+  const t = useTranslations('dashboard')
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState({
     gamesOpen: 0,
@@ -57,18 +59,18 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('title')}</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Open Game Invitations</div>
+          <div className="text-sm text-gray-600">{t('openGames')}</div>
           <div className="text-3xl font-bold">{metrics.gamesOpen}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Upcoming Bookings</div>
+          <div className="text-sm text-gray-600">{t('upcomingBookings')}</div>
           <div className="text-3xl font-bold">{metrics.bookingsUpcoming}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Total Rinks</div>
+          <div className="text-sm text-gray-600">{t('totalRinks')}</div>
           <div className="text-3xl font-bold">{metrics.rinksTotal}</div>
         </div>
       </div>

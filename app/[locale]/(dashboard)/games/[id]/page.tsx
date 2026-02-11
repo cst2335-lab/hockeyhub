@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
+import {toast} from 'sonner';
 import { ArrowLeft } from 'lucide-react';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
@@ -232,7 +233,7 @@ export default function GameDetailsPage() {
         opponentId = game.created_by;
       }
       if (!opponentId) {
-        alert('Cannot determine opponent');
+        toast.error('Cannot determine opponent');
         return;
       }
 
@@ -261,10 +262,10 @@ export default function GameDetailsPage() {
           .eq('id', opponentId);
       }
 
-      alert('Rating submitted successfully!');
+      toast.success('Rating submitted successfully!');
     } catch (e) {
       console.error('handleSubmitRating error:', e);
-      alert('Failed to submit rating');
+      toast.error('Failed to submit rating');
     }
   }, [currentUser, game, id, isCreator, ratingComment, tempRating, supabase]);
 

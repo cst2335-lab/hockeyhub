@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -128,10 +129,10 @@ export default function ManageRinkPage() {
         });
       }
 
-      alert('Rink information updated successfully!');
+      toast.success('Rink information updated successfully!');
     } catch (err) {
       console.error('update rink error:', err);
-      alert('Failed to update rink. Please try again.');
+      toast.error('Failed to update rink. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -162,7 +163,7 @@ export default function ManageRinkPage() {
               {/* 如果后续有申请页面，把链接换成对应路径 */}
               <button
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                onClick={() => alert('Coming soon: manager application flow')}
+                onClick={() => toast.info('Coming soon: manager application flow')}
               >
                 Apply to Manage a Rink
               </button>

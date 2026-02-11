@@ -4,10 +4,14 @@
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
+import {toast} from 'sonner';
+import {addHours, format, parse} from 'date-fns';
 
 export default function BookRinkPage() {
+  const t = useTranslations('book');
+  const tActions = useTranslations('actions');
   const router = useRouter();
-  // Read locale and rinkId from URL params (client-side)
   const { locale, rinkId } = useParams<{ locale: string; rinkId: string }>();
 
   const supabase = useMemo(() => createClient(), []);
@@ -15,6 +19,8 @@ export default function BookRinkPage() {
   const [rink, setRink] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [existingBookings, setExistingBookings] = useState<{ start_time: string; end_time: string }[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   // Form fields
   const [bookingDate, setBookingDate] = useState('');
@@ -45,17 +51,57 @@ export default function BookRinkPage() {
     fetchRink();
   }, [fetchRink]);
 
-  // pad hour/minute to HH:mm
+  // Fetch existing bookings for selected date (exclude cancelled)
+  const fetchExistingBookings = useCallback(async () => {
+    if (!rinkId || !bookingDate) {
+      setExistingBookings([]);
+      return;
+    }
+    setLoadingSlots(true);
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('start_time, end_time')
+      .eq('rink_id', rinkId)
+      .eq('booking_date', bookingDate)
+      .not('status', 'eq', 'cancelled');
+
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      setExistingBookings([]);
+    } else {
+      setExistingBookings((data ?? []).map((b) => ({ start_time: b.start_time || '00:00', end_time: b.end_time || '00:00' })));
+    }
+    setLoadingSlots(false);
+  }, [rinkId, bookingDate, supabase]);
+
+  useEffect(() => {
+    fetchExistingBookings();
+  }, [fetchExistingBookings]);
+
+  // Check if requested slot overlaps with any existing booking
+  const hasSlotConflict = useCallback(
+    (reqStart: string, reqEnd: string): boolean => {
+      for (const b of existingBookings) {
+        // Overlap: reqStart < b.end_time AND b.start_time < reqEnd
+        if (reqStart < b.end_time && b.start_time < reqEnd) return true;
+      }
+      return false;
+    },
+    [existingBookings]
+  );
+
   const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 
-  const calcEndTime = (start: string, durHours: number) => {
-    // start expected "HH:mm"
-    const [hStr = '0', mStr = '00'] = start.split(':');
-    const h = Math.max(0, Math.min(23, parseInt(hStr, 10) || 0));
-    const m = Math.max(0, Math.min(59, parseInt(mStr, 10) || 0));
-    // simple wraparound by 24h
-    const endH = (h + Math.max(1, durHours)) % 24;
-    return `${pad2(endH)}:${pad2(m)}`;
+  // Calculate end time using date-fns (handles overnight correctly)
+  const calcEndTime = (dateStr: string, startTime: string, durHours: number): { endTime: string; endDate: string; isOvernight: boolean } => {
+    const start = parse(`${dateStr} ${startTime}`, 'yyyy-MM-dd HH:mm', new Date());
+    const end = addHours(start, Math.max(1, durHours));
+    const isOvernight = format(start, 'yyyy-MM-dd') !== format(end, 'yyyy-MM-dd');
+    return {
+      endTime: format(end, 'HH:mm'),
+      endDate: format(end, 'yyyy-MM-dd'),
+      isOvernight,
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,7 +119,20 @@ export default function BookRinkPage() {
       }
 
       if (!bookingDate || !startTime || !hours) {
-        alert('Please fill date, start time and duration.');
+        toast.error('Please fill date, start time and duration.');
+        setSubmitting(false);
+        return;
+      }
+
+      const { endTime, isOvernight } = calcEndTime(bookingDate, startTime, hours);
+      if (isOvernight) {
+        toast.error('Bookings cannot span midnight. Please choose a shorter duration or earlier start time.');
+        setSubmitting(false);
+        return;
+      }
+
+      if (hasSlotConflict(startTime, endTime)) {
+        toast.error('This time slot is already booked. Please choose another time.');
         setSubmitting(false);
         return;
       }
@@ -86,14 +145,13 @@ export default function BookRinkPage() {
       const subtotal = hourlyRate * hours;
       const platformFee = +(subtotal * 0.08).toFixed(2);
       const total = +(subtotal + platformFee).toFixed(2);
-      const endTime = calcEndTime(startTime, hours);
 
       const { error } = await supabase.from('bookings').insert({
         user_id: user.id,
         rink_id: rinkId,
         booking_date: bookingDate, // yyyy-mm-dd
         start_time: startTime,     // HH:mm
-        end_time: endTime,         // HH:mm
+        end_time: endTime,         // HH:mm (same day)
         hours,
         subtotal,
         platform_fee: platformFee,
@@ -103,12 +161,11 @@ export default function BookRinkPage() {
 
       if (error) throw error;
 
-      alert('Booking created successfully! Redirecting to your bookings...');
-      // Localized redirect to bookings
+      toast.success('Booking created successfully! Redirecting...');
       router.push(withLocale('/bookings'));
     } catch (err) {
       console.error('Booking error:', err);
-      alert('Failed to create booking. Please try again.');
+      toast.error('Failed to create booking. Please try again.');
       setSubmitting(false);
     }
   };
@@ -143,22 +200,22 @@ export default function BookRinkPage() {
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">Book {rink.name}</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('title', { name: rink.name })}</h1>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Rink Details</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('rinkDetails')}</h2>
         <p className="text-gray-600">{rink.address}</p>
         {rink.phone && <p className="text-gray-600">{rink.phone}</p>}
         <p className="text-lg font-medium mt-2">${hourlyRate}/hour</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Booking Information</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('bookingInfo')}</h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date
+              {t('date')}
             </label>
             <input
               type="date"
@@ -172,7 +229,10 @@ export default function BookRinkPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Time
+              {t('startTime')}
+              {loadingSlots && bookingDate && (
+                <span className="ml-2 text-xs text-gray-500">({t('checkingAvailability')})</span>
+              )}
             </label>
             <select
               required
@@ -180,18 +240,28 @@ export default function BookRinkPage() {
               onChange={(e) => setStartTime(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Select time</option>
-              {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map((hour) => (
-                <option key={hour} value={`${pad2(hour)}:00`}>
-                  {pad2(hour)}:00
-                </option>
-              ))}
+              <option value="">{t('selectTime')}</option>
+              {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map((hour) => {
+                const slotStart = `${pad2(hour)}:00`;
+                const { endTime: slotEnd, isOvernight } = calcEndTime(bookingDate, slotStart, hours);
+                const isOccupied = bookingDate && !isOvernight && hasSlotConflict(slotStart, slotEnd);
+                return (
+                  <option key={hour} value={slotStart} disabled={!!isOccupied}>
+                    {pad2(hour)}:00 {isOccupied ? `(${t('booked')})` : ''}
+                  </option>
+                );
+              })}
             </select>
+            {existingBookings.length > 0 && bookingDate && (
+              <p className="mt-1 text-xs text-amber-600">
+                {t('slotsBookedHint')}
+              </p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Duration (hours)
+              {t('duration')}
             </label>
             <select
               value={hours}
@@ -200,25 +270,25 @@ export default function BookRinkPage() {
             >
               {[1,2,3,4].map((h) => (
                 <option key={h} value={h}>
-                  {h} hour{h > 1 ? 's' : ''}
+                  {h === 1 ? t('hour', { count: 1 }) : t('hours', { count: h })}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="pt-4 border-t">
-            <h3 className="font-medium mb-2">Price Summary</h3>
+            <h3 className="font-medium mb-2">{t('priceSummary')}</h3>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span>Ice Time ({hours} hours × ${hourlyRate})</span>
+                <span>{t('iceTime', { hours, rate: hourlyRate })}</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Platform Fee (8%)</span>
+                <span>{t('platformFee')}</span>
                 <span>${platformFee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                <span>Total</span>
+                <span>{t('total')}</span>
                 <span>${total.toFixed(2)}</span>
               </div>
             </div>
@@ -229,7 +299,7 @@ export default function BookRinkPage() {
             disabled={submitting}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Creating Booking...' : 'Confirm Booking'}
+            {submitting ? t('creating') : tActions('confirmBooking')}
           </button>
         </div>
       </form>

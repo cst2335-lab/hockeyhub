@@ -2,8 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import {useEffect, useState, useMemo, Suspense} from 'react'; // ← 添加 Suspense
+import {useEffect, useState, useMemo, useCallback, Suspense} from 'react';
 import {usePathname} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
 import {Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
@@ -17,26 +18,54 @@ function cx(...cls: (string | false | null | undefined)[]) {
 const SUPPORTED = new Set(['en', 'fr']);
 
 export default function Navbar() {
+  const t = useTranslations('nav');
+  const tActions = useTranslations('actions');
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
 
   const seg = pathname?.split('/').filter(Boolean)[0] ?? '';
   const locale = SUPPORTED.has(seg as any) ? (seg as 'en' | 'fr') : 'en';
   const withLocale = (p: string) => (`/${locale}${p}`).replace(/\/{2,}/g, '/');
 
+  const loadUnreadCount = useCallback(async () => {
+    const { data: { user: u } } = await supabase.auth.getUser();
+    if (!u) return;
+    const { count } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', u.id)
+      .eq('is_read', false);
+    setUnreadCount(count ?? 0);
+  }, [supabase]);
+
   useEffect(() => {
     let unsub: (() => void) | undefined;
+    let channelCleanup: (() => void) | undefined;
     (async () => {
-      const {data: {user}} = await supabase.auth.getUser();
-      setUser(user ?? null);
-      const {data} = supabase.auth.onAuthStateChange((_e, session) => {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      setUser(u ?? null);
+      if (u) {
+        loadUnreadCount();
+        const ch = supabase
+          .channel('navbar-notifications')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${u.id}` }, loadUnreadCount)
+          .subscribe();
+        channelCleanup = () => supabase.removeChannel(ch);
+      }
+      const { data } = supabase.auth.onAuthStateChange((_e, session) => {
         setUser(session?.user ?? null);
+        if (session?.user) loadUnreadCount();
+        else setUnreadCount(0);
       });
       unsub = () => data.subscription.unsubscribe();
     })();
-    return () => unsub?.();
-  }, [supabase]);
+    return () => {
+      unsub?.();
+      channelCleanup?.();
+    };
+  }, [supabase, loadUnreadCount]);
 
   const isActive = (href: string) => pathname?.startsWith(withLocale(href));
 
@@ -63,7 +92,7 @@ export default function Navbar() {
                   : 'text-slate-700 hover:text-sky-700 hover:bg-slate-50'
               )}
             >
-              <Home className="h-4 w-4" /> Games
+              <Home className="h-4 w-4" /> {t('games')}
             </Link>
           </li>
           <li>
@@ -76,7 +105,7 @@ export default function Navbar() {
                   : 'text-slate-700 hover:text-sky-700 hover:bg-slate-50'
               )}
             >
-              <Users className="h-4 w-4" /> Clubs
+              <Users className="h-4 w-4" /> {t('clubs')}
             </Link>
           </li>
           <li>
@@ -89,7 +118,7 @@ export default function Navbar() {
                   : 'text-slate-700 hover:text-sky-700 hover:bg-slate-50'
               )}
             >
-              <MapPin className="h-4 w-4" /> Rinks
+              <MapPin className="h-4 w-4" /> {t('rinks')}
             </Link>
           </li>
         </ul>
@@ -104,10 +133,17 @@ export default function Navbar() {
             <>
               <Link
                 href={withLocale('/notifications')}
-                className="hidden sm:inline-flex h-9 items-center gap-2 px-3 rounded-lg
+                className="hidden sm:inline-flex h-9 items-center gap-2 px-3 rounded-lg relative
                            text-slate-700 hover:text-sky-700 hover:bg-slate-50 transition"
+                aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
               >
-                <Bell className="h-4 w-4" /> Notifications
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium px-1">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+                {t('notifications')}
               </Link>
 
               <Link
@@ -116,7 +152,7 @@ export default function Navbar() {
                            bg-gradient-to-r from-blue-600 to-sky-500 hover:to-sky-400
                            shadow hover:shadow-md transition"
               >
-                Post Game
+                {tActions('join')}
               </Link>
 
               <div className="relative group">
@@ -133,13 +169,13 @@ export default function Navbar() {
                              transition"
                 >
                   <Link href={withLocale('/profile')} className="block px-3 py-2 text-sm hover:bg-slate-50">
-                    My Profile
+                    {t('profile')}
                   </Link>
                   <button
                     onClick={logout}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2"
                   >
-                    <LogOut className="h-4 w-4" /> Logout
+                    <LogOut className="h-4 w-4" /> {t('logout')}
                   </button>
                 </div>
               </div>
@@ -151,7 +187,7 @@ export default function Navbar() {
                 className="h-9 inline-flex items-center px-3 rounded-lg text-slate-700
                            hover:text-sky-700 hover:bg-slate-50 transition"
               >
-                Login
+                {t('login')}
               </Link>
               <Link
                 href={withLocale('/register')}
@@ -159,7 +195,7 @@ export default function Navbar() {
                            bg-gradient-to-r from-blue-600 to-sky-500 hover:to-sky-400
                            shadow hover:shadow-md transition"
               >
-                Sign Up
+                {t('register')}
               </Link>
             </>
           )}

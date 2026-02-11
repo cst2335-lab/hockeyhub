@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils/format'
 
@@ -19,6 +21,9 @@ type Rink = {
 type PriceBand = 'all' | 'budget' | 'standard' | 'premium'
 
 export default function RinksPage() {
+  const t = useTranslations('rinks')
+  const tActions = useTranslations('actions')
+  const tCommon = useTranslations('common')
   const [rinks, setRinks] = useState<Rink[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -27,6 +32,10 @@ export default function RinksPage() {
   const [price, setPrice] = useState<PriceBand>('all')
   const [sort, setSort] = useState<'name' | 'price'>('name')
   const [city, setCity] = useState<string>('all')
+
+  const pathname = usePathname()
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
+  const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/')
 
   // Load rinks (wrapped with useCallback for stable deps)
   const fetchRinks = useCallback(async () => {
@@ -62,9 +71,9 @@ export default function RinksPage() {
 
   const band = (rate: number) => {
     if (Number.isNaN(rate)) return null
-    if (rate < 170) return 'Budget'
-    if (rate <= 220) return 'Standard'
-    return 'Premium'
+    if (rate < 170) return t('bandBudget')
+    if (rate <= 220) return t('bandStandard')
+    return t('bandPremium')
   }
 
   // Apply search / filters / sorting
@@ -131,8 +140,8 @@ export default function RinksPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-extrabold mb-2">Ice Rinks in Ottawa</h1>
-      <p className="text-gray-600 mb-6">{filtered.length} rinks available</p>
+      <h1 className="text-4xl font-extrabold mb-2">{t('title')}</h1>
+      <p className="text-gray-600 mb-6">{t('available', { count: filtered.length })}</p>
 
       {/* Toolbar */}
       <div className="bg-white rounded-xl shadow p-4 mb-6 grid gap-4 md:grid-cols-4">
@@ -141,7 +150,7 @@ export default function RinksPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search rinks..."
+              placeholder={t('searchPlaceholder')}
               className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md"
             />
             <span className="absolute right-3 top-2.5 text-gray-400">⌕</span>
@@ -153,10 +162,10 @@ export default function RinksPage() {
           onChange={(e) => setPrice(e.target.value as PriceBand)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
         >
-          <option value="all">All Prices</option>
-          <option value="budget">Budget (&lt; $170)</option>
-          <option value="standard">Standard ($170–$220)</option>
-          <option value="premium">Premium (&gt; $220)</option>
+          <option value="all">{t('allPrices')}</option>
+          <option value="budget">{t('budget')}</option>
+          <option value="standard">{t('standard')}</option>
+          <option value="premium">{t('premium')}</option>
         </select>
 
         <select
@@ -164,8 +173,8 @@ export default function RinksPage() {
           onChange={(e) => setSort(e.target.value as 'name' | 'price')}
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
         >
-          <option value="name">Sort by Name</option>
-          <option value="price">Price: Low → High</option>
+          <option value="name">{t('sortByName')}</option>
+          <option value="price">{t('sortByPrice')}</option>
         </select>
 
         <select
@@ -175,7 +184,7 @@ export default function RinksPage() {
         >
           {cities.map((c) => (
             <option key={c} value={c}>
-              {c === 'all' ? 'All Cities' : c}
+              {c === 'all' ? t('allCities') : c}
             </option>
           ))}
         </select>
@@ -189,14 +198,14 @@ export default function RinksPage() {
           }}
           className="w-full px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 md:col-span-1"
         >
-          Clear Filters
+          {t('clearFilters')}
         </button>
       </div>
 
       {/* Cards */}
       {filtered.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">No rinks match your filters.</p>
+          <p className="text-gray-500">{t('noMatch')}</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -233,12 +242,12 @@ export default function RinksPage() {
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  {/* Book Now → internal booking page */}
+                  {/* Book Now → internal booking page (locale-aware) */}
                   <Link
-                    href={`/book/${r.id}`}
+                    href={withLocale(`/book/${r.id}`)}
                     className="col-span-1 text-center px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                   >
-                    Book Now
+                    {tActions('bookNow')}
                   </Link>
 
                   {/* Map → open Google Maps place */}
@@ -272,24 +281,24 @@ export default function RinksPage() {
       {/* Quick Stats (based on filtered list) */}
       <div className="mt-10 p-6 bg-blue-50 rounded-xl flex flex-wrap items-center justify-around">
         <div className="text-center">
-          <h3 className="font-bold text-lg text-blue-900">Quick Stats</h3>
-          <p className="text-blue-800">Total Rinks: {stats.count}</p>
+          <h3 className="font-bold text-lg text-blue-900">{t('quickStats')}</h3>
+          <p className="text-blue-800">{t('totalRinks')}: {stats.count}</p>
         </div>
         <div className="text-center">
           <p className="text-blue-800">
-            Average Price:{' '}
+            {t('avgPrice')}:{' '}
             {stats.avg !== null ? `${formatCurrency(stats.avg)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
           <p className="text-blue-800">
-            Lowest Price:{' '}
+            {t('lowestPrice')}:{' '}
             {stats.min !== null ? `${formatCurrency(stats.min)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
           <p className="text-blue-800">
-            Highest Price:{' '}
+            {t('highestPrice')}:{' '}
             {stats.max !== null ? `${formatCurrency(stats.max)}/hr` : 'N/A'}
           </p>
         </div>

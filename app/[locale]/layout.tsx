@@ -3,6 +3,7 @@ import '../globals.css';
 import {NextIntlClientProvider} from 'next-intl';
 import {notFound} from 'next/navigation';
 import type {ReactNode} from 'react';
+import {Toaster} from 'sonner';
 import {locales} from '../../i18n';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
@@ -51,6 +52,7 @@ export default async function LocaleLayout({
           <Navbar />
           {children}
           <Footer />
+          <Toaster position="top-center" richColors closeButton />
         </NextIntlClientProvider>
       </body>
     </html>

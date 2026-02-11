@@ -1,4 +1,4 @@
-﻿{
+{
   "nav": {
     "home": "Accueil",
     "dashboard": "Tableau de bord",
@@ -10,11 +10,15 @@
     "notifications": "Notifications",
     "logout": "Déconnexion",
     "login": "Connexion",
-    "register": "Commencer"
+    "register": "Commencer",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "contact": "Contact"
   },
   "actions": {
     "join": "Publier un match",
     "book": "Réserver",
+    "bookNow": "Réserver",
     "rent": "Louer",
     "pay": "Payer",
     "edit": "Modifier",
@@ -22,7 +26,8 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "search": "Rechercher",
-    "filter": "Filtrer"
+    "filter": "Filtrer",
+    "confirmBooking": "Confirmer la réservation"
   },
   "common": {
     "loading": "Chargement...",
@@ -35,6 +40,56 @@
     "back": "Retour",
     "next": "Suivant",
     "submit": "Soumettre"
+  },
+  "footer": {
+    "poweredBy": "Propulsé par Vercel"
+  },
+  "rinks": {
+    "title": "Patinoires à Ottawa",
+    "available": "{count} patinoires disponibles",
+    "searchPlaceholder": "Rechercher des patinoires...",
+    "allPrices": "Tous les prix",
+    "budget": "Économique (< 170 $)",
+    "standard": "Standard (170–220 $)",
+    "premium": "Premium (> 220 $)",
+    "bandBudget": "Économique",
+    "bandStandard": "Standard",
+    "bandPremium": "Premium",
+    "sortByName": "Trier par nom",
+    "sortByPrice": "Prix : bas → haut",
+    "allCities": "Toutes les villes",
+    "clearFilters": "Effacer les filtres",
+    "noMatch": "Aucune patinoire ne correspond à vos critères.",
+    "quickStats": "Statistiques",
+    "totalRinks": "Total des patinoires",
+    "avgPrice": "Prix moyen",
+    "lowestPrice": "Prix le plus bas",
+    "highestPrice": "Prix le plus élevé"
+  },
+  "book": {
+    "title": "Réserver {name}",
+    "rinkDetails": "Détails de la patinoire",
+    "bookingInfo": "Informations de réservation",
+    "date": "Date",
+    "startTime": "Heure de début",
+    "duration": "Durée (heures)",
+    "selectTime": "Choisir l'heure",
+    "hour": "{count} heure",
+    "hours": "{count} heures",
+    "priceSummary": "Récapitulatif des prix",
+    "iceTime": "Glace ({hours} h × {rate} $)",
+    "platformFee": "Frais de plateforme (8 %)",
+    "total": "Total",
+    "creating": "Création en cours...",
+    "checkingAvailability": "vérification des disponibilités...",
+    "booked": "réservé",
+    "slotsBookedHint": "Certains créneaux sont déjà réservés pour cette date. Les créneaux réservés sont désactivés."
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "openGames": "Invitations de match ouvertes",
+    "upcomingBookings": "Réservations à venir",
+    "totalRinks": "Patinoires totales"
   },
   "games": {
     "title": "Matchs disponibles",

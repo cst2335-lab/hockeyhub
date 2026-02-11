@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
+import {toast} from 'sonner';
 
 type GameStatus = 'open' | 'matched' | 'cancelled' | 'closed';
 
@@ -72,14 +73,14 @@ export default function EditGamePage() {
         .single();
 
       if (error || !game) {
-        alert('Game not found');
+        toast.error('Game not found');
         router.push(withLocale('/my-games'));
         return;
       }
 
       // Ownership check
       if (game.created_by !== user.id) {
-        alert('You can only edit your own games');
+        toast.error('You can only edit your own games');
         router.push(withLocale(`/games/${gameId}`));
         return;
       }
@@ -99,7 +100,7 @@ export default function EditGamePage() {
       });
     } catch (err) {
       console.error('Error loading game:', err);
-      alert('Failed to load game');
+      toast.error('Failed to load game');
       router.push(withLocale('/my-games'));
     } finally {
       setLoading(false);
@@ -145,7 +146,7 @@ export default function EditGamePage() {
       router.push(withLocale(`/games/${gameId}`));
     } catch (err: any) {
       console.error('Error updating game:', err);
-      alert(err.message || 'Failed to update game');
+      toast.error(err.message || 'Failed to update game');
     } finally {
       setSaving(false);
     }

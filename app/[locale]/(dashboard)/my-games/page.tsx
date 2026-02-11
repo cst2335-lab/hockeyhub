@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { 
   Calendar, 
   MapPin, 
@@ -136,13 +137,13 @@ export default function MyGamesPage() {
       loadMyGames();
       
       if (newStatus === 'cancelled') {
-        alert('Game cancelled successfully');
+        toast.success('Game cancelled successfully');
       } else if (newStatus === 'matched') {
-        alert('Game marked as matched');
+        toast.success('Game marked as matched');
       }
     } catch (error) {
       console.error('Error updating game:', error);
-      alert('Failed to update game status');
+      toast.error('Failed to update game status');
     }
   }
 
@@ -160,10 +161,10 @@ export default function MyGamesPage() {
       if (error) throw error;
 
       loadMyGames();
-      alert('Game deleted successfully');
+      toast.success('Game deleted successfully');
     } catch (error) {
       console.error('Error deleting game:', error);
-      alert('Failed to delete game');
+      toast.error('Failed to delete game');
     }
   }
 
@@ -183,7 +184,7 @@ export default function MyGamesPage() {
       loadMyGames();
     } catch (error) {
       console.error('Error removing interest:', error);
-      alert('Failed to remove interest');
+      toast.error('Failed to remove interest');
     }
   }
 

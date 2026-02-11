@@ -1,6 +1,7 @@
 'use client';
 
 import {useMemo, useState} from 'react';
+import {toast} from 'sonner';
 import {createClient} from '@/lib/supabase/client';
 import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
@@ -75,7 +76,7 @@ export default function CreateGamePage() {
       router.push(withLocale(`/games/${data.id}`));
     } catch (error: any) {
       console.error('Error creating game:', error);
-      alert(error.message || 'Failed to create game');
+      toast.error(error.message || 'Failed to create game');
     } finally {
       setLoading(false);
     }

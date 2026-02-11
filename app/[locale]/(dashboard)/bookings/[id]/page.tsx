@@ -2,6 +2,7 @@
 'use client';
 
 import {useState, useEffect, useCallback, useMemo} from 'react';
+import {toast} from 'sonner';
 import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams} from 'next/navigation';
 import {formatCurrency, formatDate} from '@/lib/utils/format';
@@ -77,7 +78,7 @@ export default function BookingDetailPage() {
       console.error('Cancel failed:', error);
       return;
     }
-    alert('Booking cancelled successfully');
+    toast.success('Booking cancelled successfully');
     router.push(withLocale('/bookings'));
   };
 
