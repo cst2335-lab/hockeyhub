@@ -7,6 +7,11 @@ import {locales} from '../../i18n';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 
+export const metadata = {
+  icons: { icon: '/icon.svg', apple: '/icon-192.png' },
+  themeColor: '#2563eb',
+};
+
 type Params = { locale: string };
 
 /** 为 SSG 预生成 locale 段 */

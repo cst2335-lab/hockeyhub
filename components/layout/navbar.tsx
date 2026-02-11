@@ -6,8 +6,9 @@ import {useEffect, useState, useMemo, Suspense} from 'react'; // ← 添加 Susp
 import {usePathname} from 'next/navigation';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
-import {Home, Users, MapPin, Bell, LogOut, User as UserIcon, Trophy} from 'lucide-react';
+import {Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import { Logo } from '@/components/ui/logo';
 
 function cx(...cls: (string | false | null | undefined)[]) {
   return cls.filter(Boolean).join(' ');
@@ -47,25 +48,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
       <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
-        <Link href={withLocale('/')} className="flex items-center gap-3 group" aria-label="Go home">
-          <span
-            aria-hidden
-            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl
-                       bg-gradient-to-br from-blue-600 to-sky-400 text-white
-                       shadow-[0_8px_20px_rgba(56,189,248,.35)]
-                       ring-1 ring-white/30 transition-transform duration-200 ease-out
-                       group-hover:-translate-y-0.5"
-          >
-            <Trophy className="h-5 w-5" />
-          </span>
-          <span
-            className="text-2xl font-extrabold tracking-tight
-                       bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-sky-600
-                       drop-shadow-sm transition-colors duration-200
-                       group-hover:from-slate-900 group-hover:to-sky-500"
-          >
-            HockeyHub
-          </span>
+        <Link href={withLocale('/')} className="group" aria-label="Go home">
+          <Logo size="md" showText={true} light={false} className="group-hover:opacity-90 transition-opacity" />
         </Link>
 
         <ul className="hidden md:flex items-center gap-6 text-[15px]">

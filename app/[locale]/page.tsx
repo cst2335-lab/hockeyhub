@@ -1,25 +1,16 @@
 // app/[locale]/page.tsx
 import HeroSection from '@/components/features/hero-section';
 import GameCard from '@/components/features/game-card-working';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { createClient } from '@/lib/supabase/server';
 
 export default async function HomePage() {
+  const supabase = await createClient();
   const { data: games, error } = await supabase
     .from('game_invitations')
     .select('*')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
     .limit(6);
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Games fetched:', games);
-    console.log('Error:', error);
-  }
 
   return (
     <main>

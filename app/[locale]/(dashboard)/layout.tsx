@@ -124,7 +124,7 @@ export default function DashboardLayout({
             <div className="flex">
               <Link href={withLocale('/dashboard')} className="flex items-center px-2">
                 <span className="text-2xl">🏒</span>
-                <span className="ml-2 text-xl font-bold text-gray-900">HockeyHub</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">GoGoHockey</span>
               </Link>
 
               <div className="hidden md:ml-8 md:flex md:space-x-4">

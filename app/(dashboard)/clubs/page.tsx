@@ -36,7 +36,7 @@ export default function ClubsPage() {
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">🏒 HockeyHub</a>
+          <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
           <div className="flex gap-4">
             <a href="/games" className="text-gray-600">Games</a>
             <a href="/rinks" className="text-gray-600">Rinks</a>

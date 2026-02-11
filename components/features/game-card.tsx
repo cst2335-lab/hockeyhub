@@ -63,7 +63,7 @@ export default function HeroSection() {
           {/* Main heading with gradient */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-white">
-              HockeyHub
+              GoGoHockey
             </span>
           </h1>
 

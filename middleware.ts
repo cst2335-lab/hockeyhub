@@ -8,5 +8,6 @@ export default createMiddleware({
 });
 
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+  // Exclude debug pages, api, static files
+  matcher: ['/((?!api|_next|_vercel|check-database|test-connection|test-notifications|.*\\..*).*)'],
 };

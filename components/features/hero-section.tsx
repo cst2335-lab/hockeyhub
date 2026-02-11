@@ -3,41 +3,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, Trophy, Clock } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/ui/logo';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 export default function HeroSection() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'en';
+  const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
+
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-900">
-      {/* Animated background elements */}
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-sky-900">
+      {/* Animated background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20"></div>
-        
-        {/* Floating hockey pucks animation */}
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-15" />
         <motion.div
-          animate={{
-            rotate: 360,
-            x: [0, 100, 0],
-            y: [0, -50, 0]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-20 right-20 w-32 h-32 opacity-10"
-        >
-          <div className="w-full h-full rounded-full bg-white"></div>
-        </motion.div>
-        
+          animate={{ rotate: 360, x: [0, 80, 0], y: [0, -40, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-20 right-20 w-28 h-28 rounded-full bg-blue-500/10"
+        />
         <motion.div
-          animate={{
-            rotate: -360,
-            x: [0, -100, 0],
-            y: [0, 50, 0]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-20 left-20 w-40 h-40 opacity-10"
-        >
-          <div className="w-full h-full rounded-full bg-blue-400"></div>
-        </motion.div>
+          animate={{ rotate: -360, x: [0, -80, 0], y: [0, 40, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+          className="absolute bottom-20 left-20 w-36 h-36 rounded-full bg-cyan-500/10"
+        />
       </div>
 
       {/* Main content */}
@@ -48,27 +39,18 @@ export default function HeroSection() {
           transition={{ duration: 0.8 }}
           className="text-center max-w-5xl mx-auto"
         >
-          {/* Logo or icon */}
+          {/* GG Logo - bright blue */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 inline-block"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="mb-8"
           >
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-2xl">
-              <Trophy className="w-12 h-12 text-white" />
-            </div>
+            <Logo size="lg" showText={true} light className="justify-center" />
           </motion.div>
 
-          {/* Main heading with gradient */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-300 to-white">
-              HockeyHub
-            </span>
-          </h1>
-
           {/* Animated subtitle */}
-          <div className="text-xl sm:text-2xl md:text-3xl text-blue-200 mb-8 h-10">
+          <div className="text-xl sm:text-2xl md:text-3xl text-blue-200/90 mb-10 h-12 font-medium">
             <TypeAnimation
               sequence={[
                 'Find Your Next Game',
@@ -102,25 +84,25 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-14"
           >
-            <Link href="/games">
-              <Button 
+            <Link href={withLocale('/games')}>
+              <Button
                 size="xl"
-                className="group relative px-8 py-6 text-lg font-semibold overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+                className="group px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
               >
-                <span className="relative flex items-center gap-2">
+                <span className="flex items-center gap-2">
                   Find Games Now
                   <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
             </Link>
 
-            <Link href="/register">
+            <Link href={withLocale('/register')}>
               <Button
                 variant="outline"
                 size="xl"
-                className="border-2 border-blue-400/50 text-blue-300 backdrop-blur-sm hover:bg-blue-400/10 px-8 py-6 text-lg"
+                className="border-2 border-blue-400/60 text-blue-200 backdrop-blur-sm hover:bg-blue-400/15 hover:border-blue-400/80 px-8 py-6 text-lg"
               >
                 <PlayCircle className="mr-2" />
                 Get Started Free
@@ -133,7 +115,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="flex flex-wrap items-center justify-center gap-8 text-blue-300"
+            className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-blue-200/90"
           >
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5" />
