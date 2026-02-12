@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -20,6 +20,8 @@ type Rink = {
 }
 
 type PriceBand = 'all' | 'budget' | 'standard' | 'premium'
+
+const PAGE_SIZE = 20
 
 export default function RinksPage() {
   const t = useTranslations('rinks')
@@ -44,6 +46,7 @@ export default function RinksPage() {
   const [price, setPrice] = useState<PriceBand>('all')
   const [sort, setSort] = useState<'name' | 'price'>('name')
   const [city, setCity] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const pathname = usePathname()
   const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
@@ -121,10 +124,18 @@ export default function RinksPage() {
     return { count: filtered.length, avg, min, max }
   }, [filtered])
 
+  useEffect(() => setCurrentPage(1), [query, price, sort, city])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const paginatedRinks = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  )
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     )
   }
@@ -186,6 +197,7 @@ export default function RinksPage() {
             setPrice('all')
             setSort('name')
             setCity('all')
+            setCurrentPage(1)
           }}
           className="w-full px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 md:col-span-1"
         >
@@ -199,8 +211,9 @@ export default function RinksPage() {
           <p className="text-gray-500">{t('noMatch')}</p>
         </div>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((r) => {
+          {paginatedRinks.map((r) => {
             const rateNum = toNum(r.hourly_rate)
             const tag = band(rateNum)
             return (
@@ -267,28 +280,51 @@ export default function RinksPage() {
             )
           })}
         </div>
+
+        {filtered.length > PAGE_SIZE && (
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {t('prevPage')}
+            </button>
+            <span className="text-sm text-gray-600">
+              {t('pageOf', { current: currentPage, total: totalPages })}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {t('nextPage')}
+            </button>
+          </div>
+        )}
+        </>
       )}
 
       {/* Quick Stats (based on filtered list) */}
-      <div className="mt-10 p-6 bg-blue-50 rounded-xl flex flex-wrap items-center justify-around">
+      <div className="mt-10 p-6 bg-gogo-secondary/10 rounded-xl flex flex-wrap items-center justify-around">
         <div className="text-center">
-          <h3 className="font-bold text-lg text-blue-900">{t('quickStats')}</h3>
-          <p className="text-blue-800">{t('totalRinks')}: {stats.count}</p>
+          <h3 className="font-bold text-lg text-gogo-dark">{t('quickStats')}</h3>
+          <p className="text-gogo-primary">{t('totalRinks')}: {stats.count}</p>
         </div>
         <div className="text-center">
-          <p className="text-blue-800">
+          <p className="text-gogo-primary">
             {t('avgPrice')}:{' '}
             {stats.avg !== null ? `${formatCurrency(stats.avg)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-blue-800">
+          <p className="text-gogo-primary">
             {t('lowestPrice')}:{' '}
             {stats.min !== null ? `${formatCurrency(stats.min)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-blue-800">
+          <p className="text-gogo-primary">
             {t('highestPrice')}:{' '}
             {stats.max !== null ? `${formatCurrency(stats.max)}/hr` : 'N/A'}
           </p>

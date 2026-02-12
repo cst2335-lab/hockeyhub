@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { 
   Calendar, 
   MapPin, 
@@ -55,74 +57,58 @@ interface Stats {
 }
 
 export default function MyGamesPage() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [interestedGames, setInterestedGames] = useState<GameInterest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<Stats>({
-    total: 0,
-    open: 0,
-    matched: 0,
-    cancelled: 0,
-    totalViews: 0,
-    totalInterested: 0
-  });
+  const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const supabase = useMemo(() => createClient(), []);
+
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
+  const withLocale = useCallback((p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/'), [locale]);
+
   const [filter, setFilter] = useState<'all' | 'open' | 'matched' | 'cancelled'>('all');
   const [activeTab, setActiveTab] = useState<'posted' | 'interested'>('posted');
-  
-  const router = useRouter();
-  const supabase = createClient();
+
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['my-games', user?.id],
+    queryFn: async () => {
+      if (!user) return { games: [], interestedGames: [], stats: { total: 0, open: 0, matched: 0, cancelled: 0, totalViews: 0, totalInterested: 0 } };
+      const [gamesRes, interestsRes] = await Promise.all([
+        supabase.from('game_invitations').select('*').eq('created_by', user.id).order('created_at', { ascending: false }),
+        supabase.from('game_interests').select('*, game_invitations (*)').eq('user_id', user.id).order('created_at', { ascending: false }),
+      ]);
+      if (gamesRes.error) throw gamesRes.error;
+      const gamesData = (gamesRes.data || []) as Game[];
+      const interestedData = (interestsRes.data || []) as GameInterest[];
+      const stats: Stats = {
+        total: gamesData.length,
+        open: gamesData.filter((g) => g.status === 'open').length,
+        matched: gamesData.filter((g) => g.status === 'matched').length,
+        cancelled: gamesData.filter((g) => g.status === 'cancelled').length,
+        totalViews: gamesData.reduce((sum, g) => sum + (g.view_count || 0), 0),
+        totalInterested: gamesData.reduce((sum, g) => sum + (g.interested_count || 0), 0),
+      };
+      return { games: gamesData, interestedGames: interestedData, stats };
+    },
+    enabled: !!user,
+  });
+
+  const games = data?.games ?? [];
+  const interestedGames = data?.interestedGames ?? [];
+  const stats = data?.stats ?? { total: 0, open: 0, matched: 0, cancelled: 0, totalViews: 0, totalInterested: 0 };
 
   useEffect(() => {
-    loadMyGames();
-  }, []);
-
-  async function loadMyGames() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      // Load posted games
-      const { data, error } = await supabase
-        .from('game_invitations')
-        .select('*')
-        .eq('created_by', user.id)
-        .order('created_at', { ascending: false });
-
-      // Load interested games
-      const { data: interests, error: interestError } = await supabase
-        .from('game_interests')
-        .select(`
-          *,
-          game_invitations (*)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const gamesData = data || [];
-      setGames(gamesData);
-      setInterestedGames(interests || []);
-
-      // Calculate stats for posted games
-      const statsData = {
-        total: gamesData.length,
-        open: gamesData.filter(g => g.status === 'open').length,
-        matched: gamesData.filter(g => g.status === 'matched').length,
-        cancelled: gamesData.filter(g => g.status === 'cancelled').length,
-        totalViews: gamesData.reduce((sum, g) => sum + (g.view_count || 0), 0),
-        totalInterested: gamesData.reduce((sum, g) => sum + (g.interested_count || 0), 0)
-      };
-      setStats(statsData);
-
-    } catch (error) {
-      console.error('Error loading games:', error);
-    } finally {
-      setLoading(false);
+    if (!authLoading && !user) {
+      router.push(withLocale('/login'));
     }
+  }, [authLoading, user, router, withLocale]);
+
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" aria-hidden />
+      </div>
+    );
   }
 
   async function updateGameStatus(gameId: string, newStatus: string) {
@@ -134,7 +120,7 @@ export default function MyGamesPage() {
 
       if (error) throw error;
 
-      loadMyGames();
+      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
       
       if (newStatus === 'cancelled') {
         toast.success('Game cancelled successfully');
@@ -160,7 +146,7 @@ export default function MyGamesPage() {
 
       if (error) throw error;
 
-      loadMyGames();
+      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
       toast.success('Game deleted successfully');
     } catch (error) {
       console.error('Error deleting game:', error);
@@ -181,7 +167,7 @@ export default function MyGamesPage() {
 
       if (error) throw error;
 
-      loadMyGames();
+      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
     } catch (error) {
       console.error('Error removing interest:', error);
       toast.error('Failed to remove interest');
@@ -214,7 +200,7 @@ export default function MyGamesPage() {
       case 'open':
         return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Open</span>;
       case 'matched':
-        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Matched</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">Matched</span>;
       case 'cancelled':
         return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Cancelled</span>;
       default:
@@ -222,14 +208,16 @@ export default function MyGamesPage() {
     }
   }
 
-  const filteredGames = filter === 'all' 
-    ? games 
-    : games.filter(g => g.status === filter);
+  const filteredGames = filter === 'all'
+    ? games
+    : games.filter((g) => g.status === filter);
 
-  if (loading) {
+  const isLoading = authLoading || (!!user && loading);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary"></div>
       </div>
     );
   }
@@ -246,8 +234,8 @@ export default function MyGamesPage() {
             </p>
           </div>
           <Link
-            href="/games/new"
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            href={withLocale('/games/new')}
+            className="flex items-center px-4 py-2 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark"
           >
             <Plus className="h-5 w-5 mr-2" />
             Post New Game
@@ -260,7 +248,7 @@ export default function MyGamesPage() {
             onClick={() => setActiveTab('posted')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'posted'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
+                ? 'bg-white text-gogo-primary shadow-sm font-medium'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -270,7 +258,7 @@ export default function MyGamesPage() {
             onClick={() => setActiveTab('interested')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'interested'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
+                ? 'bg-white text-gogo-primary shadow-sm font-medium'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -291,7 +279,7 @@ export default function MyGamesPage() {
                 <div className="text-sm text-gray-500">Open</div>
               </div>
               <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-blue-600">{stats.matched}</div>
+                <div className="text-2xl font-bold text-gogo-primary">{stats.matched}</div>
                 <div className="text-sm text-gray-500">Matched</div>
               </div>
               <div className="bg-white rounded-lg shadow p-4">
@@ -314,7 +302,7 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('all')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'all' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
+                    ? 'border-gogo-primary text-gogo-primary font-medium' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -324,7 +312,7 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('open')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'open' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
+                    ? 'border-gogo-primary text-gogo-primary font-medium' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -334,7 +322,7 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('matched')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'matched' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
+                    ? 'border-gogo-primary text-gogo-primary font-medium' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -344,7 +332,7 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('cancelled')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'cancelled' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
+                    ? 'border-gogo-primary text-gogo-primary font-medium' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -407,11 +395,11 @@ export default function MyGamesPage() {
 
                           {/* Interest Alert */}
                           {game.interested_count > 0 && game.status === 'open' && (
-                            <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                              <AlertCircle className="inline h-4 w-4 text-blue-600 mr-1" />
-                              <span className="text-blue-800">
+                            <div className="mt-3 p-2 bg-gogo-secondary/10 border border-gogo-secondary/30 rounded text-sm">
+                              <AlertCircle className="inline h-4 w-4 text-gogo-primary mr-1" />
+                              <span className="text-gogo-primary">
                                 {game.interested_count} team{game.interested_count > 1 ? 's are' : ' is'} interested! 
-                                <Link href="/notifications" className="ml-2 underline font-medium">
+                                <Link href={withLocale('/notifications')} className="ml-2 underline font-medium">
                                   View in notifications
                                 </Link>
                               </span>
@@ -422,14 +410,14 @@ export default function MyGamesPage() {
                         {/* Actions */}
                         <div className="ml-4 flex flex-col space-y-2">
                           <Link
-                            href={`/games/${game.id}`}
-                            className="text-blue-600 hover:text-blue-800 text-sm"
+                            href={withLocale(`/games/${game.id}`)}
+                            className="text-gogo-primary hover:text-gogo-dark text-sm"
                           >
                             View Details
                           </Link>
                           
                           <Link
-                            href={`/games/${game.id}/edit`}
+                            href={withLocale(`/games/${game.id}/edit`)}
                             className="text-purple-600 hover:text-purple-800 text-sm"
                           >
                             Edit Game
@@ -481,8 +469,8 @@ export default function MyGamesPage() {
                 </h3>
                 <p className="text-gray-500 mb-6">Start by posting your first game invitation</p>
                 <Link
-                  href="/games/new"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  href={withLocale('/games/new')}
+                  className="inline-flex items-center px-4 py-2 bg-gogo-primary text-white rounded-md hover:bg-gogo-dark"
                 >
                   <Plus className="h-5 w-5 mr-2" />
                   Post Your First Game
@@ -544,8 +532,8 @@ export default function MyGamesPage() {
                       {/* Actions */}
                       <div className="ml-4 flex flex-col space-y-2">
                         <Link
-                          href={`/games/${interest.game_invitations?.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
+                          href={withLocale(`/games/${interest.game_invitations?.id}`)}
+                          className="text-gogo-primary hover:text-gogo-dark text-sm"
                         >
                           View Details
                         </Link>
@@ -567,8 +555,8 @@ export default function MyGamesPage() {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No games interested yet</h3>
                 <p className="text-gray-500 mb-6">Browse available games and show your interest</p>
                 <Link
-                  href="/games"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  href={withLocale('/games')}
+                  className="inline-flex items-center px-4 py-2 bg-gogo-primary text-white rounded-md hover:bg-gogo-dark"
                 >
                   Browse Games
                 </Link>

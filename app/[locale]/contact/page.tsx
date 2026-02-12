@@ -15,14 +15,14 @@ export default async function ContactPage({ params }: Props) {
         </p>
         <div className="bg-slate-50 rounded-lg p-6 mt-6">
           <p className="font-medium text-slate-900 mb-2">Email</p>
-          <a href="mailto:contact@gogohockey.ca" className="text-blue-600 hover:text-blue-800">
+          <a href="mailto:contact@gogohockey.ca" className="text-gogo-primary hover:text-gogo-dark">
             contact@gogohockey.ca
           </a>
           <p className="font-medium text-slate-900 mt-4 mb-2">Location</p>
           <p>Ottawa, Ontario, Canada</p>
         </div>
       </div>
-      <Link href={withLocale('/')} className="inline-block mt-8 text-blue-600 hover:text-blue-800">
+      <Link href={withLocale('/')} className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark">
         ← Back to Home
       </Link>
     </div>

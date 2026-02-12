@@ -162,7 +162,7 @@ export default function EditGamePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary"></div>
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function EditGamePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500">You don't have permission to edit this game</p>
-          <Link href={withLocale('/my-games')} className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+          <Link href={withLocale('/my-games')} className="text-gogo-primary hover:text-gogo-dark mt-4 inline-block">
             Back to My Games
           </Link>
         </div>
@@ -208,7 +208,7 @@ export default function EditGamePage() {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             >
               {statusOptions.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -229,7 +229,7 @@ export default function EditGamePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., U13 Friendly Match Looking for Opponent"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
           </div>
 
@@ -247,7 +247,7 @@ export default function EditGamePage() {
                 required
                 value={formData.game_date}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               />
             </div>
             <div>
@@ -262,7 +262,7 @@ export default function EditGamePage() {
                 required
                 value={formData.game_time}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               />
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function EditGamePage() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Bell Sensplex, Kanata"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
           </div>
 
@@ -298,7 +298,7 @@ export default function EditGamePage() {
                 required
                 value={formData.age_group}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               >
                 {ageGroups.map(group => (
                   <option key={group} value={group}>{group}</option>
@@ -316,7 +316,7 @@ export default function EditGamePage() {
                 required
                 value={formData.skill_level}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>{level}</option>
@@ -339,7 +339,7 @@ export default function EditGamePage() {
               value={formData.max_players}
               onChange={handleChange}
               placeholder="e.g., 20"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
           </div>
 
@@ -355,7 +355,7 @@ export default function EditGamePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide additional details about the game, rules, or requirements..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
           </div>
 
@@ -371,7 +371,7 @@ export default function EditGamePage() {
               value={formData.contact_info}
               onChange={handleChange}
               placeholder="e.g., Coach John - 613-555-0123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
             <p className="mt-1 text-sm text-gray-500">
               This will be shared only with interested teams
@@ -383,7 +383,7 @@ export default function EditGamePage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
             >
               <Save className="h-4 w-4" />
               {saving ? 'Saving...' : 'Save Changes'}

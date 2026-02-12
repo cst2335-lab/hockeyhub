@@ -4,7 +4,8 @@ import {useEffect, useState} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
-import {Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText} from 'lucide-react';
+import {useTranslations} from 'next-intl';
+import {Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText, Settings} from 'lucide-react';
 
 /**
  * Dashboard shell (top nav + children)
@@ -16,6 +17,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations('nav');
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -25,6 +27,7 @@ export default function DashboardLayout({
 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isRinkManager, setIsRinkManager] = useState(false);
 
   // Build a localized href safely (avoid double slashes)
   const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
@@ -73,8 +76,15 @@ export default function DashboardLayout({
     } = await supabase.auth.getUser();
     if (user) {
       setUserEmail(user.email || null);
+      const {data: manager} = await supabase
+        .from('rink_managers')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('verified', true)
+        .maybeSingle();
+      setIsRinkManager(!!manager);
     } else {
-      // Localized redirect when unauthenticated
+      setIsRinkManager(false);
       router.push(withLocale('/login'));
     }
   }
@@ -105,13 +115,15 @@ export default function DashboardLayout({
   }
 
   // Define nav items without locale; we prepend it via `withLocale`
+  // rinkManagerOnly: only show for verified rink managers
   const navItems = [
-    {path: '/dashboard', label: 'Dashboard', icon: Home},
-    {path: '/games', label: 'Games', icon: Trophy},
-    {path: '/my-games', label: 'My Games', icon: FileText},
-    {path: '/rinks', label: 'Rinks', icon: MapPin},
-    {path: '/bookings', label: 'My Bookings', icon: Calendar},
-    {path: '/clubs', label: 'Clubs', icon: Users}
+    {path: '/dashboard', labelKey: 'dashboard', icon: Home, rinkManagerOnly: false},
+    {path: '/games', labelKey: 'games', icon: Trophy, rinkManagerOnly: false},
+    {path: '/my-games', labelKey: 'myGames', icon: FileText, rinkManagerOnly: false},
+    {path: '/rinks', labelKey: 'rinks', icon: MapPin, rinkManagerOnly: false},
+    {path: '/bookings', labelKey: 'myBookings', icon: Calendar, rinkManagerOnly: false},
+    {path: '/clubs', labelKey: 'clubs', icon: Users, rinkManagerOnly: false},
+    {path: '/manage-rink', labelKey: 'manageRink', icon: Settings, rinkManagerOnly: true},
   ] as const;
 
   return (
@@ -122,34 +134,36 @@ export default function DashboardLayout({
           <div className="flex justify-between h-16">
             {/* Logo + Desktop Nav */}
             <div className="flex">
-              <Link href={withLocale('/dashboard')} className="flex items-center px-2">
+              <Link href={withLocale('/')} className="flex items-center px-2" aria-label="Go to homepage">
                 <span className="text-2xl">🏒</span>
                 <span className="ml-2 text-xl font-bold text-gray-900">GoGoHockey</span>
               </Link>
 
               <div className="hidden md:ml-8 md:flex md:space-x-4">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const href = withLocale(item.path);
-                  const isActive =
-                    pathname === href ||
-                    (item.path !== '/dashboard' && pathname?.startsWith(href));
+                {navItems
+                  .filter((item) => !item.rinkManagerOnly || isRinkManager)
+                  .map((item) => {
+                    const Icon = item.icon;
+                    const href = withLocale(item.path);
+                    const isActive =
+                      pathname === href ||
+                      (item.path !== '/dashboard' && pathname?.startsWith(href));
 
-                  return (
-                    <Link
-                      key={item.path}
-                      href={href}
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
-                        isActive
-                          ? 'text-blue-600 bg-blue-50'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 mr-2" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
+                    return (
+                      <Link
+                        key={item.path}
+                        href={href}
+                        className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
+                          isActive
+                            ? 'text-gogo-primary bg-gogo-secondary/10'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 mr-2" />
+                      {t(item.labelKey)}
+                      </Link>
+                    );
+                  })}
               </div>
             </div>
 
@@ -158,9 +172,10 @@ export default function DashboardLayout({
               {/* Notifications */}
               <Link
                 href={withLocale('/notifications')}
-                className={`relative p-2 rounded-full transition ${
+                aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
+                className={`relative p-2 rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 ${
                   pathname === withLocale('/notifications')
-                    ? 'text-blue-600 bg-blue-50'
+                    ? 'text-gogo-primary bg-gogo-secondary/10'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
@@ -177,7 +192,8 @@ export default function DashboardLayout({
                 <span className="text-sm text-gray-700 hidden sm:block">{userEmail}</span>
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition"
+                  aria-label={t('logout')}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
                 >
                   <LogOut className="h-4 w-4" />
                   <span className="ml-2 hidden sm:inline">Logout</span>
@@ -190,7 +206,9 @@ export default function DashboardLayout({
         {/* Mobile Navigation */}
         <div className="md:hidden border-t">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => {
+            {navItems
+              .filter((item) => !item.rinkManagerOnly || isRinkManager)
+              .map((item) => {
               const Icon = item.icon;
               const href = withLocale(item.path);
               const isActive =
@@ -202,12 +220,12 @@ export default function DashboardLayout({
                   href={href}
                   className={`block px-3 py-2 rounded-md text-base font-medium ${
                     isActive
-                      ? 'text-blue-600 bg-blue-50'
+                      ? 'text-gogo-primary bg-gogo-secondary/10'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="inline h-4 w-4 mr-2" />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}

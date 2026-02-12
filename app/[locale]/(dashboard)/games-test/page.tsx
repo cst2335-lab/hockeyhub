@@ -60,7 +60,7 @@ export default function GamesTestPage() {
   if (loading) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
   }
@@ -71,7 +71,7 @@ export default function GamesTestPage() {
         <h1 className="text-2xl font-bold">Games Test</h1>
         <Link
           href={withLocale('/games/new')}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          className="px-4 py-2 rounded-md bg-gogo-primary text-white hover:bg-gogo-dark"
         >
           Post a Game
         </Link>

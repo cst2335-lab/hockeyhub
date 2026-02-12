@@ -85,7 +85,7 @@ export default function BookingDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
   }
@@ -124,7 +124,7 @@ export default function BookingDetailPage() {
             <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>{booking.status}</span>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-blue-600">
+            <p className="text-3xl font-bold text-gogo-primary">
               {formatCurrency(booking.total)}
             </p>
             <p className="text-sm text-gray-600">Total Amount</p>

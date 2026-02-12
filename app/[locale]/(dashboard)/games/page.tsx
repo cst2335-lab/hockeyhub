@@ -1,11 +1,12 @@
 // app/[locale]/(dashboard)/games/page.tsx
 'use client';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
 import {useParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Calendar,
   MapPin,
@@ -42,12 +43,15 @@ interface Game {
 type DateFilter = 'all' | 'upcoming' | 'past';
 type SortBy = 'date' | 'interest' | 'views';
 
+const PAGE_SIZE = 20;
+
 export default function GamesPage() {
   const { locale } = useParams<{ locale: string }>();
+  const t = useTranslations('games');
   const supabase = useMemo(() => createClient(), []);
 
   // Fetch games with React Query
-  const { data: games = [], isLoading: loading } = useQuery({
+  const { data: gamesData, isLoading: loading } = useQuery({
     queryKey: ['games'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -78,8 +82,10 @@ export default function GamesPage() {
     },
   });
 
+  const games = gamesData ?? [];
+  const prevFiltersRef = useRef<string>('');
+
   // UI state
-  const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
   const [searchTerm, setSearchTerm] = useState('');
   const [ageGroupFilter, setAgeGroupFilter] = useState('all');
@@ -87,6 +93,7 @@ export default function GamesPage() {
   const [locationFilter, setLocationFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // constants
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
@@ -95,7 +102,7 @@ export default function GamesPage() {
   // status badge 样式统一
   const statusBadge: Record<GameStatus, string> = {
     open: 'bg-green-100 text-green-800',
-    matched: 'bg-blue-100 text-blue-800',
+    matched: 'bg-gogo-secondary/20 text-gogo-primary',
     closed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800',
   };
@@ -106,8 +113,8 @@ export default function GamesPage() {
     [locale],
   );
 
-  useEffect(() => {
-    // apply filters + sorting
+  const filterKey = `${dateFilter}-${searchTerm}-${ageGroupFilter}-${skillLevelFilter}-${locationFilter}-${sortBy}`;
+  const filteredGames = useMemo(() => {
     let list = [...games];
 
     if (dateFilter === 'upcoming') list = list.filter((g) => !g.isExpired);
@@ -139,21 +146,26 @@ export default function GamesPage() {
           return (b.view_count || 0) - (a.view_count || 0);
         case 'date':
         default:
-          if (a.isExpired !== b.isExpired) return a.isExpired ? 1 : -1; // upcoming first
+          if (a.isExpired !== b.isExpired) return a.isExpired ? 1 : -1;
           return (a.game_date || '').localeCompare(b.game_date || '');
       }
     });
 
-    setFilteredGames(list);
-  }, [
-    games,
-    dateFilter,
-    searchTerm,
-    ageGroupFilter,
-    skillLevelFilter,
-    locationFilter,
-    sortBy,
-  ]);
+    return list;
+  }, [games, dateFilter, searchTerm, ageGroupFilter, skillLevelFilter, locationFilter, sortBy]);
+
+  useEffect(() => {
+    if (prevFiltersRef.current !== filterKey) {
+      prevFiltersRef.current = filterKey;
+      setCurrentPage(1);
+    }
+  }, [filterKey]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredGames.length / PAGE_SIZE));
+  const paginatedGames = filteredGames.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -350,8 +362,9 @@ export default function GamesPage() {
 
         {/* Grid */}
         {filteredGames.length > 0 ? (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGames.map((game) => {
+            {paginatedGames.map((game) => {
               const expiredBadge =
                 game.isExpired ? (
                   <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full inline-flex items-center">
@@ -434,6 +447,29 @@ export default function GamesPage() {
               );
             })}
           </div>
+
+          {filteredGames.length > PAGE_SIZE && (
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {t('prevPage')}
+              </button>
+              <span className="text-sm text-gray-600">
+                {t('pageOf', { current: currentPage, total: totalPages })}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {t('nextPage')}
+              </button>
+            </div>
+          )}
+          </>
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />

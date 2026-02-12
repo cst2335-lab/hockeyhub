@@ -6,20 +6,40 @@ import type {ReactNode} from 'react';
 import {Toaster} from 'sonner';
 import {locales} from '../../i18n';
 import {QueryProvider} from '@/app/providers/query-provider';
-import Navbar from '@/components/layout/navbar';
-import Footer from '@/components/layout/footer';
+import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/conditional-nav';
 
 import type { Viewport } from 'next';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  icons: { icon: '/icon.svg', apple: '/icon-192.png' },
+const titles: Record<string, string> = {
+  en: 'GoGoHockey – Find Games & Book Ice in Ottawa',
+  fr: 'GoGoHockey – Trouver des matchs et réserver la glace à Ottawa',
 };
-
-export const viewport: Viewport = {
-  themeColor: '#2563eb',
+const descriptions: Record<string, string> = {
+  en: 'Ottawa\'s platform for organizing hockey games and booking ice time. Join players, find games, and book rinks.',
+  fr: 'La plateforme ottavienne pour organiser des matchs de hockey et réserver de la glace. Rejoignez les joueurs, trouvez des matchs, réservez des patinoires.',
 };
 
 type Params = { locale: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { locale } = await params;
+  const lang = (locales as readonly string[]).includes(locale) ? locale : 'en';
+  return {
+    title: { default: titles[lang] ?? titles.en, template: '%s | GoGoHockey' },
+    description: descriptions[lang] ?? descriptions.en,
+    icons: { icon: '/icon.svg', apple: '/icon-192.png' },
+    openGraph: {
+      title: titles[lang] ?? titles.en,
+      description: descriptions[lang] ?? descriptions.en,
+      locale: lang === 'fr' ? 'fr_CA' : 'en_CA',
+    },
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: '#18304B',
+};
 
 /** 为 SSG 预生成 locale 段 */
 export function generateStaticParams(): Params[] {
@@ -51,9 +71,9 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <QueryProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <Navbar />
+            <ConditionalNavbar />
             {children}
-            <Footer />
+            <ConditionalFooter />
             <Toaster position="top-center" richColors closeButton />
           </NextIntlClientProvider>
         </QueryProvider>

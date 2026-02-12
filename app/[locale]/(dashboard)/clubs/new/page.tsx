@@ -84,7 +84,7 @@ export default function NewClubPage() {
           <div className="flex gap-4">
             <a href="/games" className="text-gray-600">Games</a>
             <a href="/rinks" className="text-gray-600">Rinks</a>
-            <a href="/clubs" className="text-blue-600">Clubs</a>
+            <a href="/clubs" className="text-gogo-primary">Clubs</a>
             <a href="/profile" className="text-gray-600">Profile</a>
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function NewClubPage() {
                     onClick={() => handleAgeGroupToggle(ageGroup)}
                     className={`px-3 py-1 rounded-md border ${
                       formData.age_groups.includes(ageGroup)
-                        ? 'bg-blue-600 text-white border-blue-600'
+                        ? 'bg-gogo-primary text-white border-gogo-primary'
                         : 'bg-white text-gray-700 border-gray-300'
                     }`}
                   >
@@ -236,7 +236,7 @@ export default function NewClubPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50"
               >
                 {loading ? 'Creating...' : 'Register Club'}
               </button>

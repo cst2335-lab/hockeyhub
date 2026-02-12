@@ -45,7 +45,7 @@ export default function LocaleSwitcher() {
       role="group"
       aria-label="Locale switcher"
     >
-      <Globe className="h-4 w-4 mx-2 text-slate-500" aria-hidden />
+      <Globe className="h-4 w-4 mx-2 text-slate-600" aria-hidden />
       {SUPPORTED_LIST.map(code => {
         const active = code === currentLocale;
         return (
@@ -53,10 +53,10 @@ export default function LocaleSwitcher() {
             key={code}
             onClick={() => switchLocale(code)}
             className={[
-              'h-8 min-w-10 px-3 rounded-full text-sm transition',
+              'h-8 min-w-10 px-3 rounded-full text-sm font-medium transition',
               active
-                ? 'bg-sky-600 text-white shadow'
-                : 'text-slate-700 hover:bg-slate-100'
+                ? 'bg-gogo-primary text-white shadow'
+                : 'text-slate-800 hover:bg-slate-100'
             ].join(' ')}
             aria-pressed={active}
             aria-current={active ? 'true' : undefined}

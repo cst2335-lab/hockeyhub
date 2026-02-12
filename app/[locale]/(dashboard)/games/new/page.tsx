@@ -6,11 +6,12 @@ import {createClient} from '@/lib/supabase/client';
 import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
 import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
+import {createGameSchema, type CreateGameInput} from '@/lib/validations/game';
 
 export default function CreateGamePage() {
   const router = useRouter();
   const pathname = usePathname();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Derive locale from the first path segment: /{locale}/...
   const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname]);
@@ -19,6 +20,7 @@ export default function CreateGamePage() {
   const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
 
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     title: '',
     game_date: '',
@@ -36,32 +38,58 @@ export default function CreateGamePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setFieldErrors({});
+
+    const parsed = createGameSchema.safeParse({
+      title: formData.title,
+      game_date: formData.game_date,
+      game_time: formData.game_time,
+      location: formData.location,
+      age_group: formData.age_group,
+      skill_level: formData.skill_level,
+      description: formData.description || undefined,
+      max_players: formData.max_players || undefined,
+      contact_info: formData.contact_info || undefined,
+    });
+
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.errors.forEach((e) => {
+        const path = e.path[0] as string;
+        if (path && !errs[path]) errs[path] = e.message;
+      });
+      setFieldErrors(errs);
+      toast.error('Please fix the form errors');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Require auth and redirect to localized login
       const {
         data: {user}
       } = await supabase.auth.getUser();
 
       if (!user) {
         router.push(withLocale('/login'));
+        setLoading(false);
         return;
       }
 
-      // Create game invitation
+      const valid = parsed.data as CreateGameInput;
+
       const {data, error} = await supabase
         .from('game_invitations')
         .insert({
-          title: formData.title,
-          game_date: formData.game_date,
-          game_time: formData.game_time,
-          location: formData.location,
-          age_group: formData.age_group,
-          skill_level: formData.skill_level,
-          description: formData.description,
-          max_players: formData.max_players ? parseInt(formData.max_players) : null,
-          contact_info: formData.contact_info,
+          title: valid.title,
+          game_date: valid.game_date,
+          game_time: valid.game_time,
+          location: valid.location,
+          age_group: valid.age_group,
+          skill_level: valid.skill_level,
+          description: valid.description || null,
+          max_players: valid.max_players ? parseInt(valid.max_players) : null,
+          contact_info: valid.contact_info || null,
           status: 'open',
           created_by: user.id,
           view_count: 0,
@@ -85,10 +113,9 @@ export default function CreateGamePage() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((p) => (p[name] ? { ...p, [name]: '' } : p));
   }
 
   // Use tomorrow as the earliest selectable date
@@ -127,8 +154,9 @@ export default function CreateGamePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., U13 Friendly Match Looking for Opponent"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.title ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {fieldErrors.title && <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>}
           </div>
 
           {/* Date and Time */}
@@ -146,8 +174,9 @@ export default function CreateGamePage() {
                 min={minDate}
                 value={formData.game_date}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.game_date ? 'border-red-500' : 'border-gray-300'}`}
               />
+            {fieldErrors.game_date && <p className="mt-1 text-sm text-red-600">{fieldErrors.game_date}</p>}
             </div>
             <div>
               <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
@@ -161,8 +190,9 @@ export default function CreateGamePage() {
                 required
                 value={formData.game_time}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.game_time ? 'border-red-500' : 'border-gray-300'}`}
               />
+            {fieldErrors.game_time && <p className="mt-1 text-sm text-red-600">{fieldErrors.game_time}</p>}
             </div>
           </div>
 
@@ -180,8 +210,9 @@ export default function CreateGamePage() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Bell Sensplex, Kanata"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.location ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {fieldErrors.location && <p className="mt-1 text-sm text-red-600">{fieldErrors.location}</p>}
           </div>
 
           {/* Age Group and Skill Level */}
@@ -197,7 +228,7 @@ export default function CreateGamePage() {
                 required
                 value={formData.age_group}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               >
                 {ageGroups.map(group => (
                   <option key={group} value={group}>
@@ -217,7 +248,7 @@ export default function CreateGamePage() {
                 required
                 value={formData.skill_level}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>
@@ -242,8 +273,9 @@ export default function CreateGamePage() {
               value={formData.max_players}
               onChange={handleChange}
               placeholder="e.g., 20"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.max_players ? 'border-red-500' : 'border-gray-300'}`}
             />
+            {fieldErrors.max_players && <p className="mt-1 text-sm text-red-600">{fieldErrors.max_players}</p>}
           </div>
 
           {/* Description */}
@@ -258,7 +290,7 @@ export default function CreateGamePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide additional details about the game, rules, or requirements..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
           </div>
 
@@ -274,7 +306,7 @@ export default function CreateGamePage() {
               value={formData.contact_info}
               onChange={handleChange}
               placeholder="e.g., Coach John - 613-555-0123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
             />
             <p className="mt-1 text-sm text-gray-500">This will be shared only with interested teams</p>
           </div>
@@ -284,7 +316,7 @@ export default function CreateGamePage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed transition focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
             >
               {loading ? 'Creating...' : 'Post Game'}
             </button>
@@ -298,9 +330,9 @@ export default function CreateGamePage() {
         </form>
 
         {/* Tips */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">Tips for a successful game post:</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="mt-8 bg-gogo-secondary/10 border border-gogo-secondary/30 rounded-lg p-4">
+          <h3 className="font-semibold text-gogo-dark mb-2">Tips for a successful game post:</h3>
+          <ul className="text-sm text-gogo-primary space-y-1">
             <li>• Include specific time and location details</li>
             <li>• Be clear about skill level expectations</li>
             <li>• Mention if you have ice time already booked</li>

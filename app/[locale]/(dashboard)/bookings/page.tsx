@@ -1,67 +1,34 @@
 // app/[locale]/(dashboard)/bookings/page.tsx
 'use client';
 
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {createClient} from '@/lib/supabase/client';
+import {useCallback, useEffect} from 'react';
 import Link from 'next/link';
 import {useParams, useRouter} from 'next/navigation';
-import {formatCurrency, formatDate} from '@/lib/utils/format';
+import {formatCurrency, formatDateByLocale} from '@/lib/utils/format';
+import {useBookings} from '@/lib/hooks';
+import {useTranslations} from 'next-intl';
 
-/**
- * Bookings list page
- * - Read {locale} via useParams() and localize internal links.
- * - Require auth: redirect unauthenticated users to /{locale}/login.
- * - Only show current user's bookings.
- * - Fetch wrapped in useCallback and used in useEffect deps.
- */
 export default function BookingsPage() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
+  const t = useTranslations('bookings');
+  const { bookings, isLoading: loading, user } = useBookings();
 
-  const supabase = useMemo(() => createClient(), []);
   const withLocale = useCallback(
     (p: string) => `/${locale || ''}${p}`.replace('//', '/'),
-    [locale]
+    [locale],
   );
 
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchBookings = useCallback(async () => {
-    // Auth check
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push(withLocale('/login'));
-      setLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('bookings')
-      .select(`
-        *,
-        rinks (name, address)
-      `)
-      .eq('user_id', user.id)
-      .order('booking_date', { ascending: true });
-
-    if (error) {
-      console.error('Failed to load bookings:', error);
-      setBookings([]);
-    } else {
-      setBookings(data || []);
-    }
-    setLoading(false);
-  }, [router, supabase, withLocale]);
-
   useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+    if (!loading && !user) {
+      router.push(withLocale('/login'));
+    }
+  }, [loading, user, router, withLocale]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
   }
@@ -69,12 +36,12 @@ export default function BookingsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">My Bookings</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
       </div>
 
       {bookings.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">No bookings yet.</p>
+          <p className="text-gray-500 mb-4">{t('noBookings')}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -90,7 +57,7 @@ export default function BookingsPage() {
                     {b.rinks?.name ?? 'Rink'}
                   </h3>
                   <p className="text-gray-600 mt-1">
-                    📅 {formatDate(b.booking_date)} — {b.start_time} ~ {b.end_time}
+                    📅 {formatDateByLocale(b.booking_date, locale)} — {b.start_time} ~ {b.end_time}
                   </p>
                   <p className="text-gray-600 truncate">{b.rinks?.address}</p>
                 </div>

@@ -282,7 +282,7 @@ export default function GameDetailsPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <p>Game not found</p>
-          <Link href={withLocale('/games')} className="text-blue-600 hover:underline">
+          <Link href={withLocale('/games')} className="text-gogo-primary hover:text-gogo-dark hover:underline">
             Back to games
           </Link>
         </div>
@@ -295,7 +295,7 @@ export default function GameDetailsPage() {
 
   const statusBadge: Record<GameStatus, string> = {
     open: 'bg-green-100 text-green-800',
-    matched: 'bg-blue-100 text-blue-800',
+    matched: 'bg-gogo-secondary/20 text-gogo-primary',
     closed: 'bg-gray-100 text-gray-800',
     cancelled: 'bg-red-100 text-red-800',
   };
@@ -378,7 +378,7 @@ export default function GameDetailsPage() {
             {(showContactInfo || isCreator) && game.creator && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Contact Person</h3>
-                <div className="bg-blue-50 p-4 rounded">
+                <div className="bg-gogo-secondary/10 p-4 rounded">
                   <p className="font-medium">{game.creator.full_name}</p>
                   <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
                   {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
@@ -402,7 +402,7 @@ export default function GameDetailsPage() {
                   {!isInterested && !showMessageForm && (
                     <button
                       onClick={() => setShowMessageForm(true)}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                      className="bg-gogo-primary text-white px-6 py-2 rounded-lg hover:bg-gogo-dark"
                     >
                       I'm Interested
                     </button>
@@ -420,7 +420,7 @@ export default function GameDetailsPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={handleInterest}
-                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                          className="bg-gogo-primary text-white px-6 py-2 rounded-lg hover:bg-gogo-dark"
                         >
                           Send Interest
                         </button>
@@ -457,7 +457,7 @@ export default function GameDetailsPage() {
                   <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
                   <Link
                     href={withLocale('/login')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
+                    className="bg-gogo-primary text-white px-6 py-2 rounded-lg hover:bg-gogo-dark inline-block"
                   >
                     Sign In
                   </Link>
@@ -495,7 +495,7 @@ export default function GameDetailsPage() {
                     <button
                       onClick={handleSubmitRating}
                       disabled={tempRating === 0}
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                      className="px-6 py-2 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark disabled:opacity-50"
                     >
                       Submit Rating
                     </button>

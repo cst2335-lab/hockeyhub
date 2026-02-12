@@ -141,7 +141,7 @@ export default function ManageRinkPage() {
   if (loadingPage) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
   }
@@ -162,7 +162,7 @@ export default function ManageRinkPage() {
               </Link>
               {/* 如果后续有申请页面，把链接换成对应路径 */}
               <button
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                className="bg-gogo-primary text-white px-4 py-2 rounded hover:bg-gogo-dark"
                 onClick={() => toast.info('Coming soon: manager application flow')}
               >
                 Apply to Manage a Rink
@@ -258,7 +258,7 @@ export default function ManageRinkPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gogo-primary text-white py-2 rounded hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? 'Saving...' : 'Update Rink Information'}
           </button>

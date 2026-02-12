@@ -7,6 +7,7 @@ import {useRouter, useParams} from 'next/navigation';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {addHours, format, parse} from 'date-fns';
+import {bookingFormSchema} from '@/lib/validations/booking';
 
 export default function BookRinkPage() {
   const t = useTranslations('book');
@@ -118,8 +119,10 @@ export default function BookRinkPage() {
         return;
       }
 
-      if (!bookingDate || !startTime || !hours) {
-        toast.error('Please fill date, start time and duration.');
+      const parsed = bookingFormSchema.safeParse({ bookingDate, startTime, hours });
+      if (!parsed.success) {
+        const msg = parsed.error.errors[0]?.message ?? 'Please fill date, start time and duration.';
+        toast.error(msg);
         setSubmitting(false);
         return;
       }
@@ -188,7 +191,7 @@ export default function BookRinkPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
   }
@@ -238,7 +241,7 @@ export default function BookRinkPage() {
               min={today}
               value={bookingDate}
               onChange={(e) => setBookingDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
             />
           </div>
 
@@ -253,7 +256,7 @@ export default function BookRinkPage() {
               required
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
             >
               <option value="">{t('selectTime')}</option>
               {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map((hour) => {
@@ -281,7 +284,7 @@ export default function BookRinkPage() {
             <select
               value={hours}
               onChange={(e) => setHours(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
             >
               {[1,2,3,4].map((h) => (
                 <option key={h} value={h}>
@@ -312,7 +315,7 @@ export default function BookRinkPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 bg-gogo-primary hover:bg-gogo-dark text-white font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-gogo-secondary focus:ring-offset-2"
           >
             {submitting ? t('creating') : tActions('confirmBooking')}
           </button>

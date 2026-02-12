@@ -30,7 +30,7 @@ export default async function PrivacyPage({ params }: Props) {
           If you have questions about this Privacy Policy, please visit our Contact page.
         </p>
       </div>
-      <Link href={withLocale('/')} className="inline-block mt-8 text-blue-600 hover:text-blue-800">
+      <Link href={withLocale('/')} className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark">
         Back to Home
       </Link>
     </div>

@@ -5,6 +5,9 @@
     "games": "Find Games",
     "rinks": "Ice Rinks",
     "clubs": "Clubs",
+    "manageRink": "Manage Rink",
+    "myGames": "My Games",
+    "myBookings": "My Bookings",
     "profile": "Profile",
     "settings": "Settings",
     "notifications": "Notifications",
@@ -64,7 +67,10 @@
     "totalRinks": "Total Rinks",
     "avgPrice": "Average Price",
     "lowestPrice": "Lowest Price",
-    "highestPrice": "Highest Price"
+    "highestPrice": "Highest Price",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {current} of {total}"
   },
   "book": {
     "title": "Book {name}",
@@ -89,7 +95,8 @@
     "title": "Dashboard",
     "openGames": "Open Game Invitations",
     "upcomingBookings": "Upcoming Bookings",
-    "totalRinks": "Total Rinks"
+    "totalRinks": "Total Rinks",
+    "loadError": "Failed to load metrics. Please refresh."
   },
   "games": {
     "title": "Find Games",
@@ -117,13 +124,19 @@
     "spotsLeft": "{count} spots left",
     "full": "Full",
     "interested": "Interested",
-    "views": "Views"
+    "views": "Views",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageOf": "Page {current} of {total}"
   },
   "clubs": {
     "title": "Ottawa Hockey Clubs",
     "noClubs": "No clubs registered yet",
     "beFirst": "Be the first to register your club!",
-    "registerClub": "Register Your Club"
+    "registerClub": "Register Your Club",
+    "verified": "Verified",
+    "visitWebsite": "Visit Website",
+    "loadError": "Failed to load clubs. Please refresh."
   },
   "bookings": {
     "title": "My Bookings",

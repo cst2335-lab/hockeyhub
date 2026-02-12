@@ -115,7 +115,7 @@ export default function ProfilePage() {
     const colors: Record<string, string> = {
       AAA: 'bg-purple-100 text-purple-800',
       AA: 'bg-indigo-100 text-indigo-800',
-      A: 'bg-blue-100 text-blue-800',
+      A: 'bg-gogo-secondary/20 text-gogo-primary',
       B: 'bg-green-100 text-green-800',
       C: 'bg-yellow-100 text-yellow-800',
       'House League': 'bg-orange-100 text-orange-800',
@@ -140,7 +140,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary"></div>
       </div>
     );
   }
@@ -174,7 +174,7 @@ export default function ProfilePage() {
           <p className="text-gray-500">Profile not found</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-3 text-blue-600 hover:text-blue-800 underline"
+            className="mt-3 text-gogo-primary hover:text-gogo-dark underline"
           >
             Reload page
           </button>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
 
         {/* Header card */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-          <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+          <div className="h-32 bg-gradient-to-r from-gogo-primary to-gogo-secondary"></div>
 
           <div className="relative px-6 pb-6">
             {/* Avatar */}
@@ -228,7 +228,7 @@ export default function ProfilePage() {
             <div className="flex justify-end pt-4">
               <button
                 onClick={() => router.push(`/${locale}/profile/edit`)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="flex items-center space-x-2 px-4 py-2 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark transition"
               >
                 <Edit2 className="h-4 w-4" />
                 <span>Edit Profile</span>
@@ -257,7 +257,7 @@ export default function ProfilePage() {
                   </span>
                 )}
                 {profile.position && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gogo-secondary/20 text-gogo-primary">
                     {getPositionIcon(profile.position)} {profile.position}
                   </span>
                 )}
@@ -345,7 +345,7 @@ export default function ProfilePage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-blue-600">0</p>
+              <p className="text-2xl font-bold text-gogo-primary">0</p>
               <p className="text-sm text-gray-600 mt-1">Games Played</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">

@@ -39,7 +39,7 @@ export class ErrorBoundary extends React.Component<
           <p className="text-slate-700 font-medium mb-2">Something went wrong</p>
           <button
             onClick={() => this.setState({ hasError: false })}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gogo-primary text-white rounded hover:bg-gogo-dark"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Retry

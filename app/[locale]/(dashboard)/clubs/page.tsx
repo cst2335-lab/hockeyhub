@@ -1,133 +1,125 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-
-// Simple LoadingSpinner component
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center p-8">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-  </div>
-)
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function ClubsPage() {
-  const [clubs, setClubs] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const t = useTranslations('clubs')
+  const pathname = usePathname()
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
+  const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/')
 
-  useEffect(() => {
-    fetchClubs()
-  }, [])
+  const { data: clubs = [], isLoading: loading, isError } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase.from('clubs').select('*').order('name')
+      if (error) throw error
+      return (data as Record<string, unknown>[]) || []
+    },
+  })
 
-  const fetchClubs = async () => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('clubs')
-      .select('*')
-      .order('name')
-    
-    if (data) {
-      setClubs(data)
-    }
-    setLoading(false)
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary"
+          aria-hidden
+        />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <p className="text-red-600">{t('loadError')}</p>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
-          <div className="flex gap-4">
-            <a href="/games" className="text-gray-600">Games</a>
-            <a href="/rinks" className="text-gray-600">Rinks</a>
-            <a href="/clubs" className="text-blue-600">Clubs</a>
-            <a href="/profile" className="text-gray-600">Profile</a>
-          </div>
-        </div>
-      </nav>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <Link
+          href={withLocale('/clubs/new')}
+          className="bg-gogo-primary text-white px-4 py-2 rounded-lg hover:bg-gogo-dark transition"
+        >
+          {t('registerClub')}
+        </Link>
+      </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Header with Register Button */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Ottawa Hockey Clubs</h1>
-          <a
-            href="/clubs/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+      {clubs.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <p className="text-gray-500 mb-4">{t('noClubs')}</p>
+          <Link
+            href={withLocale('/clubs/new')}
+            className="text-gogo-primary hover:text-gogo-dark"
           >
-            Register Your Club
-          </a>
+            {t('beFirst')}
+          </Link>
         </div>
-
-        {loading ? (
-          <LoadingSpinner />
-        ) : clubs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500 mb-4">No clubs registered yet</p>
-            <a
-              href="/clubs/new"
-              className="text-blue-600 hover:text-blue-700"
-            >
-              Be the first to register your club!
-            </a>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {clubs.map((club) => (
-              <div key={club.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-xl font-semibold">{club.name}</h2>
-                  {club.verified && (
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-                      Verified
-                    </span>
-                  )}
-                </div>
-                
-                {club.description && (
-                  <p className="text-gray-600 mb-3 text-sm">{club.description}</p>
-                )}
-                
-                {club.contact_email && (
-                  <p className="text-gray-600 text-sm mb-1">📧 {club.contact_email}</p>
-                )}
-                
-                {club.contact_phone && (
-                  <p className="text-gray-600 text-sm mb-1">📞 {club.contact_phone}</p>
-                )}
-                
-                {club.home_rink && (
-                  <p className="text-gray-600 text-sm mb-1">🏒 Home: {club.home_rink}</p>
-                )}
-                
-                {club.age_groups && (
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {club.age_groups.split(',').map((ageGroup: string) => (
-                      <span
-                        key={ageGroup}
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
-                      >
-                        {ageGroup}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                
-                {club.website && (
-                  <a
-                    href={club.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-3 text-blue-600 hover:text-blue-700 text-sm"
-                  >
-                    Visit Website →
-                  </a>
+      ) : (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {clubs.map((club: Record<string, unknown>) => (
+            <div key={String(club.id)} className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-start mb-2">
+                <h2 className="text-xl font-semibold">{String(club.name ?? '')}</h2>
+                {club.verified && (
+                  <span className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs">
+                    {t('verified')}
+                  </span>
                 )}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              {club.description && (
+                <p className="text-gray-600 mb-3 text-sm">{String(club.description)}</p>
+              )}
+
+              {club.contact_email && (
+                <p className="text-gray-600 text-sm mb-1">📧 {String(club.contact_email)}</p>
+              )}
+
+              {club.contact_phone && (
+                <p className="text-gray-600 text-sm mb-1">📞 {String(club.contact_phone)}</p>
+              )}
+
+              {club.home_rink && (
+                <p className="text-gray-600 text-sm mb-1">🏒 Home: {String(club.home_rink)}</p>
+              )}
+
+              {club.age_groups && typeof club.age_groups === 'string' && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {club.age_groups.split(',').map((ageGroup: string) => (
+                    <span
+                      key={ageGroup}
+                      className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs"
+                    >
+                      {ageGroup.trim()}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {club.website && (
+                <a
+                  href={String(club.website)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 text-gogo-primary hover:text-gogo-dark text-sm"
+                >
+                  {t('visitWebsite')} →
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

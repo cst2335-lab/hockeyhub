@@ -35,7 +35,7 @@ export default function Error({
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark transition font-medium"
           >
             <RefreshCw className="h-4 w-4" />
             Try again

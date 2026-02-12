@@ -1,54 +1,21 @@
 // components/notifications/notification-bell.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
-  useEffect(() => {
-    loadUnreadCount();
-    
-    // Subscribe to real-time notification changes
-    const subscribeToNotifications = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
-
-      const channel = supabase
-        .channel('notification-count')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userData.user.id}`
-          },
-          () => {
-            // Reload count when any notification changes
-            loadUnreadCount();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    };
-
-    subscribeToNotifications();
-  }, []);
-
-  async function loadUnreadCount() {
+  const loadUnreadCount = useCallback(async () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
 
-      const { data, count, error } = await supabase
+      const { count, error } = await supabase
         .from('notifications')
         .select('id', { count: 'exact' })
         .eq('user_id', userData.user.id)
@@ -59,7 +26,40 @@ export default function NotificationBell() {
     } catch (error) {
       console.error('Error loading notification count:', error);
     }
-  }
+  }, [supabase]);
+
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  useEffect(() => {
+    loadUnreadCount();
+
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const ch = supabase
+        .channel('notification-count')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userData.user.id}`,
+          },
+          loadUnreadCount
+        )
+        .subscribe();
+      channelRef.current = ch;
+    })();
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
+  }, [supabase, loadUnreadCount]);
 
   return (
     <Link 

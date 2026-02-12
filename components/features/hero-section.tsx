@@ -102,7 +102,7 @@ export default function HeroSection() {
               <Button
                 variant="outline"
                 size="xl"
-                className="border-2 border-gogo-secondary text-white backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+                className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
               >
                 <PlayCircle className="mr-2" />
                 Get Started Free

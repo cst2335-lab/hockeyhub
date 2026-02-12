@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 export default function LoginClient() {
-  const { locale } = useParams<{ locale: string }>();
+  const params = useParams<{ locale?: string }>();
+  const locale = params?.locale ?? 'en';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,7 @@ export default function LoginClient() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
               />
             </div>
 
@@ -66,7 +67,7 @@ export default function LoginClient() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
               />
             </div>
           </div>
@@ -80,14 +81,14 @@ export default function LoginClient() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md disabled:opacity-50"
+            className="w-full py-2 px-4 bg-gogo-primary hover:bg-gogo-dark text-white font-medium rounded-md disabled:opacity-50 focus:ring-2 focus:ring-gogo-secondary focus:ring-offset-2"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
           <div className="text-center text-sm">
             Don&apos;t have an account?{' '}
-            <Link href={`/${locale}/register`} className="text-blue-600 hover:text-blue-700">
+            <Link href={`/${locale}/register`} className="text-gogo-primary hover:text-gogo-dark">
               Sign up
             </Link>
           </div>

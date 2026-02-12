@@ -5,6 +5,9 @@
     "games": "Trouver des matchs",
     "rinks": "Patinoires",
     "clubs": "Clubs",
+    "manageRink": "Gérer la patinoire",
+    "myGames": "Mes matchs",
+    "myBookings": "Mes réservations",
     "profile": "Profil",
     "settings": "Paramètres",
     "notifications": "Notifications",
@@ -64,7 +67,10 @@
     "totalRinks": "Total des patinoires",
     "avgPrice": "Prix moyen",
     "lowestPrice": "Prix le plus bas",
-    "highestPrice": "Prix le plus élevé"
+    "highestPrice": "Prix le plus élevé",
+    "prevPage": "Précédent",
+    "nextPage": "Suivant",
+    "pageOf": "Page {current} sur {total}"
   },
   "book": {
     "title": "Réserver {name}",
@@ -89,7 +95,8 @@
     "title": "Tableau de bord",
     "openGames": "Invitations de match ouvertes",
     "upcomingBookings": "Réservations à venir",
-    "totalRinks": "Patinoires totales"
+    "totalRinks": "Patinoires totales",
+    "loadError": "Impossible de charger les statistiques. Veuillez rafraîchir."
   },
   "games": {
     "title": "Trouver des matchs",
@@ -117,13 +124,19 @@
     "spotsLeft": "{count} places restantes",
     "full": "Complet",
     "interested": "Intéressés",
-    "views": "Vues"
+    "views": "Vues",
+    "prevPage": "Précédent",
+    "nextPage": "Suivant",
+    "pageOf": "Page {current} sur {total}"
   },
   "clubs": {
     "title": "Clubs de hockey à Ottawa",
     "noClubs": "Aucun club enregistré",
     "beFirst": "Soyez le premier à enregistrer votre club !",
-    "registerClub": "Enregistrer votre club"
+    "registerClub": "Enregistrer votre club",
+    "verified": "Vérifié",
+    "visitWebsite": "Visiter le site",
+    "loadError": "Impossible de charger les clubs. Veuillez rafraîchir."
   },
   "bookings": {
     "title": "Mes réservations",

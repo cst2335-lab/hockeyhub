@@ -261,4 +261,106 @@
 
 ---
 
+## 十一、P2 修改方案实施（2026-02）
+
+**日期**：2026-02
+
+### 11.1 通用 Hooks
+- **新建**：`lib/hooks/useAuth.ts` — 客户端认证状态（user、loading、signOut），订阅 onAuthStateChange
+- **新建**：`lib/hooks/useDebounce.ts` — useDebounce(value, delay)、useDebouncedCallback(callback, delay)
+- **新建**：`lib/hooks/index.ts` — 统一导出
+
+### 11.2 日期格式化（locale 感知）
+- **修改**：`lib/utils/format.ts`
+- 新增 `formatDateByLocale(input, localeCode)`、`formatDateTimeByLocale(input, localeCode)`，使用 date-fns + enUS/fr locale
+- `formatCurrency` 支持传入 locale 参数
+
+### 11.3 SEO
+- **修改**：`app/[locale]/layout.tsx` — generateMetadata：按 locale 生成 title、description、openGraph，themeColor 改为 gogo-dark
+- **新建**：`app/sitemap.ts` — 为 en/fr 及静态路径生成 sitemap（baseUrl 取自 NEXT_PUBLIC_APP_URL 或 VERCEL_URL）
+- **新建**：`app/robots.ts` — allow /，disallow /api/ 及测试页，sitemap 链接
+
+### 11.4 表单优化
+- **新建**：`lib/validations/game.ts` — createGameSchema（zod）：title、game_date、game_time、location、age_group、skill_level、description、max_players、contact_info
+- **修改**：`app/[locale]/(dashboard)/games/new/page.tsx` — 提交前 zod 校验，字段级错误展示（fieldErrors），防重复提交（disabled + loading），按钮/输入框使用 gogo 色与 focus 环
+
+### 11.5 图片优化
+- **修改**：`next.config.mjs` — images.remotePatterns 添加 `**.supabase.co/storage/v1/object/public/**`，支持 Supabase 存储图片
+- **新建**：`components/ui/optimized-image.tsx` — 封装 next/image，lazy 加载、quality 85，便于后续头像/冰场照片使用
+
+### 11.6 预订表单 + 登录/注册 gogo 色
+- **新建**：`lib/validations/booking.ts` — bookingFormSchema（bookingDate、startTime、hours 1–12）
+- **修改**：`app/[locale]/(dashboard)/book/[rinkId]/page.tsx` — 提交前 zod 校验，表单/按钮 gogo 色
+- **修改**：`app/[locale]/(auth)/login/LoginClient.tsx` — 按钮、链接、focus 环 gogo 色
+- **修改**：`app/[locale]/(auth)/register/RegisterClient.tsx` — 按钮、链接、focus 环 gogo 色
+
+### 11.7 useBookings / useNotifications Hooks
+- **新建**：`lib/hooks/useBookings.ts` — useQuery 获取当前用户预订列表，依赖 useAuth
+- **新建**：`lib/hooks/useNotifications.ts` — useQuery 获取通知列表，useMutation 支持 markAsRead、markAllAsRead、deleteNotification，realtime 订阅自动 invalidate
+- **修改**：`lib/hooks/index.ts` — 导出 useBookings、useNotifications
+- **修改**：`app/[locale]/(dashboard)/bookings/page.tsx` — 使用 useBookings，formatDateByLocale，i18n
+- **修改**：`app/[locale]/(dashboard)/notifications/page.tsx` — 使用 useNotifications，formatDateTimeByLocale，i18n，gogo 色
+
+### 11.8 全局 blue → gogo 色统一
+- **Dashboard**：加载 spinner、统计卡片 border 与数字 gogo 色
+- **Rinks**：加载 spinner、Quick Stats 区域 bg/text gogo 色
+- **Games**：new/edit/[id] 表单 focus 环、Tips 框、按钮、status badge gogo 色
+- **My-games**：spinner、tabs、按钮、matched 徽章、提示框 gogo 色
+- **Manage-rink / Bookings**：spinner、按钮、详情数字 gogo 色
+- **Clubs**：spinner、按钮、链接、verified 徽章 gogo 色
+- **Navbar**：CTA 按钮渐变、底部装饰条 gogo 色
+- **Layout**：侧边栏激活态 text-gogo-primary bg-gogo-secondary/10
+- **Error / ErrorBoundary**：重试按钮 gogo-primary
+- **Terms / Privacy / Contact**：返回链接 gogo 色
+- **Notifications**：状态徽章 gogo 色
+- **Profile / Profile Edit**：spinner、封面渐变、按钮、链接、徽章、focus 环 gogo 色
+- **Games-test**：spinner、按钮 gogo 色
+
+### 11.13 My-games 迁移 useQuery + withLocale
+- **修改**：`app/[locale]/(dashboard)/my-games/page.tsx` — 使用 useQuery 替代 useEffect，useAuth 获取 user，queryClient.invalidateQueries 刷新数据，usePathname + withLocale 修复所有 Link 与 router.push('/login')
+
+### 11.12 Clubs 迁移 useQuery + i18n
+- **修改**：`app/[locale]/(dashboard)/clubs/page.tsx` — 使用 useQuery 替代 useEffect，移除重复 nav（使用 dashboard layout），Link + withLocale 保持 locale，i18n 全文案，Verified 徽章 gogo 色，isError 错误态
+- **修改**：`messages/en.json`、`messages/fr.json` — clubs 新增 verified、visitWebsite、loadError
+
+### 11.11 Dashboard useQuery + 无障碍
+- **修改**：`app/[locale]/(dashboard)/dashboard/page.tsx` — 使用 useQuery 替代 useEffect，Promise.all 并行请求，isError 错误态，loadError i18n
+- **修改**：`app/[locale]/(dashboard)/layout.tsx` — Notifications 链接、Logout 按钮添加 aria-label、focus-visible 焦点环
+- **修改**：`messages/en.json`、`messages/fr.json` — dashboard 新增 loadError
+
+### 11.10 权限：Manage Rink 仅对 rink_manager 可见 + 输入清理
+- **修改**：`app/[locale]/(dashboard)/layout.tsx` — 查询 rink_managers 判断 isRinkManager，Manage Rink 链接仅对 verified rink_manager 显示；侧边栏导航改用 i18n（nav.dashboard、nav.myGames 等）
+- **修改**：`messages/en.json`、`messages/fr.json` — nav 新增 manageRink、myGames、myBookings
+- **新建**：`lib/utils/sanitize.ts` — sanitizePlainText 去除控制字符、限制长度，供富文本场景预留
+
+### 11.9 Games / Rinks 列表分页
+- **修改**：`app/[locale]/(dashboard)/games/page.tsx` — PAGE_SIZE=20，分页控件（Previous/Next、Page X of Y），筛选变化时重置页码
+- **修改**：`app/[locale]/(dashboard)/rinks/page.tsx` — 同上分页逻辑
+- **修改**：`messages/en.json`、`messages/fr.json` — games/rinks 新增 prevPage、nextPage、pageOf
+
+---
+
+## 十二、任务完成状态（2026-02）
+
+### 已完成
+- **P0**：加载状态、错误边界、RLS 文档、API 验证（requireAuth）
+- **P1**：i18n、UI 规范落地、React Query（games/rinks/dashboard/clubs/my-games/bookings/notifications）、预订确认邮件
+- **P2**：Hooks、日期格式化、SEO、表单 zod 校验、图片优化、全局 gogo 色、分页、Manage Rink 权限、sanitize 工具
+- **P3**：Dashboard/Clubs/My-games useQuery、无障碍（aria-label、focus-visible）
+
+### 11.14 测试基础设施
+- **新建**：`vitest.config.ts` — node 环境，vite-tsconfig-paths 支持 @/ 路径
+- **新建**：`__tests__/lib/utils/format.test.ts` — formatCurrency、formatDateByLocale、formatDateTimeByLocale
+- **新建**：`__tests__/lib/utils/sanitize.test.ts` — sanitizePlainText
+- **新建**：`__tests__/lib/validations/booking.test.ts` — bookingFormSchema
+- **修改**：`package.json` — 新增 test、test:watch 脚本，devDependencies 添加 vitest、vite-tsconfig-paths
+
+### 未完成（后续迭代）
+- **支付流程**：Stripe checkout、Webhook（需配置 Stripe）
+- **测试**：执行 `npm install` 后运行 `npm run test`
+- **监控**：Sentry、Vercel Analytics
+- **文档**：API 文档、部署指南、贡献指南
+
+---
+
 *文档生成时间：2025-02 | 更新：2026-02*
