@@ -161,6 +161,21 @@ export default function BookRinkPage() {
 
       if (error) throw error;
 
+      // Send confirmation email (fire-and-forget, don't block redirect)
+      fetch('/api/bookings/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          rinkName: rink?.name ?? 'Ice Rink',
+          bookingDate,
+          startTime,
+          endTime,
+          hours,
+          total,
+        }),
+      }).catch((err) => console.warn('Confirmation email failed:', err));
+
       toast.success('Booking created successfully! Redirecting...');
       router.push(withLocale('/bookings'));
     } catch (err) {

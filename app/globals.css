@@ -4,6 +4,9 @@
 
 @layer base {
   :root {
+    --gogo-dark: 214 52% 19%;
+    --gogo-primary: 207 79% 26%;
+    --gogo-secondary: 201 82% 67%;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -295,9 +298,10 @@ html {
   @apply outline-none ring-2 ring-primary ring-offset-2;
 }
 
-/* 选中文本样式 */
+/* 选中文本样式 - GoGo spec */
 ::selection {
-  @apply bg-blue-500/20 text-blue-900;
+  background-color: rgba(100, 190, 240, 0.3);
+  color: #18304B;
 }
 
 /* Logo 轻微浮动动画 */

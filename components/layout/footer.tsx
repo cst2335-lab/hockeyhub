@@ -22,13 +22,13 @@ export default function Footer() {
           <span className="hidden sm:inline text-gray-400">·</span>
           <span>© {new Date().getFullYear()} GoGoHockey</span>
           <span className="hidden md:inline">·</span>
-          <Link href="https://vercel.com" className="hover:text-gray-900">{tFooter('poweredBy')}</Link>
+          <Link href="https://vercel.com" className="hover:text-gogo-primary">{tFooter('poweredBy')}</Link>
         </div>
 
         <nav className="flex items-center gap-4">
-          <Link href={withLocale('/privacy')} className="hover:text-gray-900">{t('privacy')}</Link>
-          <Link href={withLocale('/terms')} className="hover:text-gray-900">{t('terms')}</Link>
-          <Link href={withLocale('/contact')} className="hover:text-gray-900">{t('contact')}</Link>
+          <Link href={withLocale('/privacy')} className="hover:text-gogo-primary">{t('privacy')}</Link>
+          <Link href={withLocale('/terms')} className="hover:text-gogo-primary">{t('terms')}</Link>
+          <Link href={withLocale('/contact')} className="hover:text-gogo-primary">{t('contact')}</Link>
         </nav>
       </div>
     </footer>

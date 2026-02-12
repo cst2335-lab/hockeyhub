@@ -1,29 +1,13 @@
 // app/api/notifications/test/route.ts
 import { createServiceClient } from '@/lib/supabase/service';
-import { createClient } from '@/lib/supabase/client';
+import { requireAuth } from '@/lib/api/auth';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
-    // 从cookies获取session
-    const cookieStore = await cookies();
-    const supabase = createClient();
-    
-    // 获取session token
-    const token = cookieStore.get('sb-ivrralpjkxmbgultqimc-auth-token');
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Please login to test notifications' },
-        { status: 401 }
-      );
-    }
-
-    // 解析token获取用户ID
-    const tokenParts = token.value.split('.');
-    const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-    const userId = payload.sub;
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    const userId = auth.user.id;
 
     // 使用service client插入通知
     const serviceClient = createServiceClient();

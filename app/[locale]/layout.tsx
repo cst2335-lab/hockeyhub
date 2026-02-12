@@ -5,6 +5,7 @@ import {notFound} from 'next/navigation';
 import type {ReactNode} from 'react';
 import {Toaster} from 'sonner';
 import {locales} from '../../i18n';
+import {QueryProvider} from '@/app/providers/query-provider';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 
@@ -48,12 +49,14 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Navbar />
-          {children}
-          <Footer />
-          <Toaster position="top-center" richColors closeButton />
-        </NextIntlClientProvider>
+        <QueryProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <Navbar />
+            {children}
+            <Footer />
+            <Toaster position="top-center" richColors closeButton />
+          </NextIntlClientProvider>
+        </QueryProvider>
       </body>
     </html>
   );

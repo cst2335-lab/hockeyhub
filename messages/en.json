@@ -92,8 +92,19 @@
     "totalRinks": "Total Rinks"
   },
   "games": {
-    "title": "Available Games",
+    "title": "Find Games",
     "noGames": "No games available",
+    "gamesFound": "{count} games found",
+    "filtered": "(filtered)",
+    "postGame": "Post a Game",
+    "searchPlaceholder": "Search games by title, description, or location...",
+    "dateFilterAll": "All",
+    "dateFilterUpcoming": "Upcoming",
+    "dateFilterPast": "Past",
+    "sortByDate": "By Date",
+    "sortByInterest": "By Interest",
+    "sortByViews": "By Views",
+    "clearFilters": "Clear Filters",
     "ageGroup": "Age Group",
     "skillLevel": "Skill Level",
     "location": "Location",
@@ -102,7 +113,27 @@
     "contact": "Contact",
     "maxPlayers": "Max Players",
     "currentPlayers": "Current Players",
-    "description": "Description"
+    "description": "Description",
+    "spotsLeft": "{count} spots left",
+    "full": "Full",
+    "interested": "Interested",
+    "views": "Views"
+  },
+  "clubs": {
+    "title": "Ottawa Hockey Clubs",
+    "noClubs": "No clubs registered yet",
+    "beFirst": "Be the first to register your club!",
+    "registerClub": "Register Your Club"
+  },
+  "bookings": {
+    "title": "My Bookings",
+    "noBookings": "No bookings yet."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "No notifications yet",
+    "markAllRead": "Mark all as read",
+    "unreadCount": "{count} unread"
   },
   "errors": {
     "notFound": "Page not found",

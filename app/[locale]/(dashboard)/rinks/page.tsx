@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -24,8 +25,19 @@ export default function RinksPage() {
   const t = useTranslations('rinks')
   const tActions = useTranslations('actions')
   const tCommon = useTranslations('common')
-  const [rinks, setRinks] = useState<Rink[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const { data: rinks = [], isLoading: loading } = useQuery({
+    queryKey: ['rinks'],
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('rinks')
+        .select('id, name, address, city, phone, hourly_rate, amenities, booking_url')
+        .order('name', { ascending: true })
+      if (error) throw error
+      return (data as Rink[]) || []
+    },
+  })
 
   // UI state
   const [query, setQuery] = useState('')
@@ -36,27 +48,6 @@ export default function RinksPage() {
   const pathname = usePathname()
   const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/')
-
-  // Load rinks (wrapped with useCallback for stable deps)
-  const fetchRinks = useCallback(async () => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('rinks')
-      .select('id, name, address, city, phone, hourly_rate, amenities, booking_url')
-      .order('name', { ascending: true })
-
-    if (error) {
-      console.error('Failed to load rinks:', error)
-      setRinks([])
-    } else {
-      setRinks((data as Rink[]) || [])
-    }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchRinks()
-  }, [fetchRinks])
 
   // Distinct cities for the filter
   const cities = useMemo(() => {
@@ -213,7 +204,7 @@ export default function RinksPage() {
             const rateNum = toNum(r.hourly_rate)
             const tag = band(rateNum)
             return (
-              <div key={r.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-3">
+              <div key={r.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-3 border border-slate-200 hover:border-gogo-secondary transition-colors">
                 <div className="flex items-start justify-between">
                   <h3 className="text-xl font-semibold">{r.name}</h3>
                   {tag && (
@@ -245,7 +236,7 @@ export default function RinksPage() {
                   {/* Book Now → internal booking page (locale-aware) */}
                   <Link
                     href={withLocale(`/book/${r.id}`)}
-                    className="col-span-1 text-center px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                    className="col-span-1 text-center px-3 py-2 rounded bg-gogo-primary text-white hover:bg-gogo-dark transition-colors"
                   >
                     {tActions('bookNow')}
                   </Link>

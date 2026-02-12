@@ -15,19 +15,19 @@ export default function HeroSection() {
   const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-sky-900">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gogo-dark via-gogo-primary to-gogo-secondary">
       {/* Animated background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-15" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
         <motion.div
           animate={{ rotate: 360, x: [0, 80, 0], y: [0, -40, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-20 right-20 w-28 h-28 rounded-full bg-blue-500/10"
+          className="absolute top-20 right-20 w-28 h-28 rounded-full bg-gogo-secondary/20"
         />
         <motion.div
           animate={{ rotate: -360, x: [0, -80, 0], y: [0, 40, 0] }}
           transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="absolute bottom-20 left-20 w-36 h-36 rounded-full bg-cyan-500/10"
+          className="absolute bottom-20 left-20 w-36 h-36 rounded-full bg-gogo-secondary/15"
         />
       </div>
 
@@ -50,7 +50,7 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Animated subtitle */}
-          <div className="text-xl sm:text-2xl md:text-3xl text-blue-200/90 mb-10 h-12 font-medium">
+          <div className="text-xl sm:text-2xl md:text-3xl text-white/95 mb-10 h-12 font-medium">
             <TypeAnimation
               sequence={[
                 'Find Your Next Game',
@@ -73,7 +73,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-sky-100/90 mb-10 max-w-2xl mx-auto"
           >
             Ottawa&apos;s premier platform for organizing hockey games and booking ice time. 
             Join thousands of players already on the ice!
@@ -89,7 +89,7 @@ export default function HeroSection() {
             <Link href={withLocale('/games')}>
               <Button
                 size="xl"
-                className="group px-8 py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+                className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
                 <span className="flex items-center gap-2">
                   Find Games Now
@@ -102,7 +102,7 @@ export default function HeroSection() {
               <Button
                 variant="outline"
                 size="xl"
-                className="border-2 border-blue-400/60 text-blue-200 backdrop-blur-sm hover:bg-blue-400/15 hover:border-blue-400/80 px-8 py-6 text-lg"
+                className="border-2 border-gogo-secondary text-white backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
               >
                 <PlayCircle className="mr-2" />
                 Get Started Free
@@ -115,7 +115,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-blue-200/90"
+            className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-sky-100/95"
           >
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5" />

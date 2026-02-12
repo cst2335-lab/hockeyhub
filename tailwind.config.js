@@ -68,6 +68,11 @@ const config = {
           rink: '#0c4a6e',
           puck: '#020617',
           goal: '#dc2626',
+        },
+        gogo: {
+          dark: '#18304B',
+          primary: '#0E4877',
+          secondary: '#64BEF0',
         }
       },
       borderRadius: {

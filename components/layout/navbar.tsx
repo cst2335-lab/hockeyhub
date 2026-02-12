@@ -75,7 +75,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
+    <header className="sticky top-0 z-40 bg-[#18304B] text-sky-100 shadow-lg border-b border-sky-900/50">
       <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
         <Link href={withLocale('/')} className="group" aria-label="Go home">
           <Logo size="md" showText={true} light={false} className="group-hover:opacity-90 transition-opacity" />

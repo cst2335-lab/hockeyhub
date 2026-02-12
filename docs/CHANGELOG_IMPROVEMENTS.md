@@ -206,4 +206,59 @@
 
 ---
 
-*文档生成时间：2025-02*
+## 九、P0 修改方案实施（2026-02）
+
+**日期**：2026-02  
+**分支**：feature/ui-and-improvements-2026-02-12
+
+### 9.1 统一加载状态
+- **新建**：`components/ui/skeleton.tsx`（Skeleton、DashboardSkeleton、CardListSkeleton、FormSkeleton）
+- **新建**：`app/[locale]/(dashboard)/loading.tsx`（Dashboard 骨架屏）
+- **新建**：`app/[locale]/loading.tsx`（Locale 级 LoadingSpinner）
+
+### 9.2 错误边界
+- **新建**：`app/[locale]/error.tsx`（统一错误页，提供「重试」「返回首页」）
+- **新建**：`components/error-boundary.tsx`（可复用 ErrorBoundary 组件）
+
+### 9.3 API 路由验证
+- **新建**：`lib/api/auth.ts`（`requireAuth()` 辅助函数）
+- **修改**：`app/api/notifications/test/route.ts` 使用 requireAuth 替代手动 token 解析
+
+### 9.4 RLS 策略文档
+- **新建**：`docs/SUPABASE_RLS.sql`（game_invitations、game_interests、bookings、notifications、profiles、rinks 的 RLS 策略，需在 Supabase SQL Editor 中执行）
+
+---
+
+## 十、P1 修改方案实施（2026-02）
+
+**日期**：2026-02  
+**分支**：feature/ui-and-improvements-2026-02-12
+
+### 10.1 i18n 扩展
+- **修改**：`messages/en.json`、`messages/fr.json`
+- 新增 `games`：gamesFound、filtered、postGame、searchPlaceholder、dateFilterAll/Upcoming/Past、sortByDate/Interest/Views、clearFilters、spotsLeft、full、interested、views
+- 新增 `clubs`：title、noClubs、beFirst、registerClub
+- 新增 `bookings`：title、noBookings
+- 新增 `notifications`：title、noNotifications、markAllRead、unreadCount
+
+### 10.2 UI 视觉规范落地
+- **修改**：`components/features/hero-section.tsx` — 渐变改为 gogo 色彩（gogo-dark → gogo-primary → gogo-secondary），主按钮白底深蓝字，次要按钮 outline + gogo-secondary
+- **修改**：`components/features/game-card-working.tsx` — 顶部条、图标、徽章、按钮使用 gogo 色，卡片 hover 边框
+- **修改**：`components/layout/footer.tsx` — 链接 hover 使用 gogo-primary
+- **修改**：`app/[locale]/(dashboard)/rinks/page.tsx` — 卡片 hover 边框，Book Now 按钮 gogo-primary
+- **修改**：`app/[locale]/(dashboard)/games/page.tsx` — 按钮、筛选器、焦点环使用 gogo 色
+- **修改**：`app/globals.css` — 选中文本样式使用 gogo-secondary
+
+### 10.3 React Query 迁移
+- **新建**：`app/providers/query-provider.tsx`（QueryClientProvider）
+- **修改**：`app/[locale]/layout.tsx` — 包裹 QueryProvider
+- **修改**：`app/[locale]/(dashboard)/games/page.tsx` — 使用 useQuery 替代 useEffect + fetchGames
+- **修改**：`app/[locale]/(dashboard)/rinks/page.tsx` — 使用 useQuery 替代 useEffect + fetchRinks
+
+### 10.4 预订确认邮件
+- **新建**：`app/api/bookings/send-confirmation/route.ts` — 使用 Resend 发送确认邮件（需 RESEND_API_KEY）
+- **修改**：`app/[locale]/(dashboard)/book/[rinkId]/page.tsx` — 预订成功后调用 API 发送邮件（fire-and-forget）
+
+---
+
+*文档生成时间：2025-02 | 更新：2026-02*

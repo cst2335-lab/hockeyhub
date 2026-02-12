@@ -92,8 +92,19 @@
     "totalRinks": "Patinoires totales"
   },
   "games": {
-    "title": "Matchs disponibles",
+    "title": "Trouver des matchs",
     "noGames": "Aucun match disponible",
+    "gamesFound": "{count} matchs trouvés",
+    "filtered": "(filtré)",
+    "postGame": "Publier un match",
+    "searchPlaceholder": "Rechercher par titre, description ou lieu...",
+    "dateFilterAll": "Tous",
+    "dateFilterUpcoming": "À venir",
+    "dateFilterPast": "Passés",
+    "sortByDate": "Par date",
+    "sortByInterest": "Par intérêt",
+    "sortByViews": "Par vues",
+    "clearFilters": "Effacer les filtres",
     "ageGroup": "Groupe d'âge",
     "skillLevel": "Niveau de compétence",
     "location": "Lieu",
@@ -102,7 +113,27 @@
     "contact": "Contact",
     "maxPlayers": "Joueurs maximum",
     "currentPlayers": "Joueurs actuels",
-    "description": "Description"
+    "description": "Description",
+    "spotsLeft": "{count} places restantes",
+    "full": "Complet",
+    "interested": "Intéressés",
+    "views": "Vues"
+  },
+  "clubs": {
+    "title": "Clubs de hockey à Ottawa",
+    "noClubs": "Aucun club enregistré",
+    "beFirst": "Soyez le premier à enregistrer votre club !",
+    "registerClub": "Enregistrer votre club"
+  },
+  "bookings": {
+    "title": "Mes réservations",
+    "noBookings": "Aucune réservation."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "Aucune notification",
+    "markAllRead": "Tout marquer comme lu",
+    "unreadCount": "{count} non lues"
   },
   "errors": {
     "notFound": "Page introuvable",

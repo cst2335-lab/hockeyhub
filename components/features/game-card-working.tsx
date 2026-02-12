@@ -47,9 +47,9 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden h-full">
+    <div className="bg-white rounded-lg shadow-lg hover:shadow-xl hover:border-gogo-secondary hover:border transition-all duration-300 overflow-hidden h-full border border-slate-200">
       {/* Top colored bar */}
-      <div className="h-2 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+      <div className="h-2 bg-gradient-to-r from-gogo-primary to-gogo-secondary"></div>
       
       {/* Status badge */}
       <div className="relative">
@@ -71,24 +71,24 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
         {/* Date and Time */}
         <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
           <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4 text-blue-500" />
+            <Calendar className="w-4 h-4 text-gogo-primary" />
             <span>{formatDate(game.game_date)}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4 text-blue-500" />
+            <Clock className="w-4 h-4 text-gogo-primary" />
             <span>{formatTime(game.game_time)}</span>
           </div>
         </div>
         
         {/* Location */}
         <div className="flex items-center gap-2 mb-4">
-          <MapPin className="w-4 h-4 text-blue-500" />
+          <MapPin className="w-4 h-4 text-gogo-primary" />
           <span className="text-sm font-medium">{game.location}</span>
         </div>
         
         {/* Age group and skill level */}
         <div className="flex gap-2 mb-4">
-          <span className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full inline-flex items-center">
+          <span className="px-3 py-1 text-xs font-medium bg-gogo-primary/10 text-gogo-primary rounded-full inline-flex items-center">
             <Users className="w-3 h-3 mr-1" />
             {game.age_group}
           </span>
@@ -106,7 +106,7 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
-              className={`h-full ${isFull ? 'bg-red-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'}`}
+              className={`h-full ${isFull ? 'bg-red-500' : 'bg-gradient-to-r from-gogo-primary to-gogo-secondary'}`}
               style={{ width: `${(game.interested_count / game.max_players) * 100}%` }}
             />
           </div>
@@ -133,7 +133,7 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
         
         {/* Action button */}
         <Link href={`/games/${game.id}`}>
-          <button className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-md transition-all">
+          <button className="w-full py-2 px-4 bg-gogo-primary hover:bg-gogo-dark text-white font-semibold rounded-md transition-all focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2">
             {isFull ? 'View Details' : 'Join Game'}
           </button>
         </Link>
