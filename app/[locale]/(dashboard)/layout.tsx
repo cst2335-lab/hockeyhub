@@ -1,11 +1,13 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, Suspense} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {useTranslations} from 'next-intl';
-import {Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText, Settings} from 'lucide-react';
+import {LayoutDashboard, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText, Settings} from 'lucide-react';
+import {Logo} from '@/components/ui/logo';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 
 /**
  * Dashboard shell (top nav + children)
@@ -117,7 +119,7 @@ export default function DashboardLayout({
   // Define nav items without locale; we prepend it via `withLocale`
   // rinkManagerOnly: only show for verified rink managers
   const navItems = [
-    {path: '/dashboard', labelKey: 'dashboard', icon: Home, rinkManagerOnly: false},
+    {path: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard, rinkManagerOnly: false},
     {path: '/games', labelKey: 'games', icon: Trophy, rinkManagerOnly: false},
     {path: '/my-games', labelKey: 'myGames', icon: FileText, rinkManagerOnly: false},
     {path: '/rinks', labelKey: 'rinks', icon: MapPin, rinkManagerOnly: false},
@@ -126,112 +128,109 @@ export default function DashboardLayout({
     {path: '/manage-rink', labelKey: 'manageRink', icon: Settings, rinkManagerOnly: true},
   ] as const;
 
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname === href || (pathname?.startsWith(href) ?? false);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            {/* Logo + Desktop Nav */}
-            <div className="flex">
-              <Link href={withLocale('/')} className="flex items-center px-2" aria-label="Go to homepage">
-                <span className="text-2xl">🏒</span>
-                <span className="ml-2 text-xl font-bold text-gray-900">GoGoHockey</span>
-              </Link>
+      {/* Top Navigation - same visual as main Navbar (homepage) */}
+      <header className="sticky top-0 z-40 bg-[#18304B] text-sky-100 shadow-lg border-b border-sky-900/50">
+        <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
+          <Link href={withLocale('/')} className="group" aria-label="Go home">
+            <Logo size="md" showText={true} light className="group-hover:opacity-90 transition-opacity" />
+          </Link>
 
-              <div className="hidden md:ml-8 md:flex md:space-x-4">
-                {navItems
-                  .filter((item) => !item.rinkManagerOnly || isRinkManager)
-                  .map((item) => {
-                    const Icon = item.icon;
-                    const href = withLocale(item.path);
-                    const isActive =
-                      pathname === href ||
-                      (item.path !== '/dashboard' && pathname?.startsWith(href));
-
-                    return (
-                      <Link
-                        key={item.path}
-                        href={href}
-                        className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
-                          isActive
-                            ? 'text-gogo-primary bg-gogo-secondary/10'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Icon className="h-4 w-4 mr-2" />
-                      {t(item.labelKey)}
-                      </Link>
-                    );
-                  })}
-              </div>
-            </div>
-
-            {/* Right Side */}
-            <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              <Link
-                href={withLocale('/notifications')}
-                aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
-                className={`relative p-2 rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 ${
-                  pathname === withLocale('/notifications')
-                    ? 'text-gogo-primary bg-gogo-secondary/10'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-white text-xs text-center leading-4">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* User section */}
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-700 hidden sm:block">{userEmail}</span>
-                <button
-                  onClick={handleLogout}
-                  aria-label={t('logout')}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="ml-2 hidden sm:inline">Logout</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden border-t">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+          <ul className="hidden md:flex items-center gap-6 text-[15px]">
             {navItems
               .filter((item) => !item.rinkManagerOnly || isRinkManager)
               .map((item) => {
-              const Icon = item.icon;
-              const href = withLocale(item.path);
-              const isActive =
-                pathname === href || (item.path !== '/dashboard' && pathname?.startsWith(href));
+                const Icon = item.icon;
+                const href = withLocale(item.path);
+                const active =
+                  item.path === '/dashboard'
+                    ? isActive(href, true)
+                    : pathname?.startsWith(href);
+                return (
+                  <li key={item.path}>
+                    <Link
+                      href={href}
+                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+                        active
+                          ? 'bg-white/20 text-white ring-1 ring-white/30'
+                          : 'text-sky-100 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" /> {t(item.labelKey)}
+                    </Link>
+                  </li>
+                );
+              })}
+          </ul>
 
-              return (
-                <Link
-                  key={item.path}
-                  href={href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive
-                      ? 'text-gogo-primary bg-gogo-secondary/10'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="inline h-4 w-4 mr-2" />
-                  {t(item.labelKey)}
-                </Link>
-              );
-            })}
+          <div className="flex items-center gap-3">
+            <Suspense fallback={<div className="w-20 h-8" />}>
+              <LocaleSwitcher />
+            </Suspense>
+
+            <Link
+              href={withLocale('/notifications')}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg relative text-sky-100 hover:text-white hover:bg-white/10 transition"
+              aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium px-1">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+
+            <span className="hidden sm:inline-block text-sm text-sky-100 truncate max-w-[140px]" title={userEmail ?? undefined}>
+              {userEmail}
+            </span>
+            <button
+              onClick={handleLogout}
+              aria-label={t('logout')}
+              className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sky-100 hover:text-white hover:bg-white/10 transition"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('logout')}</span>
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden border-t border-sky-900/50">
+          <div className="container mx-auto px-4 py-3 space-y-1">
+            {navItems
+              .filter((item) => !item.rinkManagerOnly || isRinkManager)
+              .map((item) => {
+                const Icon = item.icon;
+                const href = withLocale(item.path);
+                const active =
+                  item.path === '/dashboard'
+                    ? pathname === href
+                    : pathname?.startsWith(href);
+                return (
+                  <Link
+                    key={item.path}
+                    href={href}
+                    className={`block px-3 py-2 rounded-lg text-[15px] font-medium transition ${
+                      active
+                        ? 'bg-white/20 text-white ring-1 ring-white/30'
+                        : 'text-sky-100 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <Icon className="inline h-4 w-4 mr-2 align-middle" />
+                    {t(item.labelKey)}
+                  </Link>
+                );
+              })}
           </div>
         </div>
-      </nav>
+
+        <div className="h-[3px] w-full bg-gradient-to-r from-gogo-primary via-gogo-secondary to-gogo-primary" />
+      </header>
 
       {/* Page Content */}
       <main>{children}</main>

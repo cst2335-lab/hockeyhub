@@ -7,7 +7,7 @@ import {usePathname} from 'next/navigation';
 import {useTranslations} from 'next-intl';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
-import {Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
+import {LayoutDashboard, Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { Logo } from '@/components/ui/logo';
 
@@ -82,6 +82,22 @@ export default function Navbar() {
         </Link>
 
         <ul className="hidden md:flex items-center gap-6 text-[15px]">
+          {user && (
+            <li>
+              <Link
+                href={withLocale('/dashboard')}
+                className={cx(
+                  'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
+                  isActive('/dashboard')
+                    ? 'bg-white/20 text-white ring-1 ring-white/30'
+                    : 'text-sky-100 hover:text-white hover:bg-white/10'
+                )}
+                aria-label={t('dashboard')}
+              >
+                <LayoutDashboard className="h-4 w-4" /> {t('dashboard')}
+              </Link>
+            </li>
+          )}
           <li>
             <Link
               href={withLocale('/games')}
@@ -132,18 +148,25 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
+                href={withLocale('/dashboard')}
+                className="md:hidden inline-flex h-9 items-center gap-2 px-3 rounded-lg text-sky-100 hover:text-white hover:bg-white/10 transition"
+                aria-label={t('dashboard')}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>{t('dashboard')}</span>
+              </Link>
+              <Link
                 href={withLocale('/notifications')}
-                className="hidden sm:inline-flex h-9 items-center gap-2 px-3 rounded-lg relative
+                className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg relative
                            text-sky-100 hover:text-white hover:bg-white/10 transition"
                 aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium px-1">
+                  <span className="absolute top-0 right-0 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-medium px-1">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
-                {t('notifications')}
               </Link>
 
               <Link

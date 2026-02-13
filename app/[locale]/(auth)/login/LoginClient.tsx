@@ -30,7 +30,7 @@ export default function LoginClient() {
       setMessage('Error: ' + error.message);
     } else {
       setMessage('Login successful!');
-      window.location.href = `/${locale}/games`;
+      window.location.href = `/${locale}/dashboard`;
     }
     setLoading(false);
   };

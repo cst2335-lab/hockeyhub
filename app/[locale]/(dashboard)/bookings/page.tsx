@@ -42,6 +42,12 @@ export default function BookingsPage() {
       {bookings.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <p className="text-gray-500 mb-4">{t('noBookings')}</p>
+          <Link
+            href={withLocale('/rinks')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gogo-primary text-white font-medium hover:bg-gogo-dark transition"
+          >
+            {t('browseRinksToBook')}
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4">

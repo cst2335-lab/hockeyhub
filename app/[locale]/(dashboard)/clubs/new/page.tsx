@@ -1,11 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useMemo, useCallback } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function NewClubPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = useMemo(() => (pathname?.split('/')?.[1] || 'en').trim(), [pathname])
+  const withLocale = useCallback((p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/'), [locale])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
@@ -65,7 +69,7 @@ export default function NewClubPage() {
       } else {
         setMessage('Club created successfully!')
         setTimeout(() => {
-          router.push('/clubs')
+          router.push(withLocale('/clubs'))
         }, 1500)
       }
     } catch (error) {
@@ -77,18 +81,12 @@ export default function NewClubPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
-          <div className="flex gap-4">
-            <a href="/games" className="text-gray-600">Games</a>
-            <a href="/rinks" className="text-gray-600">Rinks</a>
-            <a href="/clubs" className="text-gogo-primary">Clubs</a>
-            <a href="/profile" className="text-gray-600">Profile</a>
-          </div>
-        </div>
-      </nav>
+      {/* In-page back link - dashboard layout provides main nav */}
+      <div className="container mx-auto px-4 pt-4">
+        <Link href={withLocale('/clubs')} className="text-gogo-primary hover:text-gogo-dark text-sm font-medium">
+          ← Back to Clubs
+        </Link>
+      </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -242,7 +240,7 @@ export default function NewClubPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/clubs')}
+                onClick={() => router.push(withLocale('/clubs'))}
                 className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
               >
                 Cancel

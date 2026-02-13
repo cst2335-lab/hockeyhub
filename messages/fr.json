@@ -47,6 +47,11 @@
   "footer": {
     "poweredBy": "Propulsé par Vercel"
   },
+  "hero": {
+    "goToDashboard": "Aller au tableau de bord",
+    "findGamesNow": "Trouver des matchs",
+    "getStartedFree": "Commencer gratuitement"
+  },
   "rinks": {
     "title": "Patinoires à Ottawa",
     "available": "{count} patinoires disponibles",
@@ -140,7 +145,8 @@
   },
   "bookings": {
     "title": "Mes réservations",
-    "noBookings": "Aucune réservation."
+    "noBookings": "Aucune réservation.",
+    "browseRinksToBook": "Voir les patinoires pour réserver"
   },
   "notifications": {
     "title": "Notifications",

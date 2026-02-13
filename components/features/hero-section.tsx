@@ -1,18 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 export default function HeroSection() {
   const params = useParams();
+  const t = useTranslations('hero');
   const locale = (params?.locale as string) || 'en';
   const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
+  const supabase = useMemo(() => createClient(), []);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      setUser(u ?? null);
+    })();
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, [supabase]);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gogo-dark via-gogo-primary to-gogo-secondary">
@@ -79,35 +96,63 @@ export default function HeroSection() {
             Join thousands of players already on the ice!
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - switch by login state */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
             className="flex flex-col sm:flex-row gap-4 justify-center mb-14"
           >
-            <Link href={withLocale('/games')}>
-              <Button
-                size="xl"
-                className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-              >
-                <span className="flex items-center gap-2">
-                  Find Games Now
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
-            </Link>
-
-            <Link href={withLocale('/register')}>
-              <Button
-                variant="outline"
-                size="xl"
-                className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
-              >
-                <PlayCircle className="mr-2" />
-                Get Started Free
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link href={withLocale('/dashboard')} aria-label={t('goToDashboard')}>
+                  <Button
+                    size="xl"
+                    className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                  >
+                    <span className="flex items-center gap-2">
+                      <LayoutDashboard className="h-5 w-5" />
+                      {t('goToDashboard')}
+                      <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Button>
+                </Link>
+                <Link href={withLocale('/games')} aria-label={t('findGamesNow')}>
+                  <Button
+                    variant="outline"
+                    size="xl"
+                    className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+                  >
+                    <PlayCircle className="mr-2" />
+                    {t('findGamesNow')}
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href={withLocale('/games')} aria-label={t('findGamesNow')}>
+                  <Button
+                    size="xl"
+                    className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                  >
+                    <span className="flex items-center gap-2">
+                      {t('findGamesNow')}
+                      <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Button>
+                </Link>
+                <Link href={withLocale('/register')} aria-label={t('getStartedFree')}>
+                  <Button
+                    variant="outline"
+                    size="xl"
+                    className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+                  >
+                    <PlayCircle className="mr-2" />
+                    {t('getStartedFree')}
+                  </Button>
+                </Link>
+              </>
+            )}
           </motion.div>
 
           {/* Trust indicators */}

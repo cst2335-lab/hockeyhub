@@ -47,6 +47,11 @@
   "footer": {
     "poweredBy": "Powered by Vercel"
   },
+  "hero": {
+    "goToDashboard": "Go to Dashboard",
+    "findGamesNow": "Find Games Now",
+    "getStartedFree": "Get Started Free"
+  },
   "rinks": {
     "title": "Ice Rinks in Ottawa",
     "available": "{count} rinks available",
@@ -140,7 +145,8 @@
   },
   "bookings": {
     "title": "My Bookings",
-    "noBookings": "No bookings yet."
+    "noBookings": "No bookings yet.",
+    "browseRinksToBook": "Browse rinks to book"
   },
   "notifications": {
     "title": "Notifications",
