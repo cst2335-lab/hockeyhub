@@ -2,7 +2,8 @@
 
 综合功能完善、用户体验、技术架构、国际化、安全、性能及 **UI 视觉更新优化** 的完整修改方案。
 
-**参考**：[UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md)
+**参考**：[UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md)  
+**阶段二（2026-02）**：导航与功能按钮逻辑、Dashboard 与主页导航视觉统一已完成，见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)。
 
 ---
 

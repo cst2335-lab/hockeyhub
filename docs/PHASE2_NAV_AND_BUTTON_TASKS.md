@@ -160,3 +160,5 @@
 | 5. Footer 增加 Dashboard | ✅ | 已登录时在 footer 导航中增加 Dashboard 链接，带 `aria-label` |
 | 6. 功能页按钮链条 | ✅ | 修复 `clubs/new`：`router.push` 与 Cancel/成功跳转均使用 `withLocale`；移除重复无 locale 的顶栏，改为「Back to Clubs」链接；Bookings 空状态增加「Browse rinks to book」→ `/rinks` |
 | 7. 移动端与无障碍 | ✅ | 新链接均带 `aria-label`；Navbar 移动端单独展示 Dashboard 入口 |
+| **后续** 主页通知仅铃铛 | ✅ | 公网 Navbar 中通知入口去掉 “Notifications” 文案，仅保留铃铛图标 + 未读角标 |
+| **后续** 导航视觉统一 | ✅ | Dashboard 顶栏与主页一致：`bg-[#18304B]`、同款 Logo 组件、相同链接/按钮样式、LocaleSwitcher、通知仅铃铛、底部渐变条；移动端同风格 |
