@@ -44,15 +44,15 @@ export default function LoginClient() {
           <Logo size="md" showText={true} light={false} className="h-10 w-auto" />
         </Link>
       </div>
-      <h2 className="mt-20 text-lg font-semibold text-gray-900">Welcome back</h2>
-      <p className="mt-2 text-sm text-gray-700">
+      <h2 className="mt-20 text-lg font-semibold text-foreground">Welcome back</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
         Sign in to your account
       </p>
 
       <form className="mt-10 grid grid-cols-1 gap-y-8" onSubmit={handleLogin}>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Email
               </label>
               <input
@@ -60,12 +60,12 @@ export default function LoginClient() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
+                className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Password
               </label>
               <input
@@ -73,13 +73,13 @@ export default function LoginClient() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
+                className="mt-1 block w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
               />
             </div>
           </div>
 
           {message && (
-            <div className={`text-sm ${message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-sm ${message.includes('Error') ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
               {message}
             </div>
           )}
@@ -87,12 +87,12 @@ export default function LoginClient() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-gogo-primary hover:bg-gogo-dark text-white font-medium rounded-md disabled:opacity-50 focus:ring-2 focus:ring-gogo-secondary focus:ring-offset-2"
+            className="w-full py-2 px-4 bg-gogo-primary hover:bg-gogo-dark text-white font-medium rounded-lg disabled:opacity-50 focus:ring-2 focus:ring-gogo-secondary focus:ring-offset-2 dark:ring-offset-card"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link href={`/${locale}/register`} className="font-medium text-gogo-primary hover:text-gogo-dark">
             Sign up

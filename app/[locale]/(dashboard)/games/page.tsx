@@ -220,10 +220,10 @@ export default function GamesPage() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Find Games</h1>
-            <p className="mt-2 text-gray-600">
-              {filteredGames.length} games found
-              {hasActiveFilters() && ' (filtered)'}
+            <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+            <p className="mt-2 text-muted-foreground">
+              {t('gamesFound', { count: filteredGames.length })}
+              {hasActiveFilters() && ` ${t('filtered')}`}
             </p>
           </div>
 
@@ -237,25 +237,25 @@ export default function GamesPage() {
         </div>
 
         {/* Search + Filters */}
-        <div className="mb-6 bg-surface rounded-lg shadow p-4">
+        <div className="mb-6 bg-card border border-border dark:border-slate-700 rounded-xl shadow-sm p-4">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
               <input
                 type="text"
-                placeholder="Search games by title, description, or location..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="pl-10 pr-3 py-2 w-full border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
               />
             </div>
 
             <button
               onClick={() => setShowFilters((v) => !v)}
-              className={`px-4 py-2 border rounded-md transition flex items-center gap-2 ${
+              className={`px-4 py-2 border rounded-lg transition flex items-center gap-2 ${
                 showFilters || hasActiveFilters()
                   ? 'bg-gogo-primary/10 border-gogo-primary text-gogo-primary'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'border-input bg-background text-foreground hover:bg-muted'
               }`}
             >
               <Filter className="h-4 w-4" />
@@ -269,15 +269,15 @@ export default function GamesPage() {
           </div>
 
           {showFilters && (
-            <div className="mt-4 pt-4 border-t grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="mt-4 pt-4 border-t border-border grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Age Group</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('ageGroup')}</label>
                 <select
                   value={ageGroupFilter}
                   onChange={(e) => setAgeGroupFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                  className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
                 >
-                  <option value="all">All Ages</option>
+                  <option value="all">{t('dateFilterAll')}</option>
                   {ageGroups.map((g) => (
                     <option key={g} value={g}>
                       {g}
@@ -287,11 +287,11 @@ export default function GamesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Skill Level</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('skillLevel')}</label>
                 <select
                   value={skillLevelFilter}
                   onChange={(e) => setSkillLevelFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                  className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
                 >
                   <option value="all">All Levels</option>
                   {skillLevels.map((s) => (
@@ -303,36 +303,36 @@ export default function GamesPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t('location')}</label>
                 <input
                   type="text"
                   placeholder="e.g., Kanata"
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                  className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Sort By</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortBy)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                  className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
                 >
-                  <option value="date">Date</option>
-                  <option value="interest">Most Interested</option>
-                  <option value="views">Most Viewed</option>
+                  <option value="date">{t('sortByDate')}</option>
+                  <option value="interest">{t('sortByInterest')}</option>
+                  <option value="views">{t('sortByViews')}</option>
                 </select>
               </div>
 
               <div className="flex items-end">
                 <button
                   onClick={clearFilters}
-                  className="w-full px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition flex items-center justify-center gap-2"
                 >
                   <X className="h-4 w-4" />
-                  Clear All
+                  {t('clearFilters')}
                 </button>
               </div>
             </div>
@@ -340,11 +340,11 @@ export default function GamesPage() {
         </div>
 
         {/* Date Tabs */}
-        <div className="mb-6 flex space-x-4 border-b">
+        <div className="mb-6 flex space-x-4 border-b border-border">
           {([
-            ['all', `All Games (${games.length})`],
-            ['upcoming', `Upcoming (${games.filter((g) => !g.isExpired).length})`],
-            ['past', `Recent Past (${games.filter((g) => g.isExpired).length})`],
+            ['all', `${t('dateFilterAll')} (${games.length})`],
+            ['upcoming', `${t('dateFilterUpcoming')} (${games.filter((g) => !g.isExpired).length})`],
+            ['past', `${t('dateFilterPast')} (${games.filter((g) => g.isExpired).length})`],
           ] as const).map(([key, label]) => (
             <button
               key={key}
@@ -352,7 +352,7 @@ export default function GamesPage() {
               className={`pb-2 px-1 border-b-2 transition ${
                 dateFilter === key
                   ? 'border-gogo-primary text-gogo-primary font-medium'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               {label}
@@ -367,7 +367,7 @@ export default function GamesPage() {
             {paginatedGames.map((game) => {
               const expiredBadge =
                 game.isExpired ? (
-                  <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full inline-flex items-center">
+                  <span className="bg-muted-foreground/80 dark:bg-slate-600 text-white text-xs px-2 py-1 rounded-full inline-flex items-center">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     Expired
                   </span>
@@ -376,12 +376,11 @@ export default function GamesPage() {
               return (
                 <div
                   key={game.id}
-                  className={`bg-surface rounded-lg shadow-md hover:shadow-lg transition-shadow relative ${
+                  className={`bg-card text-card-foreground rounded-xl shadow-md border border-border dark:border-slate-700 hover:shadow-lg transition-shadow relative ${
                     game.isExpired ? 'opacity-75' : ''
                   }`}
                 >
                   <div className="absolute top-4 right-4 z-10 flex gap-2">
-                    {/* 统一状态徽章 */}
                     <span className={`text-xs px-2 py-1 rounded-full ${statusBadge[game.status]}`}>
                       {game.status}
                     </span>
@@ -389,11 +388,11 @@ export default function GamesPage() {
                   </div>
 
                   <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 pr-16">
+                    <h3 className="text-lg font-semibold text-foreground mb-4 pr-16">
                       {game.title || 'Untitled Game'}
                     </h3>
 
-                    <div className="space-y-2 text-sm text-gray-600">
+                    <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
                         <span className={game.isExpired ? 'line-through' : ''}>

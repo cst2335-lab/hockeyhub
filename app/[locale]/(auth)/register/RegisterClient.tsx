@@ -88,10 +88,10 @@ export default function RegisterClient() {
           <Logo size="md" showText={true} light={false} className="h-10 w-auto" />
         </Link>
       </div>
-      <h2 className="mt-20 text-lg font-semibold text-gray-900">
+      <h2 className="mt-20 text-lg font-semibold text-foreground">
         Create your GoGoHockey account
       </h2>
-      <p className="mt-2 text-sm text-gray-700">
+      <p className="mt-2 text-sm text-muted-foreground">
         Step {step} of 2: {step === 1 ? 'Basic Information' : 'Hockey Profile'}
       </p>
 
@@ -105,7 +105,7 @@ export default function RegisterClient() {
                   name="fullName"
                   type="text"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input bg-background placeholder-muted-foreground text-foreground rounded-t-md focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -119,7 +119,7 @@ export default function RegisterClient() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input bg-background placeholder-muted-foreground text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -133,7 +133,7 @@ export default function RegisterClient() {
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input bg-background placeholder-muted-foreground text-foreground rounded-b-md focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary focus:z-10 sm:text-sm"
                   placeholder="Password (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -156,10 +156,10 @@ export default function RegisterClient() {
           <form className="mt-8 space-y-4" onSubmit={handleRegister}>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Age Group *</label>
+                <label className="block text-sm font-medium text-foreground">Age Group *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
                   value={profile.age_group}
                   onChange={(e) => setProfile({...profile, age_group: e.target.value})}
                 >
@@ -175,10 +175,10 @@ export default function RegisterClient() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Skill Level *</label>
+                <label className="block text-sm font-medium text-foreground">Skill Level *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
                   value={profile.skill_level}
                   onChange={(e) => setProfile({...profile, skill_level: e.target.value})}
                 >
@@ -194,10 +194,10 @@ export default function RegisterClient() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Position *</label>
+                <label className="block text-sm font-medium text-foreground">Position *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
                   value={profile.position}
                   onChange={(e) => setProfile({...profile, position: e.target.value})}
                 >
@@ -210,9 +210,9 @@ export default function RegisterClient() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Shoots</label>
+                <label className="block text-sm font-medium text-foreground">Shoots</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
                   value={profile.preferred_shot}
                   onChange={(e) => setProfile({...profile, preferred_shot: e.target.value})}
                 >
@@ -224,10 +224,10 @@ export default function RegisterClient() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Area/Location *</label>
+              <label className="block text-sm font-medium text-foreground">Area/Location *</label>
               <select
                 required
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
                 value={profile.area}
                 onChange={(e) => setProfile({...profile, area: e.target.value})}
               >
@@ -247,23 +247,23 @@ export default function RegisterClient() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Years Playing</label>
+                <label className="block text-sm font-medium text-foreground">Years Playing</label>
                 <input
                   type="number"
                   min="0"
                   max="50"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border-input bg-background text-foreground rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
                   value={profile.years_playing}
                   onChange={(e) => setProfile({...profile, years_playing: parseInt(e.target.value) || 0})}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Jersey #</label>
+                <label className="block text-sm font-medium text-foreground">Jersey #</label>
                 <input
                   type="text"
                   maxLength={3}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border-input bg-background text-foreground rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
                   value={profile.jersey_number}
                   onChange={(e) => setProfile({...profile, jersey_number: e.target.value})}
                 />
@@ -271,10 +271,10 @@ export default function RegisterClient() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <label className="block text-sm font-medium text-foreground">Phone Number</label>
               <input
                 type="tel"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                className="mt-1 block w-full border-input bg-background text-foreground rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
                 placeholder="(613) 555-0100"
                 value={profile.phone}
                 onChange={(e) => setProfile({...profile, phone: e.target.value})}
@@ -289,14 +289,14 @@ export default function RegisterClient() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary"
+                className="flex-1 py-2 px-4 border border-input bg-background text-foreground rounded-md shadow-sm text-sm font-medium hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gogo-primary hover:bg-gogo-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary disabled:bg-gray-400"
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gogo-primary hover:bg-gogo-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary disabled:opacity-50"
               >
                 {isLoading ? 'Creating...' : 'Complete Registration'}
               </button>
@@ -304,7 +304,7 @@ export default function RegisterClient() {
           </form>
         )}
 
-      <div className="mt-10 text-sm text-gray-700">
+      <div className="mt-10 text-sm text-foreground">
         Already have an account?{' '}
         <Link href={`/${locale}/login`} className="font-medium text-gogo-primary hover:text-gogo-dark">
           Sign in

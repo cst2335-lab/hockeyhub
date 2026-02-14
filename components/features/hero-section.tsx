@@ -68,8 +68,18 @@ export default function HeroSection() {
             <Logo size="lg" showText={true} light className="justify-center" />
           </motion.div>
 
+          {/* Tagline — clear value prop (reference: audience clarity like TeamSnap) */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-xl sm:text-2xl md:text-3xl text-white font-semibold mb-4 max-w-2xl mx-auto"
+          >
+            {t('tagline')}
+          </motion.p>
+
           {/* Animated subtitle */}
-          <div className="text-xl sm:text-2xl md:text-3xl text-white/95 mb-10 h-12 font-medium">
+          <div className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 h-10 font-medium">
             <TypeAnimation
               sequence={[
                 'Find Your Next Game',
@@ -87,15 +97,14 @@ export default function HeroSection() {
             />
           </div>
 
-          {/* Description */}
+          {/* Who it's for — audience clarity */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-xl text-sky-100/90 mb-10 max-w-2xl mx-auto"
+            className="text-base md:text-lg text-sky-100/85 mb-10 max-w-xl mx-auto"
           >
-            Ottawa&apos;s premier platform for organizing hockey games and booking ice time. 
-            Join thousands of players already on the ice!
+            {t('whoItFor')}
           </motion.p>
 
           {/* CTA Buttons - switch by login state */}

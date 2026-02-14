@@ -49,12 +49,30 @@
     "tryAgain": "Try again"
   },
   "footer": {
+    "forEveryone": "For everyone",
+    "company": "Company",
     "poweredBy": "Powered by Vercel"
   },
   "hero": {
+    "tagline": "Ottawa's hockey hub — find games, book ice, connect.",
+    "whoItFor": "For players, parents, and clubs in the Ottawa area.",
     "goToDashboard": "Go to Dashboard",
     "findGamesNow": "Find Games Now",
     "getStartedFree": "Get Started Free"
+  },
+  "home": {
+    "recentGames": "Recent Games",
+    "recentGamesSubtitle": "Join a game happening soon",
+    "noGames": "No games available at the moment.",
+    "noGamesHint": "Check back later or create your own game!",
+    "platformHeadline": "One platform. Everything hockey.",
+    "platformSubline": "Find pick-up games, book ice time, and connect with local clubs — all in one place.",
+    "findGamesTitle": "Find Games",
+    "findGamesDesc": "Browse open games, join pick-up sessions, or post your own. Filter by date, skill level, and location.",
+    "bookIceTitle": "Book Ice",
+    "bookIceDesc": "Compare rinks, check availability, and book ice time online. Transparent pricing and instant confirmation.",
+    "connectClubsTitle": "Clubs & Community",
+    "connectClubsDesc": "Discover Ottawa-area clubs, see verified listings, and grow your hockey network."
   },
   "rinks": {
     "title": "Ice Rinks in Ottawa",

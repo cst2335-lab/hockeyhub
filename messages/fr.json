@@ -49,12 +49,30 @@
     "tryAgain": "Réessayer"
   },
   "footer": {
+    "forEveryone": "Pour tous",
+    "company": "Entreprise",
     "poweredBy": "Propulsé par Vercel"
   },
   "hero": {
+    "tagline": "Le hub hockey d'Ottawa — trouvez des matchs, réservez la glace, connectez-vous.",
+    "whoItFor": "Pour les joueurs, les parents et les clubs de la région d'Ottawa.",
     "goToDashboard": "Aller au tableau de bord",
     "findGamesNow": "Trouver des matchs",
     "getStartedFree": "Commencer gratuitement"
+  },
+  "home": {
+    "recentGames": "Matchs récents",
+    "recentGamesSubtitle": "Rejoignez un match à venir",
+    "noGames": "Aucun match disponible pour le moment.",
+    "noGamesHint": "Revenez plus tard ou créez votre propre match !",
+    "platformHeadline": "Une plateforme. Tout le hockey.",
+    "platformSubline": "Trouvez des matchs libres, réservez de la glace et connectez-vous aux clubs locaux — le tout en un seul endroit.",
+    "findGamesTitle": "Trouver des matchs",
+    "findGamesDesc": "Parcourez les matchs ouverts, rejoignez des séances ou publiez le vôtre. Filtrez par date, niveau et lieu.",
+    "bookIceTitle": "Réserver la glace",
+    "bookIceDesc": "Comparez les patinoires, vérifiez les disponibilités et réservez en ligne. Tarifs transparents et confirmation instantanée.",
+    "connectClubsTitle": "Clubs et communauté",
+    "connectClubsDesc": "Découvrez les clubs de la région, consultez les fiches vérifiées et développez votre réseau hockey."
   },
   "rinks": {
     "title": "Patinoires à Ottawa",

@@ -142,27 +142,27 @@ export default function RinksPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-extrabold mb-2">{t('title')}</h1>
-      <p className="text-gray-600 mb-6">{t('available', { count: filtered.length })}</p>
+      <h1 className="text-4xl font-extrabold mb-2 text-foreground">{t('title')}</h1>
+      <p className="text-muted-foreground mb-6">{t('available', { count: filtered.length })}</p>
 
       {/* Toolbar */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6 grid gap-4 md:grid-cols-4">
+      <div className="bg-card border border-border dark:border-slate-700 rounded-xl shadow-sm p-4 mb-6 grid gap-4 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="relative">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md"
+              className="w-full px-4 py-2 pr-10 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
-            <span className="absolute right-3 top-2.5 text-gray-400">⌕</span>
+            <span className="absolute right-3 top-2.5 text-muted-foreground">⌕</span>
           </div>
         </div>
 
         <select
           value={price}
           onChange={(e) => setPrice(e.target.value as PriceBand)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
         >
           <option value="all">{t('allPrices')}</option>
           <option value="budget">{t('budget')}</option>
@@ -173,7 +173,7 @@ export default function RinksPage() {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as 'name' | 'price')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
         >
           <option value="name">{t('sortByName')}</option>
           <option value="price">{t('sortByPrice')}</option>
@@ -182,7 +182,7 @@ export default function RinksPage() {
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md md:col-span-1"
+          className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary md:col-span-1"
         >
           {cities.map((c) => (
             <option key={c} value={c}>
@@ -199,7 +199,7 @@ export default function RinksPage() {
             setCity('all')
             setCurrentPage(1)
           }}
-          className="w-full px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 md:col-span-1"
+          className="w-full px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition md:col-span-1"
         >
           {t('clearFilters')}
         </button>
@@ -207,8 +207,8 @@ export default function RinksPage() {
 
       {/* Cards */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">{t('noMatch')}</p>
+        <div className="bg-card border border-border dark:border-slate-700 rounded-xl shadow-sm p-8 text-center">
+          <p className="text-muted-foreground">{t('noMatch')}</p>
         </div>
       ) : (
         <>
@@ -217,17 +217,17 @@ export default function RinksPage() {
             const rateNum = toNum(r.hourly_rate)
             const tag = band(rateNum)
             return (
-              <div key={r.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-3 border border-slate-200 hover:border-gogo-secondary transition-colors">
+              <div key={r.id} className="bg-card text-card-foreground rounded-xl shadow-md p-6 flex flex-col gap-3 border border-border dark:border-slate-700 hover:border-gogo-secondary transition-colors">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-xl font-semibold">{r.name}</h3>
+                  <h3 className="text-xl font-semibold text-foreground">{r.name}</h3>
                   {tag && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
                       {tag}
                     </span>
                   )}
                 </div>
 
-                <div className="text-gray-600 space-y-1">
+                <div className="text-muted-foreground space-y-1 text-sm">
                   <div>📍 {r.address}</div>
                   {r.phone && <div>📞 {r.phone}</div>}
                   <div>💲 {Number.isNaN(rateNum) ? 'N/A' : `${formatCurrency(rateNum)}/hour`}</div>
@@ -236,7 +236,7 @@ export default function RinksPage() {
                       {r.amenities.slice(0, 6).map((a) => (
                         <span
                           key={a}
-                          className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                          className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground"
                         >
                           {a}
                         </span>
@@ -246,32 +246,27 @@ export default function RinksPage() {
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  {/* Book Now → internal booking page (locale-aware) */}
                   <Link
                     href={withLocale(`/book/${r.id}`)}
-                    className="col-span-1 text-center px-3 py-2 rounded bg-gogo-primary text-white hover:bg-gogo-dark transition-colors"
+                    className="col-span-1 text-center px-3 py-2 rounded-lg bg-gogo-primary text-white hover:bg-gogo-dark transition-colors text-sm font-medium"
                   >
                     {tActions('bookNow')}
                   </Link>
-
-                  {/* Map → open Google Maps place */}
                   <a
                     href={`https://www.google.com/maps?q=${encodeURIComponent(r.address)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-center px-3 py-2 rounded border hover:bg-gray-50"
+                    className="text-center px-3 py-2 rounded-lg border border-border bg-background hover:bg-muted text-foreground text-sm transition"
                   >
                     Map
                   </a>
-
-                  {/* Go → open Google Maps navigation directly */}
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
                       `${r.name} ${r.address} ${r.city ?? ''}`
                     )}`}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="text-center px-3 py-2 rounded border hover:bg-gray-50"
+                    className="text-center px-3 py-2 rounded-lg border border-border bg-background hover:bg-muted text-foreground text-sm transition"
                   >
                     Go
                   </a>
@@ -286,17 +281,17 @@ export default function RinksPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage <= 1}
-              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-gogo-secondary/10 hover:border-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {t('prevPage')}
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {t('pageOf', { current: currentPage, total: totalPages })}
             </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage >= totalPages}
-              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:bg-gogo-secondary/10 hover:border-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {t('nextPage')}
             </button>
@@ -305,26 +300,26 @@ export default function RinksPage() {
         </>
       )}
 
-      {/* Quick Stats (based on filtered list) */}
-      <div className="mt-10 p-6 bg-gogo-secondary/10 rounded-xl flex flex-wrap items-center justify-around">
+      {/* Quick Stats */}
+      <div className="mt-10 p-6 bg-muted/50 dark:bg-slate-800/50 rounded-xl border border-border dark:border-slate-700 flex flex-wrap items-center justify-around gap-4">
         <div className="text-center">
-          <h3 className="font-bold text-lg text-gogo-dark">{t('quickStats')}</h3>
-          <p className="text-gogo-primary">{t('totalRinks')}: {stats.count}</p>
+          <h3 className="font-bold text-lg text-foreground">{t('quickStats')}</h3>
+          <p className="text-gogo-primary text-sm mt-1">{t('totalRinks')}: {stats.count}</p>
         </div>
         <div className="text-center">
-          <p className="text-gogo-primary">
+          <p className="text-gogo-primary text-sm">
             {t('avgPrice')}:{' '}
             {stats.avg !== null ? `${formatCurrency(stats.avg)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-gogo-primary">
+          <p className="text-gogo-primary text-sm">
             {t('lowestPrice')}:{' '}
             {stats.min !== null ? `${formatCurrency(stats.min)}/hr` : 'N/A'}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-gogo-primary">
+          <p className="text-gogo-primary text-sm">
             {t('highestPrice')}:{' '}
             {stats.max !== null ? `${formatCurrency(stats.max)}/hr` : 'N/A'}
           </p>

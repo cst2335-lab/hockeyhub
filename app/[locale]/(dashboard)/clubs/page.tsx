@@ -37,7 +37,7 @@ export default function ClubsPage() {
   if (isError) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-600">{t('loadError')}</p>
+        <p className="text-destructive">{t('loadError')}</p>
       </div>
     )
   }
@@ -45,7 +45,7 @@ export default function ClubsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
         <Link
           href={withLocale('/clubs/new')}
           className="bg-gogo-primary text-white px-4 py-2 rounded-lg hover:bg-gogo-dark transition"
@@ -55,8 +55,8 @@ export default function ClubsPage() {
       </div>
 
       {clubs.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">{t('noClubs')}</p>
+        <div className="bg-card border border-border dark:border-slate-700 rounded-xl shadow-sm p-8 text-center">
+          <p className="text-muted-foreground mb-4">{t('noClubs')}</p>
           <Link
             href={withLocale('/clubs/new')}
             className="text-gogo-primary hover:text-gogo-dark"
@@ -67,30 +67,30 @@ export default function ClubsPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {clubs.map((club: Record<string, unknown>) => (
-            <div key={String(club.id)} className="bg-white rounded-lg shadow p-6">
+            <div key={String(club.id)} className="bg-card text-card-foreground rounded-xl shadow-md border border-border dark:border-slate-700 p-6 hover:border-gogo-secondary transition-colors">
               <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-semibold">{String(club.name ?? '')}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{String(club.name ?? '')}</h2>
                 {club.verified && (
-                  <span className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs">
+                  <span className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs dark:bg-gogo-secondary/30">
                     {t('verified')}
                   </span>
                 )}
               </div>
 
               {club.description && (
-                <p className="text-gray-600 mb-3 text-sm">{String(club.description)}</p>
+                <p className="text-muted-foreground mb-3 text-sm">{String(club.description)}</p>
               )}
 
               {club.contact_email && (
-                <p className="text-gray-600 text-sm mb-1">📧 {String(club.contact_email)}</p>
+                <p className="text-muted-foreground text-sm mb-1">📧 {String(club.contact_email)}</p>
               )}
 
               {club.contact_phone && (
-                <p className="text-gray-600 text-sm mb-1">📞 {String(club.contact_phone)}</p>
+                <p className="text-muted-foreground text-sm mb-1">📞 {String(club.contact_phone)}</p>
               )}
 
               {club.home_rink && (
-                <p className="text-gray-600 text-sm mb-1">🏒 Home: {String(club.home_rink)}</p>
+                <p className="text-muted-foreground text-sm mb-1">🏒 Home: {String(club.home_rink)}</p>
               )}
 
               {club.age_groups && typeof club.age_groups === 'string' && (

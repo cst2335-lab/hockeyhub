@@ -89,14 +89,14 @@ export default function Navbar() {
               <Link
                 href={withLocale('/dashboard')}
                 className={cx(
-                  'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
+                  'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                   isActive('/dashboard')
                     ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
                     : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                 )}
                 aria-label={t('dashboard')}
               >
-                <LayoutDashboard className="h-4 w-4" /> {t('dashboard')}
+                <LayoutDashboard className="h-4 w-4 shrink-0" /> <span>{t('dashboard')}</span>
               </Link>
             </li>
           )}
@@ -104,44 +104,44 @@ export default function Navbar() {
             <Link
               href={withLocale('/games')}
               className={cx(
-                'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
+                'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/games')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
                   : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
-              <Home className="h-4 w-4" /> {t('games')}
+              <Home className="h-4 w-4 shrink-0" /> <span>{t('games')}</span>
             </Link>
           </li>
           <li>
             <Link
               href={withLocale('/clubs')}
               className={cx(
-                'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
+                'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/clubs')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
                   : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
-              <Users className="h-4 w-4" /> {t('clubs')}
+              <Users className="h-4 w-4 shrink-0" /> <span>{t('clubs')}</span>
             </Link>
           </li>
           <li>
             <Link
               href={withLocale('/rinks')}
               className={cx(
-                'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
+                'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/rinks')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
                   : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
-              <MapPin className="h-4 w-4" /> {t('rinks')}
+              <MapPin className="h-4 w-4 shrink-0" /> <span>{t('rinks')}</span>
             </Link>
           </li>
         </ul>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-5">
           <ThemeToggle />
           <Suspense fallback={<div className="w-20 h-8" />}>
             <LocaleSwitcher />
