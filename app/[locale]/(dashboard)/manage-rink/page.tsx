@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Rink = {
@@ -21,6 +22,8 @@ type ManagerRow = {
 };
 
 export default function ManageRinkPage() {
+  const t = useTranslations('manageRink');
+  const tNav = useTranslations('nav');
   const router = useRouter();
   const { locale } = useParams<{ locale: string }>();
   const supabase = useMemo(() => createClient(), []);
@@ -133,10 +136,10 @@ export default function ManageRinkPage() {
         });
       }
 
-      toast.success('Rink information updated successfully!');
+      toast.success(t('updateSuccess'));
     } catch (err) {
       console.error('update rink error:', err);
-      toast.error('Failed to update rink. Please try again.');
+      toast.error(t('updateError'));
     } finally {
       setSaving(false);
     }
@@ -154,22 +157,21 @@ export default function ManageRinkPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold mb-4">Rink Manager Portal</h1>
+          <h1 className="text-2xl font-bold mb-4">{t('portalTitle')}</h1>
           <div className="bg-yellow-50 p-4 rounded">
-            <p>You are not registered as a rink manager.</p>
+            <p>{t('notRegistered')}</p>
             <div className="mt-3 flex gap-3">
               <Link
                 href={withLocale('/login')}
                 className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
               >
-                Sign in
+                {tNav('login')}
               </Link>
-              {/* 如果后续有申请页面，把链接换成对应路径 */}
               <button
                 className="bg-gogo-primary text-white px-4 py-2 rounded hover:bg-gogo-dark"
-                onClick={() => toast.info('Coming soon: manager application flow')}
+                onClick={() => toast.info(t('comingSoonManager'))}
               >
-                Apply to Manage a Rink
+                {t('applyToManage')}
               </button>
             </div>
           </div>
@@ -183,14 +185,14 @@ export default function ManageRinkPage() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
           <Link href={withLocale('/dashboard')} className="text-gray-600 hover:underline">
-            ← Back
+            {t('backLink')}
           </Link>
         </div>
-        <h1 className="text-2xl font-bold mb-4">Manage: {myRink.name}</h1>
+        <h1 className="text-2xl font-bold mb-4">{t('manageTitle', { name: myRink.name })}</h1>
 
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Hourly Rate ($)</label>
+            <label className="block text-sm font-medium mb-2">{t('hourlyRate')}</label>
             <input
               type="number"
               inputMode="decimal"
@@ -199,14 +201,14 @@ export default function ManageRinkPage() {
                 setFormData((s) => ({ ...s, hourly_rate: e.target.value }))
               }
               className="w-full px-3 py-2 border rounded"
-              placeholder="e.g., 180"
+              placeholder={t('placeholderRate')}
               min="0"
               step="0.01"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Online Booking URL</label>
+            <label className="block text-sm font-medium mb-2">{t('bookingUrl')}</label>
             <input
               type="url"
               value={formData.booking_url}
@@ -214,14 +216,12 @@ export default function ManageRinkPage() {
                 setFormData((s) => ({ ...s, booking_url: e.target.value }))
               }
               className="w-full px-3 py-2 border rounded"
-              placeholder="https://..."
+              placeholder={t('placeholderUrl')}
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
-              Amenities (comma separated)
-            </label>
+            <label className="block text-sm font-medium mb-2">{t('amenities')}</label>
             <input
               type="text"
               value={formData.amenities}
@@ -229,12 +229,12 @@ export default function ManageRinkPage() {
                 setFormData((s) => ({ ...s, amenities: e.target.value }))
               }
               className="w-full px-3 py-2 border rounded"
-              placeholder="Skate sharpening, Pro shop, Snack bar"
+              placeholder={t('placeholderAmenities')}
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Peak Hours</label>
+            <label className="block text-sm font-medium mb-2">{t('peakHours')}</label>
             <input
               type="text"
               value={formData.peak_hours}
@@ -242,12 +242,12 @@ export default function ManageRinkPage() {
                 setFormData((s) => ({ ...s, peak_hours: e.target.value }))
               }
               className="w-full px-3 py-2 border rounded"
-              placeholder="Weekdays 6-9pm, Weekends all day"
+              placeholder={t('placeholderPeak')}
             />
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Special Notes</label>
+            <label className="block text-sm font-medium mb-2">{t('specialNotes')}</label>
             <textarea
               value={formData.special_notes}
               onChange={(e) =>
@@ -255,7 +255,7 @@ export default function ManageRinkPage() {
               }
               className="w-full px-3 py-2 border rounded"
               rows={3}
-              placeholder="Any special information for users..."
+              placeholder={t('placeholderNotes')}
             />
           </div>
 
@@ -264,7 +264,7 @@ export default function ManageRinkPage() {
             disabled={saving}
             className="w-full bg-gogo-primary text-white py-2 rounded hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : 'Update Rink Information'}
+            {saving ? t('saving') : t('submitButton')}
           </button>
         </form>
       </div>

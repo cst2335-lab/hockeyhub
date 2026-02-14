@@ -103,6 +103,28 @@
     "totalRinks": "Total Rinks",
     "loadError": "Failed to load metrics. Please refresh."
   },
+  "manageRink": {
+    "portalTitle": "Rink Manager Portal",
+    "notRegistered": "You are not registered as a rink manager.",
+    "applyToManage": "Apply to Manage a Rink",
+    "comingSoonManager": "Coming soon: manager application flow",
+    "backLink": "← Back",
+    "manageTitle": "Manage: {name}",
+    "hourlyRate": "Hourly Rate ($)",
+    "bookingUrl": "Online Booking URL",
+    "amenities": "Amenities (comma separated)",
+    "peakHours": "Peak Hours",
+    "specialNotes": "Special Notes",
+    "placeholderRate": "e.g., 180",
+    "placeholderUrl": "https://...",
+    "placeholderAmenities": "Skate sharpening, Pro shop, Snack bar",
+    "placeholderPeak": "Weekdays 6-9pm, Weekends all day",
+    "placeholderNotes": "Any special information for users...",
+    "saving": "Saving...",
+    "submitButton": "Update Rink Information",
+    "updateSuccess": "Rink information updated successfully!",
+    "updateError": "Failed to update rink. Please try again."
+  },
   "games": {
     "title": "Find Games",
     "noGames": "No games available",

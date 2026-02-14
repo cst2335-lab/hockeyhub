@@ -103,6 +103,28 @@
     "totalRinks": "Patinoires totales",
     "loadError": "Impossible de charger les statistiques. Veuillez rafraîchir."
   },
+  "manageRink": {
+    "portalTitle": "Portail gestionnaire de patinoire",
+    "notRegistered": "Vous n'êtes pas enregistré comme gestionnaire de patinoire.",
+    "applyToManage": "Demander à gérer une patinoire",
+    "comingSoonManager": "Prochainement : formulaire de demande",
+    "backLink": "← Retour",
+    "manageTitle": "Gérer : {name}",
+    "hourlyRate": "Tarif horaire ($)",
+    "bookingUrl": "URL de réservation en ligne",
+    "amenities": "Équipements (séparés par des virgules)",
+    "peakHours": "Heures de pointe",
+    "specialNotes": "Notes spéciales",
+    "placeholderRate": "ex. 180",
+    "placeholderUrl": "https://...",
+    "placeholderAmenities": "Aiguisage, Boutique pro, Bar à collations",
+    "placeholderPeak": "Semaine 18h-21h, Week-ends toute la journée",
+    "placeholderNotes": "Informations particulières pour les utilisateurs...",
+    "saving": "Enregistrement...",
+    "submitButton": "Mettre à jour les informations de la patinoire",
+    "updateSuccess": "Informations de la patinoire mises à jour.",
+    "updateError": "Échec de la mise à jour. Veuillez réessayer."
+  },
   "games": {
     "title": "Trouver des matchs",
     "noGames": "Aucun match disponible",

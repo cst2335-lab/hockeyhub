@@ -16,6 +16,8 @@
 | [UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md) | UI 视觉规范，可供其他项目复用 |
 | [SUPABASE_RLS.sql](./SUPABASE_RLS.sql) | Supabase 行级安全策略 SQL |
 | [STRIPE_BOOKING_SETUP.md](./STRIPE_BOOKING_SETUP.md) | Stripe 支付与预订流程配置（环境变量、Webhook、表结构） |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | 部署指南（Vercel + 环境变量 + Supabase） |
+| [API.md](./API.md) | API 接口说明（预订、支付、通知、同步） |
 | [DEV_LOG_2026-02-12.md](./DEV_LOG_2026-02-12.md) | 开发日志 2026-02-12（Hero/登录/双导航等） |
 | [DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md) | 开发日志 2026-02-13（阶段二导航、视觉统一、文档整理） |
 

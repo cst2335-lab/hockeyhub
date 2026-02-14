@@ -139,4 +139,14 @@ git checkout -b chore/next-phase-ops-and-polish
 
 ---
 
+## 七、chore/next-phase-ops-and-polish 完成记录
+
+- **§一 2 测试**：`npm run test` 已通过（Vitest，14 个用例）。
+- **§二 6 文档**：新增 [DEPLOYMENT.md](./DEPLOYMENT.md)（Vercel + 环境变量 + Supabase）、[API.md](./API.md)（预订/支付/通知/同步接口说明）；docs/README 已更新索引。
+- **§二 7 PWA**：`public/sw.js` 对 `/login`、`/register`、`/dashboard`、`/bookings`、`/manage-rink`、`/notifications` 不再使用缓存，避免登录/状态异常。
+- **§二 8 i18n**：Manage Rink 页文案全部迁入 `messages`（en/fr），使用 `manageRink` 与 `nav` 命名空间。
+- §二 5 监控（Sentry）、§三 9–11 UI/无障碍、§四 12–16 架构与性能留待后续迭代。
+
+---
+
 *本文档随项目进展更新，与 MODIFICATION_PLAN、PROJECT_REVIEW_REPORT 保持一致。*
