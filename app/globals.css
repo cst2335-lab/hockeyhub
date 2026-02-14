@@ -71,13 +71,13 @@
 }
 
 @layer components {
-  /* 玻璃态效果 */
+  /* 纯色卡片（Figma：无磨砂） */
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+    @apply bg-card border border-border shadow-lg;
   }
   
   .glass-dark {
-    @apply bg-background/80 backdrop-blur-xl border border-border shadow-xl;
+    @apply bg-card border border-border shadow-lg;
   }
   
   /* 渐变文字 */
@@ -207,7 +207,7 @@
   }
   
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/30;
+    @apply bg-muted-foreground;
   }
   
   /* 禁用选择 */

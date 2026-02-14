@@ -158,7 +158,7 @@ export default function ManageRinkPage() {
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-4">{t('portalTitle')}</h1>
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-4 rounded-lg">
+          <div className="bg-amber-50 dark:bg-amber-900 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
             <p className="text-foreground">{t('notRegistered')}</p>
             <div className="mt-3 flex gap-3">
               <Link

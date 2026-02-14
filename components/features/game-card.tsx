@@ -120,7 +120,7 @@ export default function HeroSection() {
               <Button
                 variant="outline"
                 size="xl"
-                className="border-2 border-blue-400/50 text-blue-300 backdrop-blur-sm hover:bg-blue-400/10 px-8 py-6 text-lg"
+                className="border-2 border-blue-400/50 text-blue-300 hover:bg-blue-400/10 px-8 py-6 text-lg"
               >
                 <PlayCircle className="mr-2" />
                 Get Started Free

@@ -12,14 +12,49 @@ type LogoProps = {
   className?: string;
 };
 
-const HH_BLUE = '#2563eb';
-const HH_BLUE_BRIGHT = '#3b82f6';
-const HH_SKY = '#38bdf8';
+const GOGO_PRIMARY = '#0E4877';
+const GOGO_SECONDARY = '#64BEF0';
+
+/** Clean "GO" mark - sporty, bold, uses GoGoHockey brand colors */
+function LogoIcon({ size }: { size: 'sm' | 'md' | 'lg' }) {
+  const dims = { sm: 40, md: 48, lg: 96 };
+  const d = dims[size];
+
+  return (
+    <svg
+      width={d}
+      height={d}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="shrink-0"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={GOGO_PRIMARY} />
+          <stop offset="100%" stopColor={GOGO_SECONDARY} />
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="10" fill="url(#logo-bg)" />
+      <text
+        x="24"
+        y="28"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="white"
+        fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+        fontWeight="800"
+        fontSize="15"
+        letterSpacing="-0.8"
+      >
+        GO
+      </text>
+    </svg>
+  );
+}
 
 export function Logo({ size = 'md', showText = true, light = false, className }: LogoProps) {
-  const iconSizes = { sm: 40, md: 48, lg: 96 };
-  const iconSize = iconSizes[size];
-
   return (
     <div
       className={cn(
@@ -28,23 +63,17 @@ export function Logo({ size = 'md', showText = true, light = false, className }:
         className
       )}
     >
-      {/* GG icon - bright blue rounded box */}
+      {/* Icon with hover lift */}
       <div
         className={cn(
-          'inline-flex items-center justify-center font-black text-white shrink-0',
-          'bg-gradient-to-br shadow-lg ring-1 ring-white/20',
-          'transition-transform duration-200 hover:-translate-y-0.5',
-          size === 'sm' && 'h-10 w-10 rounded-xl text-base',
-          size === 'md' && 'h-12 w-12 rounded-2xl text-xl',
-          size === 'lg' && 'h-24 w-24 rounded-3xl text-4xl shadow-2xl'
+          'inline-flex items-center justify-center shrink-0 transition-transform duration-200 hover:-translate-y-0.5',
+          size === 'sm' && '[&_svg]:drop-shadow-md',
+          size === 'md' && '[&_svg]:drop-shadow-lg',
+          size === 'lg' && '[&_svg]:drop-shadow-xl'
         )}
-        style={{
-          background: `linear-gradient(135deg, ${HH_BLUE} 0%, ${HH_BLUE_BRIGHT} 50%, ${HH_SKY} 100%)`,
-          boxShadow: `0 8px 24px rgba(37, 99, 235, 0.4)`,
-        }}
         aria-hidden
       >
-        GG
+        <LogoIcon size={size} />
       </div>
       {showText && (
         <span

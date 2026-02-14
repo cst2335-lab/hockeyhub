@@ -20,7 +20,7 @@ export function HomePlatformSection() {
   ] as const;
 
   return (
-    <section className="py-16 md:py-24 bg-muted/40 dark:bg-slate-900/40">
+    <section className="py-16 md:py-24 bg-muted dark:bg-slate-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
@@ -38,7 +38,7 @@ export function HomePlatformSection() {
               className="group block p-6 rounded-xl border border-border bg-card hover:border-gogo-secondary hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-gogo-primary/10 text-gogo-primary group-hover:bg-gogo-secondary/20 group-hover:text-gogo-secondary transition-colors">
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-gogo-primary group-hover:bg-gogo-secondary group-hover:text-white transition-colors dark:bg-gogo-primary/20 dark:group-hover:bg-gogo-secondary dark:group-hover:text-white">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="text-xl font-semibold text-foreground">

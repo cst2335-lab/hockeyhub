@@ -103,7 +103,7 @@ export default function HeroSection() {
             onSubmit={handleSearchSubmit}
             className="max-w-xl mx-auto mb-8"
           >
-            <div className="relative flex rounded-xl overflow-hidden shadow-xl bg-white/95 backdrop-blur-sm">
+            <div className="relative flex rounded-xl overflow-hidden shadow-xl bg-white border border-border">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden />
               <input
                 type="search"
@@ -177,7 +177,7 @@ export default function HeroSection() {
                   <Button
                     variant="outline"
                     size="xl"
-                    className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+                    className="border-2 border-gogo-secondary bg-white text-gogo-dark hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
                   >
                     <PlayCircle className="mr-2" />
                     {t('findGamesNow')}
@@ -201,7 +201,7 @@ export default function HeroSection() {
                   <Button
                     variant="outline"
                     size="xl"
-                    className="border-2 border-gogo-secondary bg-white/95 text-gogo-dark backdrop-blur-sm hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+                    className="border-2 border-gogo-secondary bg-white text-gogo-dark hover:bg-gogo-secondary hover:text-gogo-dark hover:border-gogo-secondary px-8 py-6 text-lg font-semibold focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
                   >
                     <PlayCircle className="mr-2" />
                     {t('getStartedFree')}

@@ -5,7 +5,8 @@ import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {useTranslations} from 'next-intl';
-import {LayoutDashboard, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText, Settings} from 'lucide-react';
+import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react';
+import {LayoutDashboard, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText, Settings, Menu as Bars3Icon, ChevronDown} from 'lucide-react';
 import {Logo} from '@/components/ui/logo';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -138,46 +139,54 @@ export default function DashboardLayout({
     {path: '/manage-rink', labelKey: 'manageRink', icon: Settings, rinkManagerOnly: true},
   ] as const;
 
-  const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname === href || (pathname?.startsWith(href) ?? false);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation - theme-aware like main Navbar */}
-      <header className="sticky top-0 z-40 bg-background text-foreground shadow-lg border-b border-border transition-colors">
-        <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
-          <Link href={withLocale('/')} className="group" aria-label="Go home">
-            <Logo size="md" showText={true} light={false} className="group-hover:opacity-90 transition-opacity" />
-          </Link>
+      <header className="sticky top-0 z-40 bg-gogo-primary text-white shadow-lg border-b border-white/20 transition-colors">
+        <nav className="container mx-auto h-14 px-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 shrink-0">
+            <Link href={withLocale('/')} className="group" aria-label="Go home">
+              <Logo size="md" showText={true} light={true} className="group-hover:opacity-90 transition-opacity" />
+            </Link>
 
-          <ul className="hidden md:flex items-center gap-6 text-[15px]">
-            {navItems
-              .filter((item) => !item.rinkManagerOnly || isRinkManager)
-              .map((item) => {
-                const Icon = item.icon;
-                const href = withLocale(item.path);
-                const active =
-                  item.path === '/dashboard'
-                    ? isActive(href, true)
-                    : pathname?.startsWith(href);
-                return (
-                  <li key={item.path}>
-                    <Link
-                      href={href}
-                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap ${
-                        active
-                          ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                          : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" /> <span>{t(item.labelKey)}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-          </ul>
+            <Menu as="div" className="relative hidden md:block">
+              <MenuButton className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition">
+                <Bars3Icon className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t('menu')}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
+              </MenuButton>
+              <MenuItems
+                transition
+                className="absolute left-0 z-10 mt-1 w-52 origin-top-left rounded-md border border-border bg-card py-1 shadow-lg text-foreground focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:ease-out data-[leave]:duration-75 data-[leave]:ease-in"
+              >
+                {navItems
+                  .filter((item) => !item.rinkManagerOnly || isRinkManager)
+                  .map((item) => {
+                    const Icon = item.icon;
+                    const href = withLocale(item.path);
+                    const active =
+                      item.path === '/dashboard'
+                        ? pathname === href
+                        : pathname?.startsWith(href);
+                    return (
+                      <MenuItem key={item.path}>
+                        <Link
+                          href={href}
+                          className={`flex items-center gap-2 px-4 py-2 text-sm data-[focus]:bg-muted ${
+                            active ? 'text-gogo-primary font-medium' : 'text-foreground'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {t(item.labelKey)}
+                        </Link>
+                      </MenuItem>
+                    );
+                  })}
+              </MenuItems>
+            </Menu>
+          </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2 sm:gap-4 [&_button]:text-white [&_a]:text-white shrink-0">
             <ThemeToggle />
             <Suspense fallback={<div className="w-20 h-8" />}>
               <LocaleSwitcher />
@@ -185,7 +194,7 @@ export default function DashboardLayout({
 
             <Link
               href={withLocale('/notifications')}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg relative text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted transition"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg relative text-white hover:bg-white/10 transition"
               aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
             >
               <Bell className="h-5 w-5" />
@@ -196,13 +205,13 @@ export default function DashboardLayout({
               )}
             </Link>
 
-            <span className="hidden sm:inline-block text-sm text-foreground truncate max-w-[140px]" title={userEmail ?? undefined}>
+            <span className="hidden sm:inline-block text-sm text-white/90 truncate max-w-[120px]" title={userEmail ?? undefined}>
               {userEmail}
             </span>
             <button
               onClick={handleLogout}
               aria-label={t('logout')}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted transition whitespace-nowrap"
+              className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-white hover:bg-white/10 transition whitespace-nowrap text-sm"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">{t('logout')}</span>
@@ -211,8 +220,8 @@ export default function DashboardLayout({
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-border">
-          <div className="container mx-auto px-4 py-3 space-y-1">
+        <div className="md:hidden border-t border-white/20 bg-gogo-primary">
+          <div className="container mx-auto px-4 py-3 space-y-1 max-h-[60vh] overflow-y-auto">
             {navItems
               .filter((item) => !item.rinkManagerOnly || isRinkManager)
               .map((item) => {
@@ -228,8 +237,8 @@ export default function DashboardLayout({
                     href={href}
                     className={`block px-3 py-2 rounded-lg text-[15px] font-medium transition ${
                       active
-                        ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                        : 'text-slate-700 dark:text-sky-100 hover:bg-slate-100 dark:hover:bg-white/10'
+                        ? 'bg-white/15 text-white ring-1 ring-white/40'
+                        : 'text-white hover:bg-white/10'
                     }`}
                   >
                     <Icon className="inline h-4 w-4 mr-2 align-middle" />

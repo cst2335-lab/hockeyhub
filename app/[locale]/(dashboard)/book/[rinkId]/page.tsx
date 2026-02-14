@@ -6,7 +6,7 @@ import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams, useSearchParams} from 'next/navigation';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
-import {addHours, format, parse} from 'date-fns';
+import {addHours, format, isValid, parse} from 'date-fns';
 import {bookingFormSchema} from '@/lib/validations/booking';
 
 export default function BookRinkPage() {
@@ -102,7 +102,16 @@ export default function BookRinkPage() {
 
   // Calculate end time using date-fns (handles overnight correctly)
   const calcEndTime = (dateStr: string, startTime: string, durHours: number): { endTime: string; endDate: string; isOvernight: boolean } => {
-    const start = parse(`${dateStr} ${startTime}`, 'yyyy-MM-dd HH:mm', new Date());
+    const dateToUse = dateStr || format(new Date(), 'yyyy-MM-dd');
+    const start = parse(`${dateToUse} ${startTime}`, 'yyyy-MM-dd HH:mm', new Date());
+    if (!isValid(start)) {
+      const fallbackEnd = addHours(new Date(), Math.max(1, durHours));
+      return {
+        endTime: format(fallbackEnd, 'HH:mm'),
+        endDate: dateToUse,
+        isOvernight: false,
+      };
+    }
     const end = addHours(start, Math.max(1, durHours));
     const isOvernight = format(start, 'yyyy-MM-dd') !== format(end, 'yyyy-MM-dd');
     return {

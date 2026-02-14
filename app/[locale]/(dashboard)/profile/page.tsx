@@ -192,7 +192,7 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Incomplete profile alert */}
         {isIncomplete && (
-          <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-4">
+          <div className="mb-6 bg-amber-50 dark:bg-amber-900 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div className="ml-3">
@@ -345,15 +345,15 @@ export default function ProfilePage() {
         <div className="mt-6 bg-card border border-border shadow rounded-xl p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">{t('seasonStats')}</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
+            <div className="bg-muted dark:bg-slate-800 rounded-lg p-4">
               <p className="text-2xl font-bold text-gogo-primary">0</p>
               <p className="text-sm text-muted-foreground mt-1">{t('gamesPlayed')}</p>
             </div>
-            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
+            <div className="bg-muted dark:bg-slate-800 rounded-lg p-4">
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">0</p>
               <p className="text-sm text-muted-foreground mt-1">{t('gamesOrganized')}</p>
             </div>
-            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
+            <div className="bg-muted dark:bg-slate-800 rounded-lg p-4">
               <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
               <p className="text-sm text-muted-foreground mt-1">{t('teamsJoined')}</p>
             </div>

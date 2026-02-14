@@ -29,7 +29,7 @@ export function HomeCTASection() {
           <Link href={withLocale('/register')}>
             <Button
               size="xl"
-              className="group px-10 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-white/90 shadow-xl focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gogo-primary"
+              className="group px-10 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-xl focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gogo-primary"
             >
               <span className="flex items-center gap-2">
                 {t('readyCTAButton')}

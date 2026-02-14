@@ -362,7 +362,7 @@ export default function GameDetailsPage() {
             {game.host_club && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Host Club</h3>
-                <div className="bg-muted/50 dark:bg-slate-800/50 p-4 rounded-lg border border-border">
+                <div className="bg-muted dark:bg-slate-800 p-4 rounded-lg border border-border">
                   <p className="font-medium text-foreground">{game.host_club.name}</p>
                   {(showContactInfo || isCreator) && (
                     <div className="mt-2 text-sm text-muted-foreground">
@@ -469,7 +469,7 @@ export default function GameDetailsPage() {
               <div className="border-t mt-6 pt-6">
                 <h3 className="font-semibold mb-4">Rate This Game</h3>
                 {hasRated ? (
-                  <div className="bg-muted/50 dark:bg-slate-800/50 p-4 rounded-lg border border-border">
+                  <div className="bg-muted dark:bg-slate-800 p-4 rounded-lg border border-border">
                     <p className="text-muted-foreground">✅ You have already rated this game</p>
                     <div className="mt-2">
                       <RatingStars rating={userRating} readonly showNumber />

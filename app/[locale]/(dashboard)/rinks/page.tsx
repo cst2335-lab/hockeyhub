@@ -301,7 +301,7 @@ export default function RinksPage() {
       )}
 
       {/* Quick Stats */}
-      <div className="mt-10 p-6 bg-muted/50 dark:bg-slate-800/50 rounded-xl border border-border dark:border-slate-700 flex flex-wrap items-center justify-around gap-4">
+      <div className="mt-10 p-6 bg-muted dark:bg-slate-800 rounded-xl border border-border dark:border-slate-700 flex flex-wrap items-center justify-around gap-4">
         <div className="text-center">
           <h3 className="font-bold text-lg text-foreground">{t('quickStats')}</h3>
           <p className="text-gogo-primary text-sm mt-1">{t('totalRinks')}: {stats.count}</p>

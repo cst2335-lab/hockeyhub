@@ -31,7 +31,7 @@ export default function Footer() {
   }, [supabase]);
 
   return (
-    <footer className="border-t border-border bg-muted/30 dark:bg-slate-900/50">
+    <footer className="border-t border-border bg-muted dark:bg-slate-900">
       <Container>
         <div className="py-16">
           <div className="flex justify-center mb-8">
