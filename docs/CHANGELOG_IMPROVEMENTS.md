@@ -414,4 +414,51 @@
 
 ---
 
+## 十五、Figma 对齐与 UI 优化（2026-02）
+
+**日期**：2026-02  
+**分支**：chore/next-phase-ops-and-polish
+
+### 15.1 导航栏优化（公网 + 登录后）
+- **公网 Navbar**：主导航收进单一「Menu ▼」下拉（Games、Clubs、Rinks、About），顶栏为 Logo | Menu ▼ | 搜索 | 主题 | 语言 | 铃铛 | 用户；深蓝顶栏 + 白字（Figma 风格）；Logo 使用亮色变体；搜索框、按钮、链接白字；移动端下拉区同深蓝白字。
+- **Dashboard 导航栏**：同风格深蓝顶栏 + 白字；主导航收进「Menu ▼」下拉；h-14 紧凑高度；冰场管理员可见 Manage Rink。
+- **i18n**：`nav.menu` 新增（en/fr）。
+
+### 15.2 去除全站磨砂/玻璃感
+- **globals.css**：`.glass` / `.glass-dark` 改为纯色卡片（bg-card、border-border），移除 backdrop-blur 和半透明。
+- **Hero**：搜索栏、CTA 按钮改为实色（bg-white），无 backdrop-blur。
+- **首页**：`HomePlatformSection` 背景实色；`HomeCTASection` 按钮 hover 实色。
+- **Footer、Contact**：半透明背景改为纯色（bg-muted、dark:bg-slate-900 等）。
+- **Dashboard 布局、Navbar**：侧栏激活态改为实色；搜索输入框实色。
+- **各页内容块**：games/[id]、profile、rinks、manage-rink、bookings 等处的 `bg-muted/50` 等改为纯色。
+
+### 15.3 Logo 重新设计
+- **图标**：由「GG」改为「GO」（呼应 Go**Go**Hockey）；使用品牌色渐变（gogo-primary → gogo-secondary）；SVG 图标，白字加粗。
+- **文件**：`components/ui/logo.tsx`、`public/icon.svg`。
+
+### 15.4 预订页 calcEndTime 修复
+- **文件**：`app/[locale]/(dashboard)/book/[rinkId]/page.tsx`
+- **问题**：`bookingDate` 为空时 `parse` 返回 Invalid Date，`format` 抛出 "Invalid time value" RangeError。
+- **修复**：空日期时使用当天；`isValid(start)` 校验，解析失败时返回安全默认值。
+
+### 15.5 Dashboard Bento 布局
+- **参考**：Tailwind bento 示例。
+- **结构**：顶部 hero（heroSubtitle、heroTitle、heroDesc）+ 指标摘要（openGames、upcomingBookings、totalRinks）+ bento 网格。
+- **Bento 卡片**：Find Games（3 列）、My Bookings（3 列）；My Games、Rinks、Clubs（各 2 列）；冰场管理员时第三行 Manage Rink 全宽卡片。
+- **卡片**：渐变背景 + Lucide 图标；副标题、主标题、描述；整卡为 Link；圆角贴合（rounded-tl/tr/bl/br-3xl）。
+- **i18n**：`dashboard` 新增 heroSubtitle、heroTitle、heroDesc、cardGamesSub/Title/Desc 等（en/fr）。
+
+### 15.6 涉及文件
+- `components/layout/navbar.tsx` — Menu 下拉、深蓝白字
+- `app/[locale]/(dashboard)/layout.tsx` — 同上
+- `app/globals.css` — 纯色 glass
+- `components/features/hero-section.tsx`、`home-platform-section.tsx`、`home-cta-section.tsx` — 去磨砂
+- `components/layout/footer.tsx` — 纯色
+- `components/ui/logo.tsx`、`public/icon.svg` — Logo
+- `app/[locale]/(dashboard)/book/[rinkId]/page.tsx` — calcEndTime 修复
+- `app/[locale]/(dashboard)/dashboard/page.tsx` — Bento 布局
+- `messages/en.json`、`messages/fr.json` — nav.menu、dashboard 卡片文案
+
+---
+
 *文档生成时间：2025-02 | 更新：2026-02*
