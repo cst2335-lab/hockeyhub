@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function NewClubPage() {
+  const t = useTranslations('clubs')
   const router = useRouter()
   const pathname = usePathname()
   const locale = useMemo(() => (pathname?.split('/')?.[1] || 'en').trim(), [pathname])
@@ -80,44 +82,44 @@ export default function NewClubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* In-page back link - dashboard layout provides main nav */}
       <div className="container mx-auto px-4 pt-4">
-        <Link href={withLocale('/clubs')} className="text-gogo-primary hover:text-gogo-dark text-sm font-medium">
-          ← Back to Clubs
+        <Link href={withLocale('/clubs')} className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 text-sm font-medium">
+          {t('backToClubs')}
         </Link>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-6">Register Your Club</h1>
+        <h1 className="text-3xl font-bold mb-6 text-foreground">{t('registerClub')}</h1>
         
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-card border border-border rounded-xl shadow-sm p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Club Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Club Name *
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('clubName')} *
               </label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 placeholder="Ottawa Knights Hockey Club"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('description')}
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 rows={3}
                 placeholder="Tell us about your club..."
               />
@@ -125,51 +127,51 @@ export default function NewClubPage() {
 
             {/* Contact Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Email *
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('contactEmail')} *
               </label>
               <input
                 type="email"
                 required
                 value={formData.contact_email}
                 onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 placeholder="info@clubname.com"
               />
             </div>
 
             {/* Contact Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Phone
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('contactPhone')}
               </label>
               <input
                 type="tel"
                 value={formData.contact_phone}
                 onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 placeholder="(613) 555-0100"
               />
             </div>
 
             {/* Website */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Website
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('website')}
               </label>
               <input
                 type="url"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 placeholder="https://www.clubname.com"
               />
             </div>
 
             {/* Founded Year */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Founded Year
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('foundedYear')}
               </label>
               <input
                 type="number"
@@ -177,28 +179,28 @@ export default function NewClubPage() {
                 max={new Date().getFullYear()}
                 value={formData.founded_year}
                 onChange={(e) => setFormData({ ...formData, founded_year: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               />
             </div>
 
             {/* Home Rink */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Home Rink
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {t('homeRink')}
               </label>
               <input
                 type="text"
                 value={formData.home_rink}
                 onChange={(e) => setFormData({ ...formData, home_rink: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
                 placeholder="Bell Sensplex"
               />
             </div>
 
             {/* Age Groups */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Age Groups
+              <label className="block text-sm font-medium text-foreground mb-2">
+                {t('ageGroups')}
               </label>
               <div className="flex flex-wrap gap-2">
                 {ageGroups.map((ageGroup) => (
@@ -206,10 +208,10 @@ export default function NewClubPage() {
                     key={ageGroup}
                     type="button"
                     onClick={() => handleAgeGroupToggle(ageGroup)}
-                    className={`px-3 py-1 rounded-md border ${
+                    className={`px-3 py-1 rounded-lg border transition ${
                       formData.age_groups.includes(ageGroup)
                         ? 'bg-gogo-primary text-white border-gogo-primary'
-                        : 'bg-white text-gray-700 border-gray-300'
+                        : 'bg-background text-foreground border-input hover:bg-muted'
                     }`}
                   >
                     {ageGroup}
@@ -220,10 +222,10 @@ export default function NewClubPage() {
 
             {/* Message */}
             {message && (
-              <div className={`text-sm p-3 rounded ${
+              <div className={`text-sm p-3 rounded-lg ${
                 message.includes('Error') || message.includes('login')
-                  ? 'bg-red-50 text-red-600'
-                  : 'bg-green-50 text-green-600'
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                  : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
               }`}>
                 {message}
               </div>
@@ -234,16 +236,16 @@ export default function NewClubPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50"
+                className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-lg hover:bg-gogo-dark disabled:opacity-50 transition"
               >
-                {loading ? 'Creating...' : 'Register Club'}
+                {loading ? t('creating') : t('registerClub')}
               </button>
               <button
                 type="button"
                 onClick={() => router.push(withLocale('/clubs'))}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
+                className="flex-1 bg-muted text-foreground py-2 px-4 rounded-lg hover:bg-muted/80 transition"
               >
-                Cancel
+                {t('cancel')}
               </button>
             </div>
           </form>

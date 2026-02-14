@@ -271,18 +271,18 @@ export default function GameDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p>Loading game details...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading game details...</p>
       </div>
     );
   }
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <p>Game not found</p>
-          <Link href={withLocale('/games')} className="text-gogo-primary hover:text-gogo-dark hover:underline">
+          <p className="text-muted-foreground">Game not found</p>
+          <Link href={withLocale('/games')} className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 hover:underline">
             Back to games
           </Link>
         </div>
@@ -290,22 +290,21 @@ export default function GameDetailsPage() {
     );
   }
 
-  // ✅ 这里不再重复声明 isCreator
   const gameDateFormatted = new Date(game.game_date).toLocaleDateString();
 
   const statusBadge: Record<GameStatus, string> = {
-    open: 'bg-green-100 text-green-800',
+    open: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
     matched: 'bg-gogo-secondary/20 text-gogo-primary',
-    closed: 'bg-gray-100 text-gray-800',
-    cancelled: 'bg-red-100 text-red-800',
+    closed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
-        <Link href={withLocale('/games')} className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
+        <Link href={withLocale('/games')} className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 transition">
+          <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
           Back to Games
         </Link>
       </div>
@@ -313,10 +312,10 @@ export default function GameDetailsPage() {
       {/* Game Details */}
       <div className="container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-card border border-border rounded-xl shadow-lg p-6 mb-6">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold mb-2">{game.title}</h1>
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <h1 className="text-3xl font-bold mb-2 text-foreground">{game.title}</h1>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <span>📅 {gameDateFormatted}</span>
                 <span>⏰ {game.game_time}</span>
                 <span>👁 {game.view_count || 0} views</span>
@@ -327,7 +326,7 @@ export default function GameDetailsPage() {
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-2">Game Details</h3>
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2 text-foreground">
                   <p><strong>Age Group:</strong> {game.age_group}</p>
                   <p><strong>Skill Level:</strong> {game.skill_level}</p>
                   <p>
@@ -341,7 +340,7 @@ export default function GameDetailsPage() {
 
               <div>
                 <h3 className="font-semibold mb-2">Venue</h3>
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2 text-foreground">
                   {game.rink && (
                     <>
                       <p><strong>{game.rink.name}</strong></p>
@@ -356,17 +355,17 @@ export default function GameDetailsPage() {
             {game.description && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-gray-700 whitespace-pre-wrap">{game.description}</p>
+                <p className="text-foreground whitespace-pre-wrap">{game.description}</p>
               </div>
             )}
 
             {game.host_club && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Host Club</h3>
-                <div className="bg-gray-50 p-4 rounded">
-                  <p className="font-medium">{game.host_club.name}</p>
+                <div className="bg-muted/50 dark:bg-slate-800/50 p-4 rounded-lg border border-border">
+                  <p className="font-medium text-foreground">{game.host_club.name}</p>
                   {(showContactInfo || isCreator) && (
-                    <div className="mt-2 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-muted-foreground">
                       {game.host_club.contact_email && <p>📧 {game.host_club.contact_email}</p>}
                       {game.host_club.contact_phone && <p>📞 {game.host_club.contact_phone}</p>}
                     </div>
@@ -380,8 +379,8 @@ export default function GameDetailsPage() {
                 <h3 className="font-semibold mb-2">Contact Person</h3>
                 <div className="bg-gogo-secondary/10 p-4 rounded">
                   <p className="font-medium">{game.creator.full_name}</p>
-                  <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
-                  {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
+                  <p className="text-sm text-muted-foreground">📧 {game.creator.email}</p>
+                  {game.creator.phone && <p className="text-sm text-muted-foreground">📞 {game.creator.phone}</p>}
                 </div>
               </div>
             )}
@@ -429,10 +428,10 @@ export default function GameDetailsPage() {
                             setShowMessageForm(false);
                             setMessage('');
                           }}
-                          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
-                        >
-                          Cancel
-                        </button>
+                        className="bg-muted text-foreground px-6 py-2 rounded-lg hover:bg-muted/80 transition"
+                      >
+                        Cancel
+                      </button>
                       </div>
                     </div>
                   )}
@@ -441,11 +440,11 @@ export default function GameDetailsPage() {
                     <div>
                       <p className="text-green-600 font-medium mb-2">✅ You've expressed interest in this game</p>
                       {showContactInfo && (
-                        <p className="text-sm text-gray-600 mb-4">Contact information is now visible to you.</p>
+                        <p className="text-sm text-muted-foreground mb-4">Contact information is now visible to you.</p>
                       )}
                       <button
                         onClick={handleInterest}
-                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                        className="bg-muted text-foreground px-6 py-2 rounded-lg hover:bg-muted/80 transition"
                       >
                         Remove Interest
                       </button>
@@ -454,7 +453,7 @@ export default function GameDetailsPage() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
+                  <p className="text-muted-foreground mb-4">Sign in to express interest in this game</p>
                   <Link
                     href={withLocale('/login')}
                     className="bg-gogo-primary text-white px-6 py-2 rounded-lg hover:bg-gogo-dark inline-block"
@@ -470,8 +469,8 @@ export default function GameDetailsPage() {
               <div className="border-t mt-6 pt-6">
                 <h3 className="font-semibold mb-4">Rate This Game</h3>
                 {hasRated ? (
-                  <div className="bg-gray-50 p-4 rounded">
-                    <p className="text-gray-600">✅ You have already rated this game</p>
+                  <div className="bg-muted/50 dark:bg-slate-800/50 p-4 rounded-lg border border-border">
+                    <p className="text-muted-foreground">✅ You have already rated this game</p>
                     <div className="mt-2">
                       <RatingStars rating={userRating} readonly showNumber />
                     </div>

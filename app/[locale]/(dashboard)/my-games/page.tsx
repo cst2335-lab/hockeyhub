@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 import { 
   Calendar, 
   MapPin, 
@@ -57,6 +58,8 @@ interface Stats {
 }
 
 export default function MyGamesPage() {
+  const t = useTranslations('myGames');
+  const tGames = useTranslations('games');
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -198,13 +201,13 @@ export default function MyGamesPage() {
   function getStatusBadge(status: string) {
     switch (status) {
       case 'open':
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Open</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">{tGames('statusOpen')}</span>;
       case 'matched':
-        return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">Matched</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">{tGames('statusMatched')}</span>;
       case 'cancelled':
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Cancelled</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{tGames('statusCancelled')}</span>;
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{status}</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{status}</span>;
     }
   }
 
@@ -223,14 +226,14 @@ export default function MyGamesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Games</h1>
-            <p className="mt-2 text-gray-600">
-              {activeTab === 'posted' ? 'Manage your posted games' : 'Games you\'re interested in'}
+            <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+            <p className="mt-2 text-muted-foreground">
+              {activeTab === 'posted' ? t('subtitlePosted') : t('subtitleInterested')}
             </p>
           </div>
           <Link
@@ -238,31 +241,31 @@ export default function MyGamesPage() {
             className="flex items-center px-4 py-2 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark"
           >
             <Plus className="h-5 w-5 mr-2" />
-            Post New Game
+            {t('postNewGame')}
           </Link>
         </div>
 
         {/* Main Tabs */}
-        <div className="mb-6 flex space-x-1 bg-gray-100 p-1 rounded-lg">
+        <div className="mb-6 flex space-x-1 bg-muted p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('posted')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'posted'
-                ? 'bg-white text-gogo-primary shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-card text-gogo-primary shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            My Posted Games ({games.length})
+            {t('myPostedGames')} ({games.length})
           </button>
           <button
             onClick={() => setActiveTab('interested')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'interested'
-                ? 'bg-white text-gogo-primary shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-card text-gogo-primary shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            Games I'm Interested In ({interestedGames.length})
+            {t('gamesInterestedIn')} ({interestedGames.length})
           </button>
         </div>
 
@@ -270,73 +273,73 @@ export default function MyGamesPage() {
           <>
             {/* Stats Cards - Only for posted games */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                <div className="text-sm text-gray-500">Total Games</div>
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
+                <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+                <div className="text-sm text-muted-foreground">{t('totalGames')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-green-600">{stats.open}</div>
-                <div className="text-sm text-gray-500">Open</div>
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.open}</div>
+                <div className="text-sm text-muted-foreground">{t('open')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
                 <div className="text-2xl font-bold text-gogo-primary">{stats.matched}</div>
-                <div className="text-sm text-gray-500">Matched</div>
+                <div className="text-sm text-muted-foreground">{t('matched')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-600">{stats.cancelled}</div>
-                <div className="text-sm text-gray-500">Cancelled</div>
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
+                <div className="text-2xl font-bold text-muted-foreground">{stats.cancelled}</div>
+                <div className="text-sm text-muted-foreground">{t('cancelled')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-purple-600">{stats.totalViews}</div>
-                <div className="text-sm text-gray-500">Total Views</div>
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.totalViews}</div>
+                <div className="text-sm text-muted-foreground">{t('totalViews')}</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-red-600">{stats.totalInterested}</div>
-                <div className="text-sm text-gray-500">Total Interested</div>
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4">
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.totalInterested}</div>
+                <div className="text-sm text-muted-foreground">{t('totalInterested')}</div>
               </div>
             </div>
 
             {/* Filter Tabs - Only for posted games */}
-            <div className="mb-6 flex space-x-4 border-b">
+            <div className="mb-6 flex space-x-4 border-b border-border">
               <button
                 onClick={() => setFilter('all')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'all' 
                     ? 'border-gogo-primary text-gogo-primary font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                All ({games.length})
+                {t('all')} ({games.length})
               </button>
               <button
                 onClick={() => setFilter('open')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'open' 
                     ? 'border-gogo-primary text-gogo-primary font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Open ({stats.open})
+                {t('open')} ({stats.open})
               </button>
               <button
                 onClick={() => setFilter('matched')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'matched' 
                     ? 'border-gogo-primary text-gogo-primary font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Matched ({stats.matched})
+                {t('matched')} ({stats.matched})
               </button>
               <button
                 onClick={() => setFilter('cancelled')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'cancelled' 
                     ? 'border-gogo-primary text-gogo-primary font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Cancelled ({stats.cancelled})
+                {t('cancelled')} ({stats.cancelled})
               </button>
             </div>
 
@@ -344,18 +347,18 @@ export default function MyGamesPage() {
             {filteredGames.length > 0 ? (
               <div className="space-y-4">
                 {filteredGames.map((game) => (
-                  <div key={game.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                  <div key={game.id} className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
                     <div className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-foreground">
                               {game.title}
                             </h3>
                             {getStatusBadge(game.status)}
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                             <div className="space-y-1">
                               <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-2" />
@@ -388,7 +391,7 @@ export default function MyGamesPage() {
                           </div>
 
                           {game.description && (
-                            <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
                               {game.description}
                             </p>
                           )}
@@ -411,16 +414,16 @@ export default function MyGamesPage() {
                         <div className="ml-4 flex flex-col space-y-2">
                           <Link
                             href={withLocale(`/games/${game.id}`)}
-                            className="text-gogo-primary hover:text-gogo-dark text-sm"
+                            className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 text-sm"
                           >
-                            View Details
+                            {t('viewDetails')}
                           </Link>
                           
                           <Link
                             href={withLocale(`/games/${game.id}/edit`)}
-                            className="text-purple-600 hover:text-purple-800 text-sm"
+                            className="text-purple-600 hover:text-purple-800 dark:hover:text-purple-400 text-sm"
                           >
-                            Edit Game
+                            {t('editGame')}
                           </Link>
                           
                           {game.status === 'open' && (
@@ -429,13 +432,13 @@ export default function MyGamesPage() {
                                 onClick={() => updateGameStatus(game.id, 'matched')}
                                 className="text-green-600 hover:text-green-800 text-sm text-left"
                               >
-                                Mark as Matched
+                                {t('markAsMatched')}
                               </button>
                               <button
                                 onClick={() => updateGameStatus(game.id, 'cancelled')}
-                                className="text-orange-600 hover:text-orange-800 text-sm text-left"
+                                className="text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 text-sm text-left"
                               >
-                                Cancel Game
+                                {t('cancelGame')}
                               </button>
                             </>
                           )}
@@ -443,17 +446,17 @@ export default function MyGamesPage() {
                           {game.status === 'cancelled' && (
                             <button
                               onClick={() => updateGameStatus(game.id, 'open')}
-                              className="text-green-600 hover:text-green-800 text-sm text-left"
+                              className="text-green-600 hover:text-green-800 dark:hover:text-green-400 text-sm text-left"
                             >
-                              Reopen Game
+                              {t('reopenGame')}
                             </button>
                           )}
                           
                           <button
                             onClick={() => deleteGame(game.id)}
-                            className="text-red-600 hover:text-red-800 text-sm text-left"
+                            className="text-red-600 hover:text-red-800 dark:hover:text-red-400 text-sm text-left"
                           >
-                            Delete
+                            {t('delete')}
                           </button>
                         </div>
                       </div>
@@ -462,18 +465,18 @@ export default function MyGamesPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {filter === 'all' ? 'No games posted yet' : `No ${filter} games`}
+              <div className="text-center py-12 bg-card border border-border rounded-xl shadow-sm">
+                <Trophy className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  {filter === 'all' ? t('noPostedYet') : t('noFilteredGames', { filter: t(filter as 'open' | 'matched' | 'cancelled') })}
                 </h3>
-                <p className="text-gray-500 mb-6">Start by posting your first game invitation</p>
+                <p className="text-muted-foreground mb-6">{t('postFirstGameHint')}</p>
                 <Link
                   href={withLocale('/games/new')}
                   className="inline-flex items-center px-4 py-2 bg-gogo-primary text-white rounded-md hover:bg-gogo-dark"
                 >
                   <Plus className="h-5 w-5 mr-2" />
-                  Post Your First Game
+                  {t('postFirstGame')}
                 </Link>
               </div>
             )}
@@ -483,18 +486,18 @@ export default function MyGamesPage() {
           <div className="space-y-4">
             {interestedGames.length > 0 ? (
               interestedGames.map((interest) => (
-                <div key={interest.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                <div key={interest.id} className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow">
                   <div className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-lg font-semibold text-foreground">
                             {interest.game_invitations?.title}
                           </h3>
                           {getStatusBadge(interest.game_invitations?.status)}
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                        <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                           <div className="space-y-1">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-2" />
@@ -523,7 +526,7 @@ export default function MyGamesPage() {
                         </div>
 
                         {interest.game_invitations?.description && (
-                          <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                          <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
                             {interest.game_invitations.description}
                           </p>
                         )}
@@ -533,16 +536,16 @@ export default function MyGamesPage() {
                       <div className="ml-4 flex flex-col space-y-2">
                         <Link
                           href={withLocale(`/games/${interest.game_invitations?.id}`)}
-                          className="text-gogo-primary hover:text-gogo-dark text-sm"
+                          className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 text-sm"
                         >
-                          View Details
+                          {t('viewDetails')}
                         </Link>
                         
                         <button
                           onClick={() => removeInterest(interest.id)}
-                          className="text-red-600 hover:text-red-800 text-sm text-left"
+                          className="text-red-600 hover:text-red-800 dark:hover:text-red-400 text-sm text-left"
                         >
-                          Remove Interest
+                          {t('removeInterest')}
                         </button>
                       </div>
                     </div>
@@ -550,15 +553,15 @@ export default function MyGamesPage() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Heart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No games interested yet</h3>
-                <p className="text-gray-500 mb-6">Browse available games and show your interest</p>
+              <div className="text-center py-12 bg-card border border-border rounded-xl shadow-sm">
+                <Heart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">{t('noInterestedYet')}</h3>
+                <p className="text-muted-foreground mb-6">{t('browseGamesHint')}</p>
                 <Link
                   href={withLocale('/games')}
                   className="inline-flex items-center px-4 py-2 bg-gogo-primary text-white rounded-md hover:bg-gogo-dark"
                 >
-                  Browse Games
+                  {t('browseGames')}
                 </Link>
               </div>
             )}

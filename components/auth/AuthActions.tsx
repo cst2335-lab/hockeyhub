@@ -50,10 +50,10 @@ export default function AuthActions() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-600">{email}</span>
+      <span className="text-sm text-muted-foreground">{email}</span>
       <button
         onClick={signOut}
-        className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+        className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-muted"
       >
         Logout
       </button>

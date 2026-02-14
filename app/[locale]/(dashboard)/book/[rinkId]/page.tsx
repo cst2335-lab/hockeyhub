@@ -214,8 +214,8 @@ export default function BookRinkPage() {
 
       <div className="bg-surface rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">{t('rinkDetails')}</h2>
-        <p className="text-gray-600">{rink.address}</p>
-        {rink.phone && <p className="text-gray-600">{rink.phone}</p>}
+        <p className="text-muted-foreground">{rink.address}</p>
+        {rink.phone && <p className="text-muted-foreground">{rink.phone}</p>}
         <p className="text-lg font-medium mt-2">${hourlyRate}/hour</p>
       </div>
 
@@ -224,7 +224,7 @@ export default function BookRinkPage() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               {t('date')}
             </label>
             <input
@@ -233,22 +233,22 @@ export default function BookRinkPage() {
               min={today}
               value={bookingDate}
               onChange={(e) => setBookingDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               {t('startTime')}
               {loadingSlots && bookingDate && (
-                <span className="ml-2 text-xs text-gray-500">({t('checkingAvailability')})</span>
+                <span className="ml-2 text-xs text-muted-foreground">({t('checkingAvailability')})</span>
               )}
             </label>
             <select
               required
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             >
               <option value="">{t('selectTime')}</option>
               {[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map((hour) => {
@@ -270,13 +270,13 @@ export default function BookRinkPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               {t('duration')}
             </label>
             <select
               value={hours}
               onChange={(e) => setHours(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-primary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             >
               {[1,2,3,4].map((h) => (
                 <option key={h} value={h}>

@@ -32,14 +32,14 @@ export default function RatingStars({
             className={`${sizes[size]} ${
               star <= rating 
                 ? 'fill-yellow-400 text-yellow-400' 
-                : 'text-gray-300'
+                : 'text-muted-foreground/60'
             } ${!readonly && 'cursor-pointer hover:text-yellow-400'}`}
             onClick={() => !readonly && onChange?.(star)}
           />
         ))}
       </div>
       {showNumber && (
-        <span className="text-sm text-gray-600">{rating.toFixed(1)}</span>
+        <span className="text-sm text-muted-foreground">{rating.toFixed(1)}</span>
       )}
     </div>
   )

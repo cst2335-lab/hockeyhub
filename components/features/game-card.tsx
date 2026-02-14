@@ -91,7 +91,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto"
           >
             Ottawa&apos;s premier platform for organizing hockey games and booking ice time. 
             Join thousands of players already on the ice!

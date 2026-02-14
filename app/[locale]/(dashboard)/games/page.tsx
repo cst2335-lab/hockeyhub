@@ -101,10 +101,10 @@ export default function GamesPage() {
 
   // status badge 样式统一
   const statusBadge: Record<GameStatus, string> = {
-    open: 'bg-green-100 text-green-800',
+    open: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
     matched: 'bg-gogo-secondary/20 text-gogo-primary',
-    closed: 'bg-gray-100 text-gray-800',
-    cancelled: 'bg-red-100 text-red-800',
+    closed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
   };
 
   // locale-aware link helper
@@ -417,10 +417,10 @@ export default function GamesPage() {
                     </div>
 
                     {game.description && (
-                      <p className="mt-3 text-sm text-gray-500 line-clamp-2">{game.description}</p>
+                      <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{game.description}</p>
                     )}
 
-                    <div className="mt-4 flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="mt-4 flex items-center space-x-4 text-xs text-muted-foreground">
                       <span className="flex items-center">
                         <Eye className="h-3 w-3 mr-1" />
                         {game.view_count || 0} views
@@ -435,7 +435,7 @@ export default function GamesPage() {
                       href={withLocale(`/games/${game.id}`)}
                       className={`mt-4 block text-center px-4 py-2 rounded-md transition ${
                         game.isExpired
-                          ? 'bg-gray-400 text-white hover:bg-gray-500'
+                          ? 'bg-muted text-muted-foreground hover:bg-muted/80'
                           : 'bg-gogo-primary text-white hover:bg-gogo-dark'
                       }`}
                     >
@@ -452,17 +452,17 @@ export default function GamesPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {t('prevPage')}
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 {t('pageOf', { current: currentPage, total: totalPages })}
               </span>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages}
-                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-gogo-secondary/10 hover:border-gogo-primary hover:text-gogo-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {t('nextPage')}
               </button>
@@ -470,10 +470,10 @@ export default function GamesPage() {
           )}
           </>
         ) : (
-          <div className="text-center py-12 bg-surface rounded-lg shadow">
-            <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No games found</h3>
-            <p className="text-gray-500 mb-6">
+          <div className="text-center py-12 bg-card border border-border rounded-xl shadow-sm">
+            <Trophy className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">{t('noGames')}</h3>
+            <p className="text-muted-foreground mb-6">
               {hasActiveFilters()
                 ? 'Try adjusting your filters or search terms'
                 : 'Be the first to post a game invitation!'}
@@ -481,7 +481,7 @@ export default function GamesPage() {
             {hasActiveFilters() ? (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-input bg-background text-foreground rounded-md hover:bg-muted transition"
               >
                 <X className="h-5 w-5 mr-2" />
                 Clear Filters

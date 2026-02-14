@@ -32,16 +32,16 @@ export default function ClubsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
           <div className="flex gap-4">
-            <a href="/games" className="text-gray-600">Games</a>
-            <a href="/rinks" className="text-gray-600">Rinks</a>
+            <a href="/games" className="text-muted-foreground">Games</a>
+            <a href="/rinks" className="text-muted-foreground">Rinks</a>
             <a href="/clubs" className="text-blue-600">Clubs</a>
-            <a href="/profile" className="text-gray-600">Profile</a>
+            <a href="/profile" className="text-muted-foreground">Profile</a>
           </div>
         </div>
       </nav>
@@ -63,7 +63,7 @@ export default function ClubsPage() {
           <LoadingSpinner />
         ) : clubs.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
-            <p className="text-gray-500 mb-4">No clubs registered yet</p>
+            <p className="text-muted-foreground mb-4">No clubs registered yet</p>
             <a
               href="/clubs/new"
               className="text-blue-600 hover:text-blue-700"
@@ -85,19 +85,19 @@ export default function ClubsPage() {
                 </div>
                 
                 {club.description && (
-                  <p className="text-gray-600 mb-3 text-sm">{club.description}</p>
+                  <p className="text-muted-foreground mb-3 text-sm">{club.description}</p>
                 )}
                 
                 {club.contact_email && (
-                  <p className="text-gray-600 text-sm mb-1">📧 {club.contact_email}</p>
+                  <p className="text-muted-foreground text-sm mb-1">📧 {club.contact_email}</p>
                 )}
                 
                 {club.contact_phone && (
-                  <p className="text-gray-600 text-sm mb-1">📞 {club.contact_phone}</p>
+                  <p className="text-muted-foreground text-sm mb-1">📞 {club.contact_phone}</p>
                 )}
                 
                 {club.home_rink && (
-                  <p className="text-gray-600 text-sm mb-1">🏒 Home: {club.home_rink}</p>
+                  <p className="text-muted-foreground text-sm mb-1">🏒 Home: {club.home_rink}</p>
                 )}
                 
                 {club.age_groups && (

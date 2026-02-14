@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
 import {toast} from 'sonner';
 
@@ -26,6 +27,9 @@ interface GameData {
 export default function EditGamePage() {
   const router = useRouter();
   const { locale, id: gameId } = useParams<{ locale: string; id: string }>();
+  const tMyGames = useTranslations('myGames');
+  const tGames = useTranslations('games');
+  const tActions = useTranslations('actions');
   const supabase = useMemo(() => createClient(), []);
 
   const [loading, setLoading] = useState(true);
@@ -46,12 +50,11 @@ export default function EditGamePage() {
 
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
-  // 统一状态：允许 cancelled/closed（二者在不同页面曾用过）
   const statusOptions: { value: GameStatus; label: string }[] = [
-    { value: 'open',      label: 'Open - Accepting responses' },
-    { value: 'matched',   label: 'Matched - Found opponent' },
-    { value: 'cancelled', label: 'Cancelled - No longer available' },
-    { value: 'closed',    label: 'Closed' },
+    { value: 'open',      label: tGames('statusOpenLabel') },
+    { value: 'matched',   label: tGames('statusMatchedLabel') },
+    { value: 'cancelled', label: tGames('statusCancelledLabel') },
+    { value: 'closed',    label: tGames('statusClosedLabel') },
   ];
 
   const withLocale = useCallback((p: string) => `/${locale || ''}${p}`.replace('//', '/'), [locale]);
@@ -171,9 +174,9 @@ export default function EditGamePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">You don't have permission to edit this game</p>
-          <Link href={withLocale('/my-games')} className="text-gogo-primary hover:text-gogo-dark mt-4 inline-block">
-            Back to My Games
+          <p className="text-muted-foreground">{tMyGames('noPermission')}</p>
+          <Link href={withLocale('/my-games')} className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 mt-4 inline-block">
+            {tMyGames('backToMyGames')}
           </Link>
         </div>
       </div>
@@ -181,34 +184,34 @@ export default function EditGamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <Link
             href={withLocale('/my-games')}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 transition"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to My Games
+            <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
+            {tMyGames('backToMyGames')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Game</h1>
-          <p className="mt-2 text-gray-600">Update your game information</p>
+          <h1 className="text-3xl font-bold text-foreground">{tMyGames('editGame')}</h1>
+          <p className="mt-2 text-muted-foreground">{tMyGames('editSubtitle')}</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl shadow-sm p-6 space-y-6">
           {/* Status */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-              Game Status
+            <label htmlFor="status" className="block text-sm font-medium text-foreground mb-2">
+              {tGames('gameStatus')}
             </label>
             <select
               id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             >
               {statusOptions.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -218,8 +221,8 @@ export default function EditGamePage() {
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Game Title *
+            <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
+              {tGames('gameTitle')} *
             </label>
             <input
               type="text"
@@ -229,16 +232,16 @@ export default function EditGamePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., U13 Friendly Match Looking for Opponent"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="game_date" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_date" className="block text-sm font-medium text-foreground mb-2">
                 <Calendar className="inline h-4 w-4 mr-1" />
-                Game Date *
+                {tGames('date')} *
               </label>
               <input
                 type="date"
@@ -247,13 +250,13 @@ export default function EditGamePage() {
                 required
                 value={formData.game_date}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               />
             </div>
             <div>
-              <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_time" className="block text-sm font-medium text-foreground mb-2">
                 <Clock className="inline h-4 w-4 mr-1" />
-                Game Time *
+                {tGames('time')} *
               </label>
               <input
                 type="time"
@@ -262,16 +265,16 @@ export default function EditGamePage() {
                 required
                 value={formData.game_time}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               />
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
               <MapPin className="inline h-4 w-4 mr-1" />
-              Location *
+              {tGames('location')} *
             </label>
             <input
               type="text"
@@ -281,16 +284,16 @@ export default function EditGamePage() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Bell Sensplex, Kanata"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           {/* Age Group and Skill Level */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="age_group" className="block text-sm font-medium text-foreground mb-2">
                 <Users className="inline h-4 w-4 mr-1" />
-                Age Group *
+                {tGames('ageGroup')} *
               </label>
               <select
                 id="age_group"
@@ -298,7 +301,7 @@ export default function EditGamePage() {
                 required
                 value={formData.age_group}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               >
                 {ageGroups.map(group => (
                   <option key={group} value={group}>{group}</option>
@@ -306,9 +309,9 @@ export default function EditGamePage() {
               </select>
             </div>
             <div>
-              <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="skill_level" className="block text-sm font-medium text-foreground mb-2">
                 <Trophy className="inline h-4 w-4 mr-1" />
-                Skill Level *
+                {tGames('skillLevel')} *
               </label>
               <select
                 id="skill_level"
@@ -316,7 +319,7 @@ export default function EditGamePage() {
                 required
                 value={formData.skill_level}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>{level}</option>
@@ -327,8 +330,8 @@ export default function EditGamePage() {
 
           {/* Max Players */}
           <div>
-            <label htmlFor="max_players" className="block text-sm font-medium text-gray-700 mb-2">
-              Max Players (Optional)
+            <label htmlFor="max_players" className="block text-sm font-medium text-foreground mb-2">
+              {tGames('maxPlayers')} (Optional)
             </label>
             <input
               type="number"
@@ -339,14 +342,14 @@ export default function EditGamePage() {
               value={formData.max_players}
               onChange={handleChange}
               placeholder="e.g., 20"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description
+            <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+              {tGames('description')}
             </label>
             <textarea
               id="description"
@@ -355,14 +358,14 @@ export default function EditGamePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide additional details about the game, rules, or requirements..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           {/* Contact Info */}
           <div>
-            <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700 mb-2">
-              Contact Information (Optional)
+            <label htmlFor="contact_info" className="block text-sm font-medium text-foreground mb-2">
+              {tGames('contact')} (Optional)
             </label>
             <input
               type="text"
@@ -371,10 +374,10 @@ export default function EditGamePage() {
               value={formData.contact_info}
               onChange={handleChange}
               placeholder="e.g., Coach John - 613-555-0123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
-            <p className="mt-1 text-sm text-gray-500">
-              This will be shared only with interested teams
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tGames('contactSharedHint')}
             </p>
           </div>
 
@@ -386,14 +389,14 @@ export default function EditGamePage() {
               className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
             >
               <Save className="h-4 w-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? tGames('saving') : tGames('saveChanges')}
             </button>
             <Link
               href={withLocale('/my-games')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition flex items-center justify-center gap-2"
+              className="flex-1 bg-muted text-foreground py-2 px-4 rounded-lg hover:bg-muted/80 text-center transition flex items-center justify-center gap-2"
             >
               <X className="h-4 w-4" />
-              Cancel
+              {tActions('cancel')}
             </Link>
           </div>
         </form>

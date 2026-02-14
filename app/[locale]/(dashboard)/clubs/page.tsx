@@ -43,9 +43,18 @@ export default function ClubsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
+      {/* Figma: "Join the Hockey Community" hero */}
+      <section className="bg-gradient-to-r from-gogo-dark via-gogo-primary to-gogo-secondary py-16 md:py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{t('joinHero')}</h1>
+          <p className="text-lg text-white/90 max-w-2xl mx-auto">{t('joinHeroDesc')}</p>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
+        <h2 className="text-2xl font-bold text-foreground">{t('title')}</h2>
         <Link
           href={withLocale('/clubs/new')}
           className="bg-gogo-primary text-white px-4 py-2 rounded-lg hover:bg-gogo-dark transition"
@@ -120,6 +129,7 @@ export default function ClubsPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

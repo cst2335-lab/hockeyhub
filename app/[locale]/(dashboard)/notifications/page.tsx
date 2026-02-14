@@ -65,7 +65,7 @@ export default function NotificationsPage() {
       case 'game_updated':
         return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300';
     }
   };
 
@@ -85,7 +85,7 @@ export default function NotificationsPage() {
           <div>
             <h1 className="text-2xl font-bold">{t('title')}</h1>
             {unreadCount > 0 && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {t('unreadCount', { count: unreadCount })}
               </p>
             )}
@@ -103,10 +103,10 @@ export default function NotificationsPage() {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Bell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-600 mb-2">{t('noNotifications')}</h2>
-          <p className="text-gray-500">
+        <div className="bg-card border border-border rounded-xl shadow-sm p-12 text-center">
+          <Bell className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-foreground mb-2">{t('noNotifications')}</h2>
+          <p className="text-muted-foreground">
             When someone shows interest in your games or accepts your requests, you&apos;ll see it here.
           </p>
         </div>
@@ -117,7 +117,7 @@ export default function NotificationsPage() {
             return (
               <div
                 key={notification.id}
-                className={`bg-white rounded-lg shadow p-4 transition-all ${
+                className={`bg-card border border-border rounded-xl shadow-sm p-4 transition-all ${
                   !notification.is_read ? 'border-l-4 border-gogo-primary' : ''
                 }`}
               >
@@ -139,9 +139,9 @@ export default function NotificationsPage() {
                       )}
                     </div>
 
-                    <h3 className="font-semibold text-gray-900 mb-1">{notification.title}</h3>
+                    <h3 className="font-semibold text-foreground mb-1">{notification.title}</h3>
 
-                    <p className="text-gray-600 mb-2">{notification.message}</p>
+                    <p className="text-muted-foreground mb-2">{notification.message}</p>
 
                     <div className="flex items-center gap-4">
                       {href && (
@@ -154,7 +154,7 @@ export default function NotificationsPage() {
                         </Link>
                       )}
 
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {formatDateTimeByLocale(notification.created_at, locale)}
                       </span>
                     </div>
@@ -164,7 +164,7 @@ export default function NotificationsPage() {
                     {!notification.is_read && (
                       <button
                         onClick={() => markAsRead(notification.id)}
-                        className="p-2 text-gray-500 hover:text-gogo-primary hover:bg-gogo-primary/10 rounded-lg transition-colors"
+                        className="p-2 text-muted-foreground hover:text-gogo-primary hover:bg-gogo-primary/10 rounded-lg transition-colors"
                         title="Mark as read"
                       >
                         <Check className="h-4 w-4" />
@@ -173,8 +173,8 @@ export default function NotificationsPage() {
 
                     <button
                       onClick={() => deleteNotification(notification.id)}
-                      className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete notification"
+                      className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                      title={t('deleteTitle')}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

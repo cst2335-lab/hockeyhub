@@ -119,9 +119,9 @@ export default function ProfilePage() {
       B: 'bg-green-100 text-green-800',
       C: 'bg-yellow-100 text-yellow-800',
       'House League': 'bg-orange-100 text-orange-800',
-      Beginner: 'bg-gray-100 text-gray-800'
+      Beginner: 'bg-muted text-foreground'
     };
-    return colors[level] || 'bg-gray-100 text-gray-800';
+    return colors[level] || 'bg-muted text-foreground';
   };
 
   const getPositionIcon = (position: string) => {
@@ -171,7 +171,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Profile not found</p>
+          <p className="text-muted-foreground">Profile not found</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-3 text-blue-600 hover:text-blue-800 underline"
@@ -187,7 +187,7 @@ export default function ProfilePage() {
     !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Incomplete profile alert */}
         {isIncomplete && (
@@ -213,14 +213,14 @@ export default function ProfilePage() {
         )}
 
         {/* Header card */}
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+        <div className="bg-card shadow-xl rounded-lg overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-blue-500 to-blue-600"></div>
 
           <div className="relative px-6 pb-6">
             {/* Avatar */}
             <div className="absolute -top-12 left-6">
-              <div className="h-24 w-24 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center">
-                <UserIcon className="h-12 w-12 text-gray-400" />
+              <div className="h-24 w-24 rounded-full bg-card border-4 border-white shadow-lg flex items-center justify-center">
+                <UserIcon className="h-12 w-12 text-muted-foreground" />
               </div>
             </div>
 
@@ -237,13 +237,13 @@ export default function ProfilePage() {
 
             {/* Name and badges */}
             <div className="mt-4">
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 {profile.full_name || 'Hockey Player'}
               </h1>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.age_group && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-foreground">
                     {profile.age_group}
                   </span>
                 )}
@@ -274,22 +274,22 @@ export default function ProfilePage() {
         {/* Details */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Contact */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <div className="bg-card shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Contact Information</h2>
             <div className="space-y-3">
-              <div className="flex items-center text-gray-600">
-                <Mail className="h-5 w-5 mr-3 text-gray-400" />
+              <div className="flex items-center text-muted-foreground">
+                <Mail className="h-5 w-5 mr-3 text-muted-foreground" />
                 <span>{user?.email || profile.email || 'No email'}</span>
               </div>
-              <div className="flex items-center text-gray-600">
-                <Phone className="h-5 w-5 mr-3 text-gray-400" />
-                <span className={!profile.phone ? 'text-gray-400' : ''}>
+              <div className="flex items-center text-muted-foreground">
+                <Phone className="h-5 w-5 mr-3 text-muted-foreground" />
+                <span className={!profile.phone ? 'text-muted-foreground' : ''}>
                   {profile.phone || 'Add phone number'}
                 </span>
               </div>
-              <div className="flex items-center text-gray-600">
-                <MapPin className="h-5 w-5 mr-3 text-gray-400" />
-                <span className={!profile.area ? 'text-gray-400' : ''}>
+              <div className="flex items-center text-muted-foreground">
+                <MapPin className="h-5 w-5 mr-3 text-muted-foreground" />
+                <span className={!profile.area ? 'text-muted-foreground' : ''}>
                   {profile.area || 'Add location'}
                 </span>
               </div>
@@ -297,42 +297,42 @@ export default function ProfilePage() {
           </div>
 
           {/* Hockey profile */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Hockey Profile</h2>
+          <div className="bg-card shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Hockey Profile</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Trophy className="h-5 w-5 mr-3 text-gray-400" />
+                <span className="text-muted-foreground flex items-center">
+                  <Trophy className="h-5 w-5 mr-3 text-muted-foreground" />
                   Experience
                 </span>
-                <span className={`font-medium ${!profile.years_playing ? 'text-gray-400' : ''}`}>
+                <span className={`font-medium ${!profile.years_playing ? 'text-muted-foreground' : ''}`}>
                   {profile.years_playing ? `${profile.years_playing} years` : 'Not specified'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Target className="h-5 w-5 mr-3 text-gray-400" />
+                <span className="text-muted-foreground flex items-center">
+                  <Target className="h-5 w-5 mr-3 text-muted-foreground" />
                   Shoots
                 </span>
-                <span className={`font-medium ${!profile.preferred_shot ? 'text-gray-400' : ''}`}>
+                <span className={`font-medium ${!profile.preferred_shot ? 'text-muted-foreground' : ''}`}>
                   {profile.preferred_shot || 'Not specified'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Shield className="h-5 w-5 mr-3 text-gray-400" />
+                <span className="text-muted-foreground flex items-center">
+                  <Shield className="h-5 w-5 mr-3 text-muted-foreground" />
                   Position
                 </span>
-                <span className={`font-medium ${!profile.position ? 'text-gray-400' : ''}`}>
+                <span className={`font-medium ${!profile.position ? 'text-muted-foreground' : ''}`}>
                   {profile.position || 'Not specified'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Calendar className="h-5 w-5 mr-3 text-gray-400" />
+                <span className="text-muted-foreground flex items-center">
+                  <Calendar className="h-5 w-5 mr-3 text-muted-foreground" />
                   Age Group
                 </span>
-                <span className={`font-medium ${!profile.age_group ? 'text-gray-400' : ''}`}>
+                <span className={`font-medium ${!profile.age_group ? 'text-muted-foreground' : ''}`}>
                   {profile.age_group || 'Not specified'}
                 </span>
               </div>
@@ -341,20 +341,20 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats preview (placeholder) */}
-        <div className="mt-6 bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h2>
+        <div className="mt-6 bg-card shadow rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Season Statistics</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-background rounded-lg p-4">
               <p className="text-2xl font-bold text-blue-600">0</p>
-              <p className="text-sm text-gray-600 mt-1">Games Played</p>
+              <p className="text-sm text-muted-foreground mt-1">Games Played</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-background rounded-lg p-4">
               <p className="text-2xl font-bold text-green-600">0</p>
-              <p className="text-sm text-gray-600 mt-1">Games Organized</p>
+              <p className="text-sm text-muted-foreground mt-1">Games Organized</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-background rounded-lg p-4">
               <p className="text-2xl font-bold text-purple-600">0</p>
-              <p className="text-sm text-gray-600 mt-1">Teams Joined</p>
+              <p className="text-sm text-muted-foreground mt-1">Teams Joined</p>
             </div>
           </div>
         </div>

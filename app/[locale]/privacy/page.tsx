@@ -1,38 +1,44 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Container } from '@/components/ui/container';
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function PrivacyPage({ params }: Props) {
   const { locale } = await params;
+  const t = await getTranslations('privacyPage');
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/');
+  const dateStr = new Date().toLocaleDateString(locale === 'fr' ? 'fr-CA' : 'en-CA');
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-      <p className="text-gray-600 mb-4">Last updated: {new Date().toLocaleDateString('en-CA')}</p>
-      <div className="prose prose-slate max-w-none space-y-4 text-gray-700">
-        <p>
-          GoGoHockey (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
-          This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">Information We Collect</h2>
-        <p>
-          We collect information you provide directly, such as when you register, book a rink, or post a game.
-          This may include your name, email address, phone number, and other profile details.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">How We Use Your Information</h2>
-        <p>
-          We use your information to provide and improve our services, process bookings, send notifications,
-          and communicate with you about the Ottawa youth hockey community.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">Contact Us</h2>
-        <p>
-          If you have questions about this Privacy Policy, please visit our Contact page.
-        </p>
-      </div>
-      <Link href={withLocale('/')} className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark">
-        Back to Home
-      </Link>
-    </div>
+    <main className="py-12 md:py-16">
+      <Container>
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">{t('title')}</h1>
+          <p className="text-muted-foreground mb-6">{t('lastUpdated', { date: dateStr })}</p>
+          <div className="space-y-6 text-muted-foreground">
+            <p className="text-lg">{t('intro')}</p>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('collectTitle')}</h2>
+              <p className="mt-2">{t('collectBody')}</p>
+            </section>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('useTitle')}</h2>
+              <p className="mt-2">{t('useBody')}</p>
+            </section>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('contactTitle')}</h2>
+              <p className="mt-2">{t('contactBody')}</p>
+            </section>
+          </div>
+          <Link
+            href={withLocale('/')}
+            className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 font-medium"
+          >
+            ← {t('backHome')}
+          </Link>
+        </div>
+      </Container>
+    </main>
   );
 }

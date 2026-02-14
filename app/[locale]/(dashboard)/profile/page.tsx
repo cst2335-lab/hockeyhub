@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
+import {useTranslations} from 'next-intl';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
 import {useRouter, useParams} from 'next/navigation';
@@ -34,7 +35,7 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-  // Read locale from the URL segment: /{locale}/...
+  const t = useTranslations('profilePage');
   const {locale} = useParams<{locale: string}>();
 
   const [user, setUser] = useState<User | null>(null);
@@ -113,15 +114,15 @@ export default function ProfilePage() {
 
   const getSkillLevelColor = (level: string) => {
     const colors: Record<string, string> = {
-      AAA: 'bg-purple-100 text-purple-800',
-      AA: 'bg-indigo-100 text-indigo-800',
+      AAA: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+      AA: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
       A: 'bg-gogo-secondary/20 text-gogo-primary',
-      B: 'bg-green-100 text-green-800',
-      C: 'bg-yellow-100 text-yellow-800',
-      'House League': 'bg-orange-100 text-orange-800',
-      Beginner: 'bg-gray-100 text-gray-800'
+      B: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+      C: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+      'House League': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+      Beginner: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300'
     };
-    return colors[level] || 'bg-gray-100 text-gray-800';
+    return colors[level] || 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300';
   };
 
   const getPositionIcon = (position: string) => {
@@ -171,12 +172,12 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Profile not found</p>
+          <p className="text-muted-foreground">{t('notFound')}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-3 text-gogo-primary hover:text-gogo-dark underline"
+            className="mt-3 text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 underline"
           >
-            Reload page
+            {t('reloadPage')}
           </button>
         </div>
       </div>
@@ -187,25 +188,25 @@ export default function ProfilePage() {
     !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Incomplete profile alert */}
         {isIncomplete && (
-          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-4">
             <div className="flex">
-              <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800">
-                  Complete your profile
+                <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  {t('completeTitle')}
                 </h3>
-                <p className="mt-1 text-sm text-yellow-700">
-                  Add your hockey details to find better game matches and connect with other players.
+                <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                  {t('completeDesc')}
                 </p>
                 <button
                   onClick={() => router.push(`/${locale}/profile/edit`)}
-                  className="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900 underline"
+                  className="mt-2 text-sm font-medium text-amber-800 dark:text-amber-200 hover:underline"
                 >
-                  Complete now →
+                  {t('completeNow')}
                 </button>
               </div>
             </div>
@@ -213,14 +214,14 @@ export default function ProfilePage() {
         )}
 
         {/* Header card */}
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+        <div className="bg-card border border-border shadow-xl rounded-xl overflow-hidden">
           <div className="h-32 bg-gradient-to-r from-gogo-primary to-gogo-secondary"></div>
 
           <div className="relative px-6 pb-6">
             {/* Avatar */}
             <div className="absolute -top-12 left-6">
-              <div className="h-24 w-24 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center">
-                <UserIcon className="h-12 w-12 text-gray-400" />
+              <div className="h-24 w-24 rounded-full bg-card border-4 border-card shadow-lg flex items-center justify-center">
+                <UserIcon className="h-12 w-12 text-muted-foreground" />
               </div>
             </div>
 
@@ -231,19 +232,19 @@ export default function ProfilePage() {
                 className="flex items-center space-x-2 px-4 py-2 bg-gogo-primary text-white rounded-lg hover:bg-gogo-dark transition"
               >
                 <Edit2 className="h-4 w-4" />
-                <span>Edit Profile</span>
+                <span>{t('editProfile')}</span>
               </button>
             </div>
 
             {/* Name and badges */}
             <div className="mt-4">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {profile.full_name || 'Hockey Player'}
+              <h1 className="text-3xl font-bold text-foreground">
+                {profile.full_name || t('hockeyPlayer')}
               </h1>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.age_group && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">
                     {profile.age_group}
                   </span>
                 )}
@@ -274,66 +275,66 @@ export default function ProfilePage() {
         {/* Details */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Contact */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <div className="bg-card border border-border shadow rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('contactInfo')}</h2>
             <div className="space-y-3">
-              <div className="flex items-center text-gray-600">
-                <Mail className="h-5 w-5 mr-3 text-gray-400" />
-                <span>{user?.email || profile.email || 'No email'}</span>
+              <div className="flex items-center text-muted-foreground">
+                <Mail className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                <span>{user?.email || profile.email || t('noEmail')}</span>
               </div>
-              <div className="flex items-center text-gray-600">
-                <Phone className="h-5 w-5 mr-3 text-gray-400" />
-                <span className={!profile.phone ? 'text-gray-400' : ''}>
-                  {profile.phone || 'Add phone number'}
+              <div className="flex items-center text-muted-foreground">
+                <Phone className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                <span className={!profile.phone ? 'text-muted-foreground/70' : ''}>
+                  {profile.phone || t('addPhone')}
                 </span>
               </div>
-              <div className="flex items-center text-gray-600">
-                <MapPin className="h-5 w-5 mr-3 text-gray-400" />
-                <span className={!profile.area ? 'text-gray-400' : ''}>
-                  {profile.area || 'Add location'}
+              <div className="flex items-center text-muted-foreground">
+                <MapPin className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                <span className={!profile.area ? 'text-muted-foreground/70' : ''}>
+                  {profile.area || t('addLocation')}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Hockey profile */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Hockey Profile</h2>
+          <div className="bg-card border border-border shadow rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('hockeyProfile')}</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Trophy className="h-5 w-5 mr-3 text-gray-400" />
-                  Experience
+                <span className="text-muted-foreground flex items-center">
+                  <Trophy className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                  {t('experience')}
                 </span>
-                <span className={`font-medium ${!profile.years_playing ? 'text-gray-400' : ''}`}>
-                  {profile.years_playing ? `${profile.years_playing} years` : 'Not specified'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Target className="h-5 w-5 mr-3 text-gray-400" />
-                  Shoots
-                </span>
-                <span className={`font-medium ${!profile.preferred_shot ? 'text-gray-400' : ''}`}>
-                  {profile.preferred_shot || 'Not specified'}
+                <span className={`font-medium ${!profile.years_playing ? 'text-muted-foreground/70' : ''}`}>
+                  {profile.years_playing ? `${profile.years_playing} years` : t('notSpecified')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Shield className="h-5 w-5 mr-3 text-gray-400" />
-                  Position
+                <span className="text-muted-foreground flex items-center">
+                  <Target className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                  {t('shoots')}
                 </span>
-                <span className={`font-medium ${!profile.position ? 'text-gray-400' : ''}`}>
-                  {profile.position || 'Not specified'}
+                <span className={`font-medium ${!profile.preferred_shot ? 'text-muted-foreground/70' : ''}`}>
+                  {profile.preferred_shot || t('notSpecified')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 flex items-center">
-                  <Calendar className="h-5 w-5 mr-3 text-gray-400" />
-                  Age Group
+                <span className="text-muted-foreground flex items-center">
+                  <Shield className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                  {t('position')}
                 </span>
-                <span className={`font-medium ${!profile.age_group ? 'text-gray-400' : ''}`}>
-                  {profile.age_group || 'Not specified'}
+                <span className={`font-medium ${!profile.position ? 'text-muted-foreground/70' : ''}`}>
+                  {profile.position || t('notSpecified')}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground flex items-center">
+                  <Calendar className="h-5 w-5 mr-3 text-muted-foreground shrink-0" />
+                  {t('ageGroup')}
+                </span>
+                <span className={`font-medium ${!profile.age_group ? 'text-muted-foreground/70' : ''}`}>
+                  {profile.age_group || t('notSpecified')}
                 </span>
               </div>
             </div>
@@ -341,20 +342,20 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats preview (placeholder) */}
-        <div className="mt-6 bg-white shadow rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Season Statistics</h2>
+        <div className="mt-6 bg-card border border-border shadow rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t('seasonStats')}</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
               <p className="text-2xl font-bold text-gogo-primary">0</p>
-              <p className="text-sm text-gray-600 mt-1">Games Played</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('gamesPlayed')}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-green-600">0</p>
-              <p className="text-sm text-gray-600 mt-1">Games Organized</p>
+            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">0</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('gamesOrganized')}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-2xl font-bold text-purple-600">0</p>
-              <p className="text-sm text-gray-600 mt-1">Teams Joined</p>
+            <div className="bg-muted/50 dark:bg-slate-800/50 rounded-lg p-4">
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('teamsJoined')}</p>
             </div>
           </div>
         </div>

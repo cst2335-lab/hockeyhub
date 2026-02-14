@@ -1,37 +1,44 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Container } from '@/components/ui/container';
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function TermsPage({ params }: Props) {
   const { locale } = await params;
+  const t = await getTranslations('termsPage');
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/');
+  const dateStr = new Date().toLocaleDateString(locale === 'fr' ? 'fr-CA' : 'en-CA');
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
-      <p className="text-gray-600 mb-4">Last updated: {new Date().toLocaleDateString('en-CA')}</p>
-      <div className="prose prose-slate max-w-none space-y-4 text-gray-700">
-        <p>
-          Welcome to GoGoHockey. By using our platform, you agree to these Terms of Service.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">Use of Service</h2>
-        <p>
-          You agree to use GoGoHockey only for lawful purposes related to connecting Ottawa&apos;s youth
-          hockey community. You are responsible for the accuracy of information you provide.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">Bookings and Payments</h2>
-        <p>
-          Bookings made through our platform are subject to the policies of the respective ice rinks.
-          Platform fees may apply as disclosed at the time of booking.
-        </p>
-        <h2 className="text-xl font-semibold mt-6">Contact</h2>
-        <p>
-          For questions about these Terms, please visit our Contact page.
-        </p>
-      </div>
-      <Link href={withLocale('/')} className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark">
-        Back to Home
-      </Link>
-    </div>
+    <main className="py-12 md:py-16">
+      <Container>
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">{t('title')}</h1>
+          <p className="text-muted-foreground mb-6">{t('lastUpdated', { date: dateStr })}</p>
+          <div className="space-y-6 text-muted-foreground">
+            <p className="text-lg">{t('intro')}</p>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('useTitle')}</h2>
+              <p className="mt-2">{t('useBody')}</p>
+            </section>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('bookingsTitle')}</h2>
+              <p className="mt-2">{t('bookingsBody')}</p>
+            </section>
+            <section>
+              <h2 className="text-xl font-semibold mt-6 text-foreground">{t('contactTitle')}</h2>
+              <p className="mt-2">{t('contactBody')}</p>
+            </section>
+          </div>
+          <Link
+            href={withLocale('/')}
+            className="inline-block mt-8 text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 font-medium"
+          >
+            ← {t('backHome')}
+          </Link>
+        </div>
+      </Container>
+    </main>
   );
 }

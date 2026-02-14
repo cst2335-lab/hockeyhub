@@ -2,6 +2,7 @@
 'use client';
 
 import {useState, useEffect, useCallback, useMemo} from 'react';
+import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams} from 'next/navigation';
@@ -15,6 +16,7 @@ import {formatCurrency, formatDate} from '@/lib/utils/format';
  * - Wrap data loader with useCallback to satisfy exhaustive-deps.
  */
 export default function BookingDetailPage() {
+  const t = useTranslations('bookings');
   const router = useRouter();
   const { locale, id: bookingId } = useParams<{ locale: string; id: string }>();
 
@@ -69,7 +71,7 @@ export default function BookingDetailPage() {
 
   const handleCancel = async () => {
     if (!bookingId) return;
-    if (!confirm('Are you sure you want to cancel this booking? Refund: full if 48+ hours before start, otherwise 90% (10% fee).')) return;
+    if (!confirm(t('cancelConfirm'))) return;
 
     setCancelling(true);
     try {
@@ -81,14 +83,14 @@ export default function BookingDetailPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error ?? 'Failed to cancel booking');
+        toast.error(data.error ?? t('cancelError'));
         setCancelling(false);
         return;
       }
-      toast.success('Booking cancelled successfully. Refund will be processed if applicable.');
+      toast.success(t('cancelSuccess'));
       router.push(withLocale('/bookings'));
     } catch {
-      toast.error('Failed to cancel booking');
+      toast.error(t('cancelError'));
       setCancelling(false);
     }
   };
@@ -104,105 +106,105 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="container mx-auto p-8">
-        <p>Booking not found</p>
+        <p className="text-muted-foreground">{t('notFound')}</p>
       </div>
     );
   }
 
   const statusColors: Record<string, string> = {
-    confirmed: 'bg-green-100 text-green-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-gray-100 text-gray-800',
+    confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+    completed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
   };
-  const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800';
+  const statusColor = statusColors[booking.status] || 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300';
 
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <button
           onClick={() => router.push(withLocale('/bookings'))}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-muted-foreground hover:text-foreground transition"
         >
-          ← Back to My Bookings
+          {t('backToBookings')}
         </button>
       </div>
 
-      <div className="bg-surface rounded-lg shadow-lg p-8">
+      <div className="bg-card border border-border rounded-xl shadow-lg p-8">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{booking.rinks?.name}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-foreground">{booking.rinks?.name}</h1>
             <span className={`px-3 py-1 rounded text-sm ${statusColor}`}>{booking.status}</span>
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold text-gogo-primary">
               {formatCurrency(booking.total)}
             </p>
-            <p className="text-sm text-gray-600">Total Amount</p>
+            <p className="text-sm text-muted-foreground">{t('totalAmount')}</p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           <div>
-            <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">{t('bookingDetails')}</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-600">Booking ID</p>
-                <p className="font-medium">{booking.id}</p>
+                <p className="text-sm text-muted-foreground">{t('bookingId')}</p>
+                <p className="font-medium text-foreground">{booking.id}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Date</p>
-                <p className="font-medium">{formatDate(booking.booking_date)}</p>
+                <p className="text-sm text-muted-foreground">{t('date')}</p>
+                <p className="font-medium text-foreground">{formatDate(booking.booking_date)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Time</p>
-                <p className="font-medium">
+                <p className="text-sm text-muted-foreground">{t('time')}</p>
+                <p className="font-medium text-foreground">
                   {booking.start_time} - {booking.end_time}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Duration</p>
-                <p className="font-medium">{booking.hours} hours</p>
+                <p className="text-sm text-muted-foreground">{t('duration')}</p>
+                <p className="font-medium text-foreground">{booking.hours} hours</p>
               </div>
             </div>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold mb-4">Rink Information</h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">{t('rinkInfo')}</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-600">Location</p>
-                <p className="font-medium">{booking.rinks?.address}</p>
+                <p className="text-sm text-muted-foreground">{t('location')}</p>
+                <p className="font-medium text-foreground">{booking.rinks?.address}</p>
               </div>
               {booking.rinks?.phone && (
                 <div>
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-medium">{booking.rinks.phone}</p>
+                  <p className="text-sm text-muted-foreground">{t('phone')}</p>
+                  <p className="font-medium text-foreground">{booking.rinks.phone}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-gray-600">Hourly Rate</p>
-                <p className="font-medium">{formatCurrency(booking.rinks?.hourly_rate)}</p>
+                <p className="text-sm text-muted-foreground">{t('hourlyRate')}</p>
+                <p className="font-medium text-foreground">{formatCurrency(booking.rinks?.hourly_rate)}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t">
-          <h2 className="text-xl font-semibold mb-4">Price Breakdown</h2>
-          <div className="space-y-2">
+        <div className="mt-8 pt-8 border-t border-border">
+          <h2 className="text-xl font-semibold mb-4 text-foreground">{t('priceBreakdown')}</h2>
+          <div className="space-y-2 text-foreground">
             <div className="flex justify-between">
               <span>
-                Ice Time ({booking.hours} hours × {formatCurrency(booking.rinks?.hourly_rate)})
+                {t('iceTimeLabel', { hours: booking.hours, rate: formatCurrency(booking.rinks?.hourly_rate) })}
               </span>
               <span>{formatCurrency(booking.subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Platform Fee (8%)</span>
+              <span>{t('platformFee')}</span>
               <span>{formatCurrency(booking.platform_fee)}</span>
             </div>
-            <div className="flex justify-between font-bold text-lg pt-2 border-t">
-              <span>Total</span>
+            <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
+              <span>{t('total')}</span>
               <span>{formatCurrency(booking.total)}</span>
             </div>
           </div>
@@ -213,9 +215,9 @@ export default function BookingDetailPage() {
             <button
               onClick={handleCancel}
               disabled={cancelling}
-              className="px-6 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              {cancelling ? 'Cancelling...' : 'Cancel Booking'}
+              {cancelling ? t('cancelling') : t('cancelBooking')}
             </button>
           </div>
         )}

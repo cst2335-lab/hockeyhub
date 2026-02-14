@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { PlayCircle, Calendar, Users } from 'lucide-react';
+import { Users, Calendar, Package, Activity } from 'lucide-react';
 
 export function HomePlatformSection() {
   const t = useTranslations('home');
@@ -11,22 +11,12 @@ export function HomePlatformSection() {
   const locale = (params?.locale as string) || 'en';
   const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
 
+  /* Figma: user group, calendar, whistle, gear */
   const pillars = [
-    {
-      key: 'findGames' as const,
-      href: withLocale('/games'),
-      icon: PlayCircle,
-    },
-    {
-      key: 'bookIce' as const,
-      href: withLocale('/rinks'),
-      icon: Calendar,
-    },
-    {
-      key: 'connectClubs' as const,
-      href: withLocale('/clubs'),
-      icon: Users,
-    },
+    { key: 'findATeam' as const, href: withLocale('/games'), icon: Users },
+    { key: 'registerLeague' as const, href: withLocale('/clubs'), icon: Calendar },
+    { key: 'getEquipment' as const, href: '#', icon: Package },
+    { key: 'improveSkills' as const, href: withLocale('/games'), icon: Activity },
   ] as const;
 
   return (
@@ -34,13 +24,13 @@ export function HomePlatformSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            {t('platformHeadline')}
+            {t('everythingYouNeed')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t('platformSubline')}
+            {t('everythingSubline')}
           </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {pillars.map(({ key, href, icon: Icon }) => (
             <Link
               key={key}

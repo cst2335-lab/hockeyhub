@@ -26,10 +26,10 @@ export default function Error({
         <div className="flex justify-center mb-4">
           <AlertCircle className="h-16 w-16 text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
           Something went wrong
         </h1>
-        <p className="text-slate-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           An unexpected error occurred. Please try again or go back to the home page.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -42,7 +42,7 @@ export default function Error({
           </button>
           <Link
             href={withLocale('/')}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border text-foreground rounded-lg hover:bg-muted transition font-medium"
           >
             Back to Home
           </Link>

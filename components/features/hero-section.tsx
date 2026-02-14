@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, LayoutDashboard } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, LayoutDashboard, Search, UserCircle, ClipboardCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import { Container } from '@/components/ui/container';
@@ -16,10 +16,13 @@ import type { User } from '@supabase/supabase-js';
 export default function HeroSection() {
   const params = useParams();
   const t = useTranslations('hero');
+  const tActions = useTranslations('actions');
   const locale = (params?.locale as string) || 'en';
   const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -31,6 +34,12 @@ export default function HeroSection() {
     });
     return () => data.subscription.unsubscribe();
   }, [supabase]);
+
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    window.location.href = withLocale(q ? `/games?q=${encodeURIComponent(q)}` : '/games');
+  }, [searchQuery, withLocale]);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gogo-dark via-gogo-primary to-gogo-secondary">
@@ -68,15 +77,51 @@ export default function HeroSection() {
             <Logo size="lg" showText={true} light className="justify-center" />
           </motion.div>
 
-          {/* Tagline — clear value prop (reference: audience clarity like TeamSnap) */}
-          <motion.p
+          {/* Figma headline — main value prop */}
+          <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl sm:text-2xl md:text-3xl text-white font-semibold mb-4 max-w-2xl mx-auto"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold mb-3 max-w-3xl mx-auto"
+          >
+            {t('headline')}
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="text-lg sm:text-xl md:text-2xl text-white/90 font-medium mb-6 max-w-2xl mx-auto"
           >
             {t('tagline')}
           </motion.p>
+
+          {/* Figma: Search bar */}
+          <motion.form
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            onSubmit={handleSearchSubmit}
+            className="max-w-xl mx-auto mb-8"
+          >
+            <div className="relative flex rounded-xl overflow-hidden shadow-xl bg-white/95 backdrop-blur-sm">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('searchPlaceholder')}
+                className="w-full pl-12 pr-4 py-3.5 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:ring-inset"
+                aria-label={t('searchPlaceholder')}
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 bg-gogo-primary text-white font-semibold hover:bg-gogo-dark transition-colors shrink-0"
+              >
+                <Search className="h-5 w-5 sm:mr-2" />
+                <span className="hidden sm:inline">{tActions('search')}</span>
+              </button>
+            </div>
+          </motion.form>
 
           {/* Animated subtitle */}
           <div className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 h-10 font-medium">
@@ -119,7 +164,7 @@ export default function HeroSection() {
                 <Link href={withLocale('/dashboard')} aria-label={t('goToDashboard')}>
                   <Button
                     size="xl"
-                    className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                    className="group px-8 py-6 text-lg font-semibold bg-card text-gogo-dark hover:bg-muted shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                   >
                     <span className="flex items-center gap-2">
                       <LayoutDashboard className="h-5 w-5" />
@@ -144,7 +189,7 @@ export default function HeroSection() {
                 <Link href={withLocale('/games')} aria-label={t('findGamesNow')}>
                   <Button
                     size="xl"
-                    className="group px-8 py-6 text-lg font-semibold bg-white text-gogo-dark hover:bg-gray-100 shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                    className="group px-8 py-6 text-lg font-semibold bg-card text-gogo-dark hover:bg-muted shadow-lg focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                   >
                     <span className="flex items-center gap-2">
                       {t('findGamesNow')}
@@ -166,32 +211,27 @@ export default function HeroSection() {
             )}
           </motion.div>
 
-          {/* Trust indicators */}
+          {/* Figma: Stats - Players, Coaches, Officials */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-sky-100/95"
+            className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 text-sky-100/95"
           >
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              <span className="font-semibold">2,000+</span>
-              <span>Active Players</span>
+              <Users className="w-6 h-6" />
+              <span className="font-bold text-xl">2,000+</span>
+              <span>{t('statsPlayers')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              <span className="font-semibold">54</span>
-              <span>Ice Rinks</span>
+              <UserCircle className="w-6 h-6" />
+              <span className="font-bold text-xl">500+</span>
+              <span>{t('statsCoaches')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              <span className="font-semibold">500+</span>
-              <span>Games/Month</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              <span className="font-semibold">4.9</span>
-              <span>Rating</span>
+              <ClipboardCheck className="w-6 h-6" />
+              <span className="font-bold text-xl">200+</span>
+              <span>{t('statsOfficials')}</span>
             </div>
           </motion.div>
         </motion.div>

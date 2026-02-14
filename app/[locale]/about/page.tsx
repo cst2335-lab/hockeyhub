@@ -4,9 +4,9 @@ import { Container } from '@/components/ui/container';
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function ContactPage({ params }: Props) {
+export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
-  const t = await getTranslations('contactPage');
+  const t = await getTranslations('aboutPage');
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/');
 
   return (
@@ -14,14 +14,8 @@ export default async function ContactPage({ params }: Props) {
       <Container>
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">{t('title')}</h1>
-          <p className="text-lg text-muted-foreground mb-6">{t('intro')}</p>
-          <div className="rounded-xl border border-border bg-muted/40 dark:bg-slate-800/40 p-6">
-            <p className="font-medium text-foreground mb-2">{t('emailLabel')}</p>
-            <a href="mailto:contact@gogohockey.ca" className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300">
-              contact@gogohockey.ca
-            </a>
-            <p className="font-medium text-foreground mt-4 mb-2">{t('locationLabel')}</p>
-            <p className="text-muted-foreground">{t('location')}</p>
+          <div className="prose prose-slate dark:prose-invert max-w-none space-y-4 text-muted-foreground">
+            <p className="text-lg">{t('intro')}</p>
           </div>
           <Link
             href={withLocale('/')}

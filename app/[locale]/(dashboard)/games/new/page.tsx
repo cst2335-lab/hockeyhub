@@ -1,6 +1,7 @@
 'use client';
 
 import {useMemo, useState} from 'react';
+import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {createClient} from '@/lib/supabase/client';
 import {usePathname, useRouter} from 'next/navigation';
@@ -9,6 +10,9 @@ import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
 import {createGameSchema, type CreateGameInput} from '@/lib/validations/game';
 
 export default function CreateGamePage() {
+  const t = useTranslations('games');
+  const tCommon = useTranslations('common');
+  const tActions = useTranslations('actions');
   const router = useRouter();
   const pathname = usePathname();
   const supabase = useMemo(() => createClient(), []);
@@ -124,26 +128,26 @@ export default function CreateGamePage() {
   const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <Link
             href={withLocale('/games')}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 transition"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
             Back to Games
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Post a Game</h1>
-          <p className="mt-2 text-gray-600">Create a game invitation for other teams</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('postGame')}</h1>
+          <p className="mt-2 text-muted-foreground">Create a game invitation for other teams</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl shadow-sm p-6 space-y-6">
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
               Game Title *
             </label>
             <input
@@ -154,7 +158,7 @@ export default function CreateGamePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., U13 Friendly Match Looking for Opponent"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.title ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary ${fieldErrors.title ? 'border-red-500' : 'border-input'}`}
             />
             {fieldErrors.title && <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>}
           </div>
@@ -162,8 +166,8 @@ export default function CreateGamePage() {
           {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="game_date" className="block text-sm font-medium text-gray-700 mb-2">
-                <Calendar className="inline h-4 w-4 mr-1" />
+              <label htmlFor="game_date" className="block text-sm font-medium text-foreground mb-2">
+                <Calendar className="inline h-4 w-4 mr-1 shrink-0" />
                 Game Date *
               </label>
               <input
@@ -174,13 +178,13 @@ export default function CreateGamePage() {
                 min={minDate}
                 value={formData.game_date}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.game_date ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary ${fieldErrors.game_date ? 'border-red-500' : 'border-input'}`}
               />
             {fieldErrors.game_date && <p className="mt-1 text-sm text-red-600">{fieldErrors.game_date}</p>}
             </div>
             <div>
-              <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
-                <Clock className="inline h-4 w-4 mr-1" />
+              <label htmlFor="game_time" className="block text-sm font-medium text-foreground mb-2">
+                <Clock className="inline h-4 w-4 mr-1 shrink-0" />
                 Game Time *
               </label>
               <input
@@ -190,7 +194,7 @@ export default function CreateGamePage() {
                 required
                 value={formData.game_time}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.game_time ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary ${fieldErrors.game_time ? 'border-red-500' : 'border-input'}`}
               />
             {fieldErrors.game_time && <p className="mt-1 text-sm text-red-600">{fieldErrors.game_time}</p>}
             </div>
@@ -198,9 +202,9 @@ export default function CreateGamePage() {
 
           {/* Location */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-              <MapPin className="inline h-4 w-4 mr-1" />
-              Location *
+            <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
+              <MapPin className="inline h-4 w-4 mr-1 shrink-0" />
+              {t('location')} *
             </label>
             <input
               type="text"
@@ -210,7 +214,7 @@ export default function CreateGamePage() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Bell Sensplex, Kanata"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.location ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary ${fieldErrors.location ? 'border-red-500' : 'border-input'}`}
             />
             {fieldErrors.location && <p className="mt-1 text-sm text-red-600">{fieldErrors.location}</p>}
           </div>
@@ -218,9 +222,9 @@ export default function CreateGamePage() {
           {/* Age Group and Skill Level */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
-                <Users className="inline h-4 w-4 mr-1" />
-                Age Group *
+              <label htmlFor="age_group" className="block text-sm font-medium text-foreground mb-2">
+                <Users className="inline h-4 w-4 mr-1 shrink-0" />
+                {t('ageGroup')} *
               </label>
               <select
                 id="age_group"
@@ -228,7 +232,7 @@ export default function CreateGamePage() {
                 required
                 value={formData.age_group}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               >
                 {ageGroups.map(group => (
                   <option key={group} value={group}>
@@ -238,9 +242,9 @@ export default function CreateGamePage() {
               </select>
             </div>
             <div>
-              <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
-                <Trophy className="inline h-4 w-4 mr-1" />
-                Skill Level *
+              <label htmlFor="skill_level" className="block text-sm font-medium text-foreground mb-2">
+                <Trophy className="inline h-4 w-4 mr-1 shrink-0" />
+                {t('skillLevel')} *
               </label>
               <select
                 id="skill_level"
@@ -248,7 +252,7 @@ export default function CreateGamePage() {
                 required
                 value={formData.skill_level}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+                className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>
@@ -261,8 +265,8 @@ export default function CreateGamePage() {
 
           {/* Max Players */}
           <div>
-            <label htmlFor="max_players" className="block text-sm font-medium text-gray-700 mb-2">
-              Max Players (Optional)
+            <label htmlFor="max_players" className="block text-sm font-medium text-foreground mb-2">
+              {t('maxPlayers')} (Optional)
             </label>
             <input
               type="number"
@@ -273,15 +277,15 @@ export default function CreateGamePage() {
               value={formData.max_players}
               onChange={handleChange}
               placeholder="e.g., 20"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary ${fieldErrors.max_players ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary ${fieldErrors.max_players ? 'border-red-500' : 'border-input'}`}
             />
             {fieldErrors.max_players && <p className="mt-1 text-sm text-red-600">{fieldErrors.max_players}</p>}
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description
+            <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+              {t('description')}
             </label>
             <textarea
               id="description"
@@ -290,14 +294,14 @@ export default function CreateGamePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide additional details about the game, rules, or requirements..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
           </div>
 
           {/* Contact Info */}
           <div>
-            <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700 mb-2">
-              Contact Information (Optional)
+            <label htmlFor="contact_info" className="block text-sm font-medium text-foreground mb-2">
+              {t('contact')} (Optional)
             </label>
             <input
               type="text"
@@ -306,9 +310,9 @@ export default function CreateGamePage() {
               value={formData.contact_info}
               onChange={handleChange}
               placeholder="e.g., Coach John - 613-555-0123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gogo-secondary"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
             />
-            <p className="mt-1 text-sm text-gray-500">This will be shared only with interested teams</p>
+            <p className="mt-1 text-sm text-muted-foreground">This will be shared only with interested teams</p>
           </div>
 
           {/* Submit Buttons */}
@@ -316,15 +320,15 @@ export default function CreateGamePage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-md hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed transition focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
+              className="flex-1 bg-gogo-primary text-white py-2 px-4 rounded-lg hover:bg-gogo-dark disabled:opacity-50 disabled:cursor-not-allowed transition focus-visible:ring-2 focus-visible:ring-gogo-secondary focus-visible:ring-offset-2"
             >
-              {loading ? 'Creating...' : 'Post Game'}
+              {loading ? tCommon('loading') : t('postGame')}
             </button>
             <Link
               href={withLocale('/games')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition"
+              className="flex-1 bg-muted text-foreground py-2 px-4 rounded-lg hover:bg-muted/80 text-center transition"
             >
-              Cancel
+              {tActions('cancel')}
             </Link>
           </div>
         </form>

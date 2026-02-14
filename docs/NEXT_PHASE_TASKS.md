@@ -29,6 +29,9 @@
 | §三 10 无障碍 | `:focus-visible` 明显焦点环，可交互元素键盘聚焦可见 |
 | §三 11 表单与错误 | common、book 增加 i18n key；预订页错误提示全部使用 i18n |
 | **导航优化（2026-02）** | 移除 Post Game 按钮；全站白天/黑夜视觉模式（next-themes）；Navbar 双主题适配；移除 Hero 底部波浪形白色过渡 |
+| **Figma 方案落地（2026-02）** | Hero 主标题「Making Hockey Accessible for Everyone」；首页「Everything You Need」四卡（Find a Team、Register for a League、Get Equipment、Improve Your Skills）；主导航增加 About、Community；Footer 五栏（Clubs & Leagues、Coaches & Parents、Sports、Company、Resources）；About 占位页；公网 Navbar 移动端第二行导航；Contact 页 i18n + 主题 token |
+| **i18n 与主题收尾（2026-02）** | Privacy、Terms、Profile、My Games、Bookings 详情、Clubs new、Games 新建/编辑 等页 i18n + 主题 token；Manage Rink、Games 列表/详情/新建/编辑、Notifications、Bookings [id]、book/[rinkId]、error.tsx 等 gray/white 替换为主题 token；Profile 编辑 / Games 新建 Cancel 使用 actions.cancel；games 命名空间（gameTitle、gameStatus、saveChanges、saving、status*Label、contactSharedHint）；myGames（editSubtitle、backToMyGames、noPermission） |
+| **全站主题统一（2026-02）** | Navbar、Dashboard 顶栏、hero-section、notification-bell、theme-toggle、LocaleSwitcher、error-boundary、game-card、AuthActions、RatingStars 等组件 gray/slate → theme tokens；旧路由 (dashboard)/(auth)/register 及 clubs、games/[id]、profile 等页统一为主题 token；globals.css 中 .glass-dark、.skeleton、.divider、.link-light、.scrollbar-thin 使用主题变量 |
 
 ### 2.2 阶段二（feat/nav-dashboard-and-cta）已完成
 

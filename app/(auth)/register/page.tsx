@@ -81,13 +81,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
             Create your GoGoHockey account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             Step {step} of 2: {step === 1 ? 'Basic Information' : 'Hockey Profile'}
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                   name="fullName"
                   type="text"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input placeholder-muted-foreground text-foreground rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Full Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -117,7 +117,7 @@ export default function RegisterPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input placeholder-muted-foreground text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -131,7 +131,7 @@ export default function RegisterPage() {
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input placeholder-muted-foreground text-foreground rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                   placeholder="Password (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -156,10 +156,10 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               {/* Age Group */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Age Group *</label>
+                <label className="block text-sm font-medium text-foreground">Age Group *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.age_group}
                   onChange={(e) => setProfile({...profile, age_group: e.target.value})}
                 >
@@ -176,10 +176,10 @@ export default function RegisterPage() {
 
               {/* Skill Level */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Skill Level *</label>
+                <label className="block text-sm font-medium text-foreground">Skill Level *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.skill_level}
                   onChange={(e) => setProfile({...profile, skill_level: e.target.value})}
                 >
@@ -196,10 +196,10 @@ export default function RegisterPage() {
 
               {/* Position */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Position *</label>
+                <label className="block text-sm font-medium text-foreground">Position *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.position}
                   onChange={(e) => setProfile({...profile, position: e.target.value})}
                 >
@@ -213,9 +213,9 @@ export default function RegisterPage() {
 
               {/* Preferred Shot */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Shoots</label>
+                <label className="block text-sm font-medium text-foreground">Shoots</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.preferred_shot}
                   onChange={(e) => setProfile({...profile, preferred_shot: e.target.value})}
                 >
@@ -228,10 +228,10 @@ export default function RegisterPage() {
 
             {/* Area */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Area/Location *</label>
+              <label className="block text-sm font-medium text-foreground">Area/Location *</label>
               <select
                 required
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                 value={profile.area}
                 onChange={(e) => setProfile({...profile, area: e.target.value})}
               >
@@ -252,12 +252,12 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               {/* Years Playing */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Years Playing</label>
+                <label className="block text-sm font-medium text-foreground">Years Playing</label>
                 <input
                   type="number"
                   min="0"
                   max="50"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.years_playing}
                   onChange={(e) => setProfile({...profile, years_playing: parseInt(e.target.value) || 0})}
                 />
@@ -265,11 +265,11 @@ export default function RegisterPage() {
 
               {/* Jersey Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Jersey #</label>
+                <label className="block text-sm font-medium text-foreground">Jersey #</label>
                 <input
                   type="text"
                   maxLength={3}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.jersey_number}
                   onChange={(e) => setProfile({...profile, jersey_number: e.target.value})}
                 />
@@ -278,10 +278,10 @@ export default function RegisterPage() {
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <label className="block text-sm font-medium text-foreground">Phone Number</label>
               <input
                 type="tel"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full border-input rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="(613) 555-0100"
                 value={profile.phone}
                 onChange={(e) => setProfile({...profile, phone: e.target.value})}
@@ -296,14 +296,14 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="flex-1 py-2 px-4 border border-input rounded-md shadow-sm text-sm font-medium text-foreground bg-card hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
+                className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-muted"
               >
                 {isLoading ? 'Creating...' : 'Complete Registration'}
               </button>
@@ -312,7 +312,7 @@ export default function RegisterPage() {
         )}
 
         <div className="text-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
               Sign in

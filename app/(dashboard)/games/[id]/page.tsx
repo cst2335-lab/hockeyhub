@@ -313,7 +313,7 @@ export default function GameDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <p>Loading game details...</p>
       </div>
     )
@@ -321,7 +321,7 @@ export default function GameDetailsPage() {
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <p>Game not found</p>
           <a href="/games" className="text-blue-600 hover:underline">Back to games</a>
@@ -334,16 +334,16 @@ export default function GameDetailsPage() {
   const gameDate = new Date(game.game_date).toLocaleDateString()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-card shadow-sm border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
           <div className="flex gap-4">
-            <a href="/games" className="text-gray-600">Games</a>
-            <a href="/rinks" className="text-gray-600">Rinks</a>
-            <a href="/clubs" className="text-gray-600">Clubs</a>
-            <a href="/profile" className="text-gray-600">Profile</a>
+            <a href="/games" className="text-muted-foreground">Games</a>
+            <a href="/rinks" className="text-muted-foreground">Rinks</a>
+            <a href="/clubs" className="text-muted-foreground">Clubs</a>
+            <a href="/profile" className="text-muted-foreground">Profile</a>
           </div>
         </div>
       </nav>
@@ -357,10 +357,10 @@ export default function GameDetailsPage() {
           </a>
 
           {/* Main content */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="bg-card rounded-lg shadow-lg p-6 mb-6 border border-border">
             <div className="mb-6">
               <h1 className="text-3xl font-bold mb-2">{game.title}</h1>
-              <div className="flex gap-4 text-sm text-gray-600">
+              <div className="flex gap-4 text-sm text-muted-foreground">
                 <span>📅 {gameDate}</span>
                 <span>⏰ {game.game_time}</span>
                 <span>👁 {game.view_count || 0} views</span>
@@ -372,14 +372,14 @@ export default function GameDetailsPage() {
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-2">Game Details</h3>
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2 text-foreground">
                   <p><strong>Age Group:</strong> {game.age_group}</p>
                   <p><strong>Skill Level:</strong> {game.skill_level}</p>
                   <p><strong>Status:</strong> 
                     <span className={`ml-2 px-2 py-1 rounded text-sm ${
                       game.status === 'open' ? 'bg-green-100 text-green-800' :
                       game.status === 'matched' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-muted text-foreground'
                     }`}>
                       {game.status}
                     </span>
@@ -389,7 +389,7 @@ export default function GameDetailsPage() {
 
               <div>
                 <h3 className="font-semibold mb-2">Venue</h3>
-                <div className="space-y-2 text-gray-700">
+                <div className="space-y-2 text-foreground">
                   {game.rink && (
                     <>
                       <p><strong>{game.rink.name}</strong></p>
@@ -405,7 +405,7 @@ export default function GameDetailsPage() {
             {game.description && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-gray-700 whitespace-pre-wrap">{game.description}</p>
+                <p className="text-foreground whitespace-pre-wrap">{game.description}</p>
               </div>
             )}
 
@@ -413,10 +413,10 @@ export default function GameDetailsPage() {
             {game.host_club && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Host Club</h3>
-                <div className="bg-gray-50 p-4 rounded">
+                <div className="bg-background p-4 rounded">
                   <p className="font-medium">{game.host_club.name}</p>
                   {(showContactInfo || isCreator) && (
-                    <div className="mt-2 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-muted-foreground">
                       <p>📧 {game.host_club.contact_email}</p>
                       {game.host_club.contact_phone && <p>📞 {game.host_club.contact_phone}</p>}
                     </div>
@@ -431,8 +431,8 @@ export default function GameDetailsPage() {
                 <h3 className="font-semibold mb-2">Contact Person</h3>
                 <div className="bg-blue-50 p-4 rounded">
                   <p className="font-medium">{game.creator.full_name}</p>
-                  <p className="text-sm text-gray-600">📧 {game.creator.email}</p>
-                  {game.creator.phone && <p className="text-sm text-gray-600">📞 {game.creator.phone}</p>}
+                  <p className="text-sm text-muted-foreground">📧 {game.creator.email}</p>
+                  {game.creator.phone && <p className="text-sm text-muted-foreground">📞 {game.creator.phone}</p>}
                 </div>
               </div>
             )}
@@ -445,7 +445,7 @@ export default function GameDetailsPage() {
                     You created this game. {(game.interested_count || 0) > 0 ? `${game.interested_count || 0} teams have shown interest.` : 'No teams have shown interest yet.'}
                   </p>
                   {(game.interested_count || 0) > 0 && (
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-muted-foreground mt-2">
                       Check the notifications section to see who's interested.
                     </p>
                   )}
@@ -482,7 +482,7 @@ export default function GameDetailsPage() {
                             setShowMessageForm(false)
                             setMessage('')
                           }}
-                          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                          className="bg-muted text-foreground px-6 py-2 rounded-lg hover:bg-muted/80"
                         >
                           Cancel
                         </button>
@@ -496,13 +496,13 @@ export default function GameDetailsPage() {
                         ✅ You've expressed interest in this game
                       </p>
                       {showContactInfo && (
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-muted-foreground mb-4">
                           Contact information is now visible to you.
                         </p>
                       )}
                       <button
                         onClick={handleInterest}
-                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                        className="bg-muted text-foreground px-6 py-2 rounded-lg hover:bg-muted/80"
                       >
                         Remove Interest
                       </button>
@@ -511,7 +511,7 @@ export default function GameDetailsPage() {
                 </div>
               ) : (
                 <div>
-                  <p className="text-gray-600 mb-4">Sign in to express interest in this game</p>
+                  <p className="text-muted-foreground mb-4">Sign in to express interest in this game</p>
                  <a 
                     href="/login"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 inline-block"
@@ -528,8 +528,8 @@ export default function GameDetailsPage() {
                 <h3 className="font-semibold mb-4">Rate This Game</h3>
                 
                 {hasRated ? (
-                  <div className="bg-gray-50 p-4 rounded">
-                    <p className="text-gray-600">✅ You have already rated this game</p>
+                  <div className="bg-background p-4 rounded">
+                    <p className="text-muted-foreground">✅ You have already rated this game</p>
                     <div className="mt-2">
                       <RatingStars rating={userRating} readonly showNumber />
                     </div>

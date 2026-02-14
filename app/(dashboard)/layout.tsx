@@ -115,16 +115,16 @@ export default function DashboardLayout({
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo + Desktop Nav */}
             <div className="flex">
               <Link href={withLocale('/dashboard')} className="flex items-center px-2">
                 <span className="text-2xl">🏒</span>
-                <span className="ml-2 text-xl font-bold text-gray-900">GoGoHockey</span>
+                <span className="ml-2 text-xl font-bold text-foreground">GoGoHockey</span>
               </Link>
 
               <div className="hidden md:ml-8 md:flex md:space-x-4">
@@ -141,8 +141,8 @@ export default function DashboardLayout({
                       href={href}
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
                         isActive
-                          ? 'text-blue-600 bg-blue-50'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                          ? 'text-gogo-primary bg-gogo-primary/10'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`}
                     >
                       <Icon className="h-4 w-4 mr-2" />
@@ -160,8 +160,8 @@ export default function DashboardLayout({
                 href={withLocale('/notifications')}
                 className={`relative p-2 rounded-full transition ${
                   pathname === withLocale('/notifications')
-                    ? 'text-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'text-gogo-primary bg-gogo-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 <Bell className="h-5 w-5" />
@@ -174,10 +174,10 @@ export default function DashboardLayout({
 
               {/* User section */}
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-700 hidden sm:block">{userEmail}</span>
+                <span className="text-sm text-foreground hidden sm:block">{userEmail}</span>
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition"
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition"
                 >
                   <LogOut className="h-4 w-4" />
                   <span className="ml-2 hidden sm:inline">Logout</span>
@@ -188,7 +188,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden border-t">
+        <div className="md:hidden border-t border-border">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;

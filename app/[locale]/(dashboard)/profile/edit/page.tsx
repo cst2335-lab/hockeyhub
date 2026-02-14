@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState} from 'react';
+import {useTranslations} from 'next-intl';
 import {createClient} from '@/lib/supabase/client';
 import {usePathname, useRouter} from 'next/navigation';
 import {ArrowLeft, Save} from 'lucide-react';
@@ -21,6 +22,8 @@ interface Profile {
 }
 
 export default function EditProfilePage() {
+  const t = useTranslations('profilePage');
+  const tActions = useTranslations('actions');
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
@@ -62,7 +65,7 @@ export default function EditProfilePage() {
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
-      setMessage({type: 'error', text: 'Failed to load profile'});
+      setMessage({type: 'error', text: t('loadError')});
     } finally {
       setLoading(false);
     }
@@ -94,14 +97,14 @@ export default function EditProfilePage() {
 
       if (error) throw error;
 
-      setMessage({type: 'success', text: 'Profile updated successfully!'});
+      setMessage({type: 'success', text: t('updateSuccess')});
       // Localized redirect after successful save
       setTimeout(() => {
         router.push(withLocale('/profile'));
       }, 1500);
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      setMessage({type: 'error', text: error.message || 'Failed to update profile'});
+      setMessage({type: 'error', text: error.message || t('updateError')});
     } finally {
       setSaving(false);
     }
@@ -119,35 +122,35 @@ export default function EditProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Profile not found</p>
+          <p className="text-muted-foreground">{t('notFound')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.push(withLocale('/profile'))}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-muted-foreground hover:text-foreground mb-4 transition"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Profile
+            <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
+            {t('backToProfile')}
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
-          <p className="mt-2 text-gray-600">Update your hockey profile information</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('editProfile')}</h1>
+          <p className="mt-2 text-muted-foreground">{t('editSubtitle')}</p>
         </div>
 
         {/* Message */}
         {message && (
           <div
-            className={`mb-6 p-4 rounded-lg ${
+            className={`mb-6 p-4 rounded-lg border ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200'
-                : 'bg-red-50 text-red-800 border border-red-200'
+                ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800/50'
+                : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800/50'
             }`}
           >
             {message.text}
@@ -157,26 +160,26 @@ export default function EditProfilePage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <div className="bg-card border border-border shadow rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('basicInfo')}</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+                <label className="block text-sm font-medium text-foreground">{t('fullName')} *</label>
                 <input
                   type="text"
                   required
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border border-input bg-background text-foreground rounded-lg shadow-sm focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm"
                   value={profile.full_name || ''}
                   onChange={e => setProfile({...profile, full_name: e.target.value})}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                <label className="block text-sm font-medium text-foreground">{t('phoneNumber')}</label>
                 <input
                   type="tel"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border border-input bg-background text-foreground rounded-lg shadow-sm focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm"
                   placeholder="(613) 555-0100"
                   value={profile.phone || ''}
                   onChange={e => setProfile({...profile, phone: e.target.value})}
@@ -184,10 +187,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Area/Location *</label>
+                <label className="block text-sm font-medium text-foreground">{t('areaLocation')} *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm rounded-lg"
                   value={profile.area || ''}
                   onChange={e => setProfile({...profile, area: e.target.value})}
                 >
@@ -208,15 +211,15 @@ export default function EditProfilePage() {
           </div>
 
           {/* Hockey Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Hockey Information</h2>
+          <div className="bg-card border border-border shadow rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('hockeyInfo')}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Age Group *</label>
+                <label className="block text-sm font-medium text-foreground">{t('ageGroup')} *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm rounded-lg"
                   value={profile.age_group || ''}
                   onChange={e => setProfile({...profile, age_group: e.target.value})}
                 >
@@ -232,10 +235,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Skill Level *</label>
+                <label className="block text-sm font-medium text-foreground">Skill Level *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm rounded-lg"
                   value={profile.skill_level || ''}
                   onChange={e => setProfile({...profile, skill_level: e.target.value})}
                 >
@@ -251,10 +254,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Position *</label>
+                <label className="block text-sm font-medium text-foreground">{t('position')} *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm rounded-lg"
                   value={profile.position || ''}
                   onChange={e => setProfile({...profile, position: e.target.value})}
                 >
@@ -267,9 +270,9 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Preferred Shot</label>
+                <label className="block text-sm font-medium text-foreground">{t('shoots')}</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm rounded-lg"
                   value={profile.preferred_shot || ''}
                   onChange={e => setProfile({...profile, preferred_shot: e.target.value})}
                 >
@@ -280,12 +283,12 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Years Playing</label>
+                <label className="block text-sm font-medium text-foreground">{t('experience')}</label>
                 <input
                   type="number"
                   min="0"
                   max="50"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border border-input bg-background text-foreground rounded-lg shadow-sm focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm"
                   value={profile.years_playing || 0}
                   onChange={e =>
                     setProfile({...profile, years_playing: parseInt(e.target.value) || 0})
@@ -294,11 +297,11 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Jersey Number</label>
+                <label className="block text-sm font-medium text-foreground">Jersey Number</label>
                 <input
                   type="text"
                   maxLength={3}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+                  className="mt-1 block w-full border border-input bg-background text-foreground rounded-lg shadow-sm focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm"
                   placeholder="99"
                   value={profile.jersey_number || ''}
                   onChange={e => setProfile({...profile, jersey_number: e.target.value})}
@@ -308,11 +311,11 @@ export default function EditProfilePage() {
           </div>
 
             {/* Bio */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">About You</h2>
+          <div className="bg-card border border-border shadow rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t('aboutYou')}</h2>
             <textarea
               rows={4}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-gogo-secondary focus:border-gogo-primary sm:text-sm"
+              className="mt-1 block w-full border border-input bg-background text-foreground rounded-lg shadow-sm focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary sm:text-sm"
               placeholder="Tell us about your hockey experience, favorite teams, or anything else..."
               value={profile.bio || ''}
               onChange={e => setProfile({...profile, bio: e.target.value})}
@@ -324,17 +327,17 @@ export default function EditProfilePage() {
             <button
               type="button"
               onClick={() => router.push(withLocale('/profile'))}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary"
+              className="px-4 py-2 border border-input rounded-lg shadow-sm text-sm font-medium text-foreground bg-background hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary transition"
             >
-              Cancel
+              {tActions('cancel')}
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gogo-primary hover:bg-gogo-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary disabled:bg-gray-400"
+              className="flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gogo-primary hover:bg-gogo-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gogo-secondary disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Changes'}
+              <Save className="h-4 w-4 mr-2 shrink-0" />
+              {saving ? t('saving') : t('saveChanges')}
             </button>
           </div>
         </form>

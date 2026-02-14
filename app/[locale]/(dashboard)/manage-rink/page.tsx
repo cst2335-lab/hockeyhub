@@ -158,12 +158,12 @@ export default function ManageRinkPage() {
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-4">{t('portalTitle')}</h1>
-          <div className="bg-yellow-50 p-4 rounded">
-            <p>{t('notRegistered')}</p>
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-4 rounded-lg">
+            <p className="text-foreground">{t('notRegistered')}</p>
             <div className="mt-3 flex gap-3">
               <Link
                 href={withLocale('/login')}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+                className="bg-muted text-foreground px-4 py-2 rounded-lg hover:bg-muted/80 transition"
               >
                 {tNav('login')}
               </Link>
@@ -184,15 +184,15 @@ export default function ManageRinkPage() {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
-          <Link href={withLocale('/dashboard')} className="text-gray-600 hover:underline">
+          <Link href={withLocale('/dashboard')} className="text-muted-foreground hover:text-foreground hover:underline">
             {t('backLink')}
           </Link>
         </div>
-        <h1 className="text-2xl font-bold mb-4">{t('manageTitle', { name: myRink.name })}</h1>
+        <h1 className="text-2xl font-bold mb-4 text-foreground">{t('manageTitle', { name: myRink.name })}</h1>
 
-        <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-lg shadow">
+        <form onSubmit={handleSubmit} className="bg-card border border-border p-6 rounded-xl shadow-sm">
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">{t('hourlyRate')}</label>
+            <label className="block text-sm font-medium mb-2 text-foreground">{t('hourlyRate')}</label>
             <input
               type="number"
               inputMode="decimal"
@@ -200,7 +200,7 @@ export default function ManageRinkPage() {
               onChange={(e) =>
                 setFormData((s) => ({ ...s, hourly_rate: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               placeholder={t('placeholderRate')}
               min="0"
               step="0.01"
@@ -215,45 +215,45 @@ export default function ManageRinkPage() {
               onChange={(e) =>
                 setFormData((s) => ({ ...s, booking_url: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               placeholder={t('placeholderUrl')}
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">{t('amenities')}</label>
+            <label className="block text-sm font-medium mb-2 text-foreground">{t('amenities')}</label>
             <input
               type="text"
               value={formData.amenities}
               onChange={(e) =>
                 setFormData((s) => ({ ...s, amenities: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               placeholder={t('placeholderAmenities')}
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">{t('peakHours')}</label>
+            <label className="block text-sm font-medium mb-2 text-foreground">{t('peakHours')}</label>
             <input
               type="text"
               value={formData.peak_hours}
               onChange={(e) =>
                 setFormData((s) => ({ ...s, peak_hours: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               placeholder={t('placeholderPeak')}
             />
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">{t('specialNotes')}</label>
+            <label className="block text-sm font-medium mb-2 text-foreground">{t('specialNotes')}</label>
             <textarea
               value={formData.special_notes}
               onChange={(e) =>
                 setFormData((s) => ({ ...s, special_notes: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary focus:border-gogo-secondary"
               rows={3}
               placeholder={t('placeholderNotes')}
             />

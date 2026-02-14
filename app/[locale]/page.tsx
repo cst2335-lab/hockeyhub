@@ -2,6 +2,7 @@
 import HeroSection from '@/components/features/hero-section';
 import GameCard from '@/components/features/game-card-working';
 import { HomePlatformSection } from '@/components/features/home-platform-section';
+import { HomeCTASection } from '@/components/features/home-cta-section';
 import { Container } from '@/components/ui/container';
 import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
@@ -20,6 +21,7 @@ export default async function HomePage() {
     <main>
       <HeroSection />
       <HomePlatformSection />
+      <HomeCTASection />
       <section className="py-20 bg-background">
         <Container>
           <div className="text-center mb-12">

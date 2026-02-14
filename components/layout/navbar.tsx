@@ -7,7 +7,7 @@ import {usePathname} from 'next/navigation';
 import {useTranslations} from 'next-intl';
 import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
-import {LayoutDashboard, Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
+import {LayoutDashboard, Home, Users, MapPin, Bell, LogOut, User as UserIcon, Info, UsersRound} from 'lucide-react';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Logo } from '@/components/ui/logo';
@@ -76,7 +76,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-[#18304B] text-slate-800 dark:text-sky-100 shadow-lg border-b border-slate-200 dark:border-sky-900/50 transition-colors">
+    <header className="sticky top-0 z-40 bg-background text-foreground shadow-lg border-b border-border transition-colors">
       <Container>
       <nav className="flex h-16 items-center justify-between">
         <Link href={withLocale('/')} className="group" aria-label="Go home">
@@ -92,7 +92,7 @@ export default function Navbar() {
                   'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                   isActive('/dashboard')
                     ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                    : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                    : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
                 )}
                 aria-label={t('dashboard')}
               >
@@ -107,7 +107,7 @@ export default function Navbar() {
                 'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/games')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                  : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
               )}
             >
               <Home className="h-4 w-4 shrink-0" /> <span>{t('games')}</span>
@@ -120,7 +120,7 @@ export default function Navbar() {
                 'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/clubs')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                  : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
               )}
             >
               <Users className="h-4 w-4 shrink-0" /> <span>{t('clubs')}</span>
@@ -133,10 +133,36 @@ export default function Navbar() {
                 'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
                 isActive('/rinks')
                   ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
-                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
+                  : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
               )}
             >
               <MapPin className="h-4 w-4 shrink-0" /> <span>{t('rinks')}</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={withLocale('/about')}
+              className={cx(
+                'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
+                isActive('/about')
+                  ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                  : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
+              )}
+            >
+              <Info className="h-4 w-4 shrink-0" /> <span>{t('about')}</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={withLocale('/clubs')}
+              className={cx(
+                'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg transition font-medium whitespace-nowrap',
+                isActive('/clubs')
+                  ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                  : 'text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted'
+              )}
+            >
+              <UsersRound className="h-4 w-4 shrink-0" /> <span>{t('community')}</span>
             </Link>
           </li>
         </ul>
@@ -151,7 +177,7 @@ export default function Navbar() {
             <>
               <Link
                 href={withLocale('/dashboard')}
-                className="md:hidden inline-flex h-9 items-center gap-2 px-3 rounded-lg text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
+                className="md:hidden inline-flex h-9 items-center gap-2 px-3 rounded-lg text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted transition"
                 aria-label={t('dashboard')}
               >
                 <LayoutDashboard className="h-4 w-4" />
@@ -160,7 +186,7 @@ export default function Navbar() {
               <Link
                 href={withLocale('/notifications')}
                 className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg relative
-                           text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
+                           text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted transition"
                 aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
               >
                 <Bell className="h-5 w-5" />
@@ -172,27 +198,26 @@ export default function Navbar() {
               </Link>
 
               <div className="relative group inline-flex items-center gap-2">
-                <span className="hidden sm:inline-block text-sm text-slate-700 dark:text-sky-100 truncate max-w-[140px]" title={user.email ?? undefined}>
+                <span className="hidden sm:inline-block text-sm text-foreground truncate max-w-[140px]" title={user.email ?? undefined}>
                   {user.email}
                 </span>
                 <button
-                  className="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-100
-                             hover:bg-slate-300 dark:hover:bg-slate-200 text-slate-700 dark:text-slate-700"
+                  className="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground"
                   aria-label="Open user menu"
                 >
                   <UserIcon className="h-5 w-5" />
                 </button>
                 <div
-                  className="absolute right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg py-2
+                  className="absolute right-0 mt-2 w-44 bg-card rounded-lg border border-border shadow-lg py-2
                              invisible opacity-0 group-hover:visible group-hover:opacity-100
-                             transition text-slate-800 dark:text-slate-100"
+                             transition text-foreground"
                 >
-                  <Link href={withLocale('/profile')} className="block px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100">
+                  <Link href={withLocale('/profile')} className="block px-3 py-2 text-sm hover:bg-muted text-foreground">
                     {t('profile')}
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-800 dark:text-slate-100"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2 text-foreground"
                   >
                     <LogOut className="h-4 w-4" /> {t('logout')}
                   </button>
@@ -203,8 +228,7 @@ export default function Navbar() {
             <>
               <Link
                 href={withLocale('/login')}
-                className="h-9 inline-flex items-center px-3 rounded-lg text-slate-700 dark:text-sky-100
-                           hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
+                className="h-9 inline-flex items-center px-3 rounded-lg text-foreground hover:text-gogo-dark dark:hover:text-primary-foreground hover:bg-muted transition"
               >
                 {t('login')}
               </Link>
@@ -220,6 +244,38 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+
+      {/* Mobile nav: second row with all links (like dashboard) */}
+      <div className="md:hidden border-t border-border">
+        <div className="px-4 py-3 flex flex-wrap gap-2">
+          {user && (
+            <Link
+              href={withLocale('/dashboard')}
+              className={cx(
+                'inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium',
+                isActive('/dashboard') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted'
+              )}
+            >
+              <LayoutDashboard className="h-4 w-4 shrink-0" /> {t('dashboard')}
+            </Link>
+          )}
+          <Link href={withLocale('/games')} className={cx('inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium', isActive('/games') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted')}>
+            <Home className="h-4 w-4 shrink-0" /> {t('games')}
+          </Link>
+          <Link href={withLocale('/clubs')} className={cx('inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium', isActive('/clubs') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted')}>
+            <Users className="h-4 w-4 shrink-0" /> {t('clubs')}
+          </Link>
+          <Link href={withLocale('/rinks')} className={cx('inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium', isActive('/rinks') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted')}>
+            <MapPin className="h-4 w-4 shrink-0" /> {t('rinks')}
+          </Link>
+          <Link href={withLocale('/about')} className={cx('inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium', isActive('/about') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted')}>
+            <Info className="h-4 w-4 shrink-0" /> {t('about')}
+          </Link>
+          <Link href={withLocale('/clubs')} className={cx('inline-flex items-center gap-2 px-3 py-2 rounded-lg text-[15px] font-medium', isActive('/clubs') ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white' : 'text-foreground hover:bg-muted')}>
+            <UsersRound className="h-4 w-4 shrink-0" /> {t('community')}
+          </Link>
+        </div>
+      </div>
       </Container>
 
       <div className="h-[3px] w-full bg-gradient-to-r from-gogo-primary via-gogo-secondary to-gogo-primary" />
