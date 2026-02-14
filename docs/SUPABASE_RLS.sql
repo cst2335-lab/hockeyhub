@@ -191,3 +191,8 @@ CREATE POLICY "Users can insert own rink update log"
 -- 3. 执行后建议测试：未登录/登录状态下 CRUD 行为
 -- 4. Service Role Key 绕过 RLS，后端写入不受限
 -- 5. 执行后在 Supabase Dashboard 中确认 payments、rink_updates_log 已无 UNRESTRICTED
+
+-- ============================================
+-- 可选：bookings 表增加 Stripe 支付相关列（支付流程使用）
+-- ============================================
+-- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_payment_intent_id text;

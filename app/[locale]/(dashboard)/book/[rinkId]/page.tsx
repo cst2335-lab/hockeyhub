@@ -3,7 +3,7 @@
 
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import {createClient} from '@/lib/supabase/client';
-import {useRouter, useParams} from 'next/navigation';
+import {useRouter, useParams, useSearchParams} from 'next/navigation';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {addHours, format, parse} from 'date-fns';
@@ -16,6 +16,7 @@ export default function BookRinkPage() {
   const { locale, rinkId } = useParams<{ locale: string; rinkId: string }>();
 
   const supabase = useMemo(() => createClient(), []);
+  const searchParams = useSearchParams();
 
   const [rink, setRink] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,12 @@ export default function BookRinkPage() {
   useEffect(() => {
     fetchRink();
   }, [fetchRink]);
+
+  useEffect(() => {
+    if (searchParams.get('cancelled') === '1') {
+      toast.info('Checkout was cancelled. You can try again when ready.');
+    }
+  }, [searchParams]);
 
   // Fetch existing bookings for selected date (exclude cancelled)
   const fetchExistingBookings = useCallback(async () => {
@@ -140,47 +147,32 @@ export default function BookRinkPage() {
         return;
       }
 
-      const hourlyRate: number =
-        typeof rink?.hourly_rate === 'number'
-          ? rink.hourly_rate
-          : Number(rink?.hourly_rate) || 150;
-
-      const subtotal = hourlyRate * hours;
-      const platformFee = +(subtotal * 0.08).toFixed(2);
-      const total = +(subtotal + platformFee).toFixed(2);
-
-      const { error } = await supabase.from('bookings').insert({
-        user_id: user.id,
-        rink_id: rinkId,
-        booking_date: bookingDate, // yyyy-mm-dd
-        start_time: startTime,     // HH:mm
-        end_time: endTime,         // HH:mm (same day)
-        hours,
-        subtotal,
-        platform_fee: platformFee,
-        total,
-        status: 'pending',
-      });
-
-      if (error) throw error;
-
-      // Send confirmation email (fire-and-forget, don't block redirect)
-      fetch('/api/bookings/send-confirmation', {
+      toast.success('Redirecting to payment...');
+      const res = await fetch('/api/bookings/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({
-          rinkName: rink?.name ?? 'Ice Rink',
+          rinkId,
           bookingDate,
           startTime,
-          endTime,
           hours,
-          total,
+          locale: locale || 'en',
         }),
-      }).catch((err) => console.warn('Confirmation email failed:', err));
+      });
 
-      toast.success('Booking created successfully! Redirecting...');
-      router.push(withLocale('/bookings'));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to start checkout. Please try again.');
+        setSubmitting(false);
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      toast.error('Invalid checkout response.');
+      setSubmitting(false);
     } catch (err) {
       console.error('Booking error:', err);
       toast.error('Failed to create booking. Please try again.');

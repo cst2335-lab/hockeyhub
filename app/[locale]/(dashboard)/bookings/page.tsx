@@ -3,14 +3,16 @@
 
 import {useCallback, useEffect} from 'react';
 import Link from 'next/link';
-import {useParams, useRouter} from 'next/navigation';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
 import {formatCurrency, formatDateByLocale} from '@/lib/utils/format';
 import {useBookings} from '@/lib/hooks';
 import {useTranslations} from 'next-intl';
+import {toast} from 'sonner';
 
 export default function BookingsPage() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('bookings');
   const { bookings, isLoading: loading, user } = useBookings();
 
@@ -24,6 +26,14 @@ export default function BookingsPage() {
       router.push(withLocale('/login'));
     }
   }, [loading, user, router, withLocale]);
+
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      toast.success('Payment successful! Your booking is confirmed.');
+      router.replace(withLocale('/bookings'), { scroll: false });
+    }
+  }, [searchParams, router, withLocale]);
 
   if (loading) {
     return (
@@ -59,9 +69,24 @@ export default function BookingsPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <h3 className="text-xl font-semibold truncate">
-                    {b.rinks?.name ?? 'Rink'}
-                  </h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-xl font-semibold truncate">
+                      {b.rinks?.name ?? 'Rink'}
+                    </h3>
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded ${
+                        b.status === 'confirmed'
+                          ? 'bg-green-100 text-green-800'
+                          : b.status === 'pending'
+                            ? 'bg-amber-100 text-amber-800'
+                            : b.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {b.status === 'pending' ? 'Payment pending' : b.status}
+                    </span>
+                  </div>
                   <p className="text-gray-600 mt-1">
                     📅 {formatDateByLocale(b.booking_date, locale)} — {b.start_time} ~ {b.end_time}
                   </p>

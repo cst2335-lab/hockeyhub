@@ -363,4 +363,31 @@
 
 ---
 
+## 十三、阶段二导航与 RLS 补充（2026-02）
+
+**日期**：2026-02  
+**分支**：feat/nav-dashboard-and-cta  
+**参考**：docs/PHASE2_NAV_AND_BUTTON_TASKS.md、docs/DEV_LOG_2026-02-13.md
+
+### 13.1 阶段二：导航与功能按钮
+- 公网 Navbar 已登录时增加 Dashboard 链接（含移动端）；主页通知改为仅铃铛图标 + 未读角标
+- Hero 按登录状态切换 CTA：已登录主 CTA「Go to Dashboard」，次 CTA「Find Games」；未登录保持原双按钮；新增 hero 文案（en/fr）
+- 登录成功跳转由 `/games` 改为 `/dashboard`
+- Footer 已登录时增加 Dashboard 链接
+- clubs/new 全部使用 withLocale，移除重复顶栏，改为「Back to Clubs」；Bookings 空状态增加「Browse rinks to book」→ /rinks
+- Dashboard 顶栏与主页视觉统一：bg-[#18304B]、Logo 组件、相同链接样式、LocaleSwitcher、通知仅铃铛、底部渐变条
+
+### 13.2 RLS 补充（消除 UNRESTRICTED）
+- **payments**：启用 RLS，策略「Users can view own payments」（auth.uid() = user_id）；若表结构不同需调整 docs/SUPABASE_RLS.sql
+- **rink_updates_log**：启用 RLS，已登录可读、仅可插入 updated_by = auth.uid() 的记录；sync 接口用 service role 写入
+
+### 13.3 涉及文件（阶段二）
+- components/layout/navbar.tsx、footer.tsx
+- components/features/hero-section.tsx
+- app/[locale]/(auth)/login/LoginClient.tsx
+- app/[locale]/(dashboard)/layout.tsx、clubs/new/page.tsx、bookings/page.tsx
+- messages/en.json、messages/fr.json（hero、bookings.browseRinksToBook）
+
+---
+
 *文档生成时间：2025-02 | 更新：2026-02*

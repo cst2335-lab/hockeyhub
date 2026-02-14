@@ -65,21 +65,32 @@ export default function BookingDetailPage() {
     fetchBookingDetail();
   }, [fetchBookingDetail]);
 
+  const [cancelling, setCancelling] = useState(false);
+
   const handleCancel = async () => {
     if (!bookingId) return;
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    if (!confirm('Are you sure you want to cancel this booking? Refund: full if 48+ hours before start, otherwise 90% (10% fee).')) return;
 
-    const { error } = await supabase
-      .from('bookings')
-      .update({ status: 'cancelled' })
-      .eq('id', bookingId);
-
-    if (error) {
-      console.error('Cancel failed:', error);
-      return;
+    setCancelling(true);
+    try {
+      const res = await fetch('/api/bookings/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ bookingId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error ?? 'Failed to cancel booking');
+        setCancelling(false);
+        return;
+      }
+      toast.success('Booking cancelled successfully. Refund will be processed if applicable.');
+      router.push(withLocale('/bookings'));
+    } catch {
+      toast.error('Failed to cancel booking');
+      setCancelling(false);
     }
-    toast.success('Booking cancelled successfully');
-    router.push(withLocale('/bookings'));
   };
 
   if (loading) {
@@ -201,9 +212,10 @@ export default function BookingDetailPage() {
           <div className="mt-8 flex gap-4">
             <button
               onClick={handleCancel}
-              className="px-6 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50"
+              disabled={cancelling}
+              className="px-6 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cancel Booking
+              {cancelling ? 'Cancelling...' : 'Cancel Booking'}
             </button>
           </div>
         )}

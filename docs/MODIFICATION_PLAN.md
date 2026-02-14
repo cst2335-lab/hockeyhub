@@ -124,7 +124,7 @@
 ## 六、安全强化
 
 ### 6.1 Supabase RLS
-- 为 games、bookings、notifications、profiles 等表配置 RLS 策略
+- 已为 game_invitations、game_interests、bookings、notifications、profiles、rinks、**payments**、**rink_updates_log** 配置 RLS，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)；新表需同步补充策略
 
 ### 6.2 API 路由验证
 - 所有 POST/PUT/DELETE 检查认证

@@ -68,9 +68,12 @@ components/
 ├── ui/                       # 基础 UI 组件
 └── notifications/            # 通知相关
 lib/
-├── supabase/                 # Supabase 客户端
-└── utils/                    # 工具函数、格式化
-messages/                     # i18n 文案 (en.json, fr.json, zh.json, hi.json)
+├── supabase/                 # Supabase 客户端、服务端、service
+├── utils/                    # 工具函数、格式化、sanitize
+├── hooks/                    # useAuth、useBookings、useNotifications、useDebounce
+├── validations/              # zod 校验（game、booking）
+└── api/                      # API 辅助（如 auth requireAuth）
+messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 ```
 
 ---
@@ -104,8 +107,10 @@ messages/                     # i18n 文案 (en.json, fr.json, zh.json, hi.json)
 4. **冰场时段**：冲突检测、已占时段禁用、提交前二次校验  
 5. **i18n**：Footer、Navbar、Rinks、Book、Dashboard 等使用 next-intl  
 6. **Footer 链接**：Privacy、Terms、Contact 对应真实页面  
-7. **通知徽章**：Navbar 显示未读数量  
+7. **通知徽章**：Navbar 显示未读数量（当前为仅铃铛图标 + 角标）  
 8. **Bug 修复**：Navbar 中 `useCallback` 正确导入  
+9. **阶段二导航与按钮（2026-02）**：公网 Navbar 与 Hero 增加 Dashboard 入口，登录后跳转 Dashboard，Footer 已登录显示 Dashboard，clubs/bookings 按钮链与 locale 修复，Dashboard 顶栏与主页视觉统一（Logo、深色栏、通知仅铃铛），详见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)  
+10. **RLS 补充（2026-02）**：`payments`、`rink_updates_log` 已补充行级安全策略，消除 UNRESTRICTED，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)  
 
 ---
 
@@ -141,7 +146,7 @@ messages/                     # i18n 文案 (en.json, fr.json, zh.json, hi.json)
 
 ### 6.5 安全与合规
 
-- [ ] **RLS 策略**：Supabase 行级安全是否覆盖全部敏感表？  
+- [x] **RLS 策略**：game_invitations、game_interests、bookings、notifications、profiles、rinks、**payments**、**rink_updates_log** 已启用 RLS 并配置策略，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)；执行后需在 Dashboard 确认无 UNRESTRICTED。  
 - [ ] **输入过滤**：XSS、注入等防护是否到位？  
 - [ ] **隐私合规**：Cookie、GDPR 等是否需要专门处理？  
 
@@ -170,8 +175,11 @@ messages/                     # i18n 文案 (en.json, fr.json, zh.json, hi.json)
 ## 八、相关文档
 
 - [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)：完整修改方案（含 UI 视觉优化）  
+- [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)：阶段二导航与按钮任务及完成记录  
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：详细修改记录  
-- [README.md](../README.md)：项目说明与运行方式  
+- [DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)：开发日志（阶段二、视觉统一、文档）  
+- [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)：Supabase RLS 策略（含 payments、rink_updates_log）  
+- [README.md](../README.md)：项目根目录说明与运行方式  
 - [docs/README.md](./README.md)：文档索引  
 
 ---
