@@ -128,7 +128,7 @@ export default function BookRinkPage() {
 
       const parsed = bookingFormSchema.safeParse({ bookingDate, startTime, hours });
       if (!parsed.success) {
-        const msg = parsed.error.errors[0]?.message ?? 'Please fill date, start time and duration.';
+        const msg = parsed.error.errors[0]?.message ?? t('fillRequired');
         toast.error(msg);
         setSubmitting(false);
         return;
@@ -136,13 +136,13 @@ export default function BookRinkPage() {
 
       const { endTime, isOvernight } = calcEndTime(bookingDate, startTime, hours);
       if (isOvernight) {
-        toast.error('Bookings cannot span midnight. Please choose a shorter duration or earlier start time.');
+        toast.error(t('spanMidnight'));
         setSubmitting(false);
         return;
       }
 
       if (hasSlotConflict(startTime, endTime)) {
-        toast.error('This time slot is already booked. Please choose another time.');
+        toast.error(t('slotBooked'));
         setSubmitting(false);
         return;
       }
@@ -163,7 +163,7 @@ export default function BookRinkPage() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error ?? 'Failed to start checkout. Please try again.');
+        toast.error(data.error ?? t('checkoutFailed'));
         setSubmitting(false);
         return;
       }
@@ -171,11 +171,11 @@ export default function BookRinkPage() {
         window.location.href = data.url;
         return;
       }
-      toast.error('Invalid checkout response.');
+      toast.error(t('invalidResponse'));
       setSubmitting(false);
     } catch (err) {
       console.error('Booking error:', err);
-      toast.error('Failed to create booking. Please try again.');
+      toast.error(t('createFailed'));
       setSubmitting(false);
     }
   };

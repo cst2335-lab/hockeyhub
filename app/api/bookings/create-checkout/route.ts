@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { bookingFormSchema } from '@/lib/validations/booking';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
-const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2024-11-20.acacia' }) : null;
+const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
 
 type Body = { rinkId: string; bookingDate: string; startTime: string; hours: number; locale?: string };
 
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
   const subtotal = hourlyRate * hours;
   const platformFee = +(subtotal * 0.08).toFixed(2);
   const total = +(subtotal + platformFee).toFixed(2);
-  const totalCents = Math.round(parseFloat(total) * 100);
+  const totalCents = Math.round(total * 100);
 
   const { data: existing } = await supabase
     .from('bookings')
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       hours,
       subtotal,
       platform_fee: platformFee,
-      total: parseFloat(total),
+      total,
       status: 'pending',
     })
     .select('id')

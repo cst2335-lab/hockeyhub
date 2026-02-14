@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
-const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2024-11-20.acacia' }) : null;
+const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
 
 /** Cancel a confirmed booking. Refund: full if within 48h of booking start, else 90% (10% fee). */
 export async function POST(request: NextRequest) {

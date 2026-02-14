@@ -30,6 +30,10 @@
 
 复制 `.env.example` 为 `.env.local`，填入上述变量后运行 `npm run dev`。Stripe 本地调试见 `STRIPE_BOOKING_SETUP.md`。
 
-## 5. 相关文档
+## 5. Sentry（可选）
 
-- SUPABASE_RLS.sql、STRIPE_BOOKING_SETUP.md、README.md
+设置 `NEXT_PUBLIC_SENTRY_DSN` 后启用错误上报；不设则应用正常运行、不上报。上传 source map 需在 CI 中配置 `SENTRY_ORG`、`SENTRY_PROJECT`、`SENTRY_AUTH_TOKEN`。
+
+## 6. 相关文档
+
+SUPABASE_RLS.sql、STRIPE_BOOKING_SETUP.md、API.md、README.md

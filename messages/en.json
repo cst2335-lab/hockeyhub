@@ -42,7 +42,11 @@
     "close": "Close",
     "back": "Back",
     "next": "Next",
-    "submit": "Submit"
+    "submit": "Submit",
+    "required": "This field is required",
+    "formError": "Please fix the errors below",
+    "invalidEmail": "Please enter a valid email",
+    "tryAgain": "Try again"
   },
   "footer": {
     "poweredBy": "Powered by Vercel"
@@ -94,7 +98,13 @@
     "creating": "Creating Booking...",
     "checkingAvailability": "checking availability...",
     "booked": "booked",
-    "slotsBookedHint": "Some slots are already booked for this date. Booked slots are disabled."
+    "slotsBookedHint": "Some slots are already booked for this date. Booked slots are disabled.",
+    "fillRequired": "Please fill date, start time and duration.",
+    "spanMidnight": "Bookings cannot span midnight. Please choose a shorter duration or earlier start time.",
+    "slotBooked": "This time slot is already booked. Please choose another time.",
+    "checkoutFailed": "Failed to start checkout. Please try again.",
+    "invalidResponse": "Invalid checkout response.",
+    "createFailed": "Failed to create booking. Please try again."
   },
   "dashboard": {
     "title": "Dashboard",

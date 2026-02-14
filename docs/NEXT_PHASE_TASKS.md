@@ -117,7 +117,7 @@
 |--------|----------|------|
 | **`feat/stripe-payment-and-booking-flow`** | §一 1 支付流程、§一 3 预订确认与取消规则 | 核心业务闭环，独立分支便于 review 与回滚。 |
 | **`feat/roles-and-route-guards`** | §二 4 权限与角色 | 与支付/UI 解耦，可与分支 1 并行。 |
-| **`chore/next-phase-ops-and-polish`** | §一 2 测试、§二 5 监控、§二 6 文档、§二 7 PWA、§二 8 i18n 收尾、§三 9–11 UI/无障碍、§四 12–16 架构与性能 | 支撑类工作合并为一个分支，减少 PR 数量。 |
+| **`chore/next-phase-ops-and-polish`** | §一 2 测试、§二 5 监控、§二 6 文档、§二 7 PWA、§二 8 i18n 收尾、§三 9–11 UI/无障碍（已完成）；§四 12–16 架构与性能（留待后续） | 支撑类工作合并为一个分支，减少 PR 数量。详见「七、完成记录」。 |
 
 ### 执行顺序建议
 
@@ -145,7 +145,11 @@ git checkout -b chore/next-phase-ops-and-polish
 - **§二 6 文档**：新增 [DEPLOYMENT.md](./DEPLOYMENT.md)（Vercel + 环境变量 + Supabase）、[API.md](./API.md)（预订/支付/通知/同步接口说明）；docs/README 已更新索引。
 - **§二 7 PWA**：`public/sw.js` 对 `/login`、`/register`、`/dashboard`、`/bookings`、`/manage-rink`、`/notifications` 不再使用缓存，避免登录/状态异常。
 - **§二 8 i18n**：Manage Rink 页文案全部迁入 `messages`（en/fr），使用 `manageRink` 与 `nav` 命名空间。
-- §二 5 监控（Sentry）、§三 9–11 UI/无障碍、§四 12–16 架构与性能留待后续迭代。
+- **§二 5 监控**：集成 `@sentry/nextjs`；设置 `NEXT_PUBLIC_SENTRY_DSN` 后启用上报，未设则不上报；`instrumentation.ts`、`sentry.*.config.ts`、`app/global-error.tsx`；DEPLOYMENT.md 已补充 Sentry 说明。
+- **§三 9 UI 视觉**：`globals.css` 增加 `.link-light`（浅色背景链接）、`.link-dark`（深色/Footer 链接）、`.input-focus` 与 `:focus-visible` 使用 `#64BEF0` 焦点环；`::selection` 已符合 spec。
+- **§三 10 无障碍**：`:focus-visible` 使用明显焦点环（box-shadow 2px #64BEF0），可交互元素键盘聚焦可见。
+- **§三 11 表单与错误**：`common` 增加 `required`、`formError`、`invalidEmail`、`tryAgain`；`book` 增加 `fillRequired`、`spanMidnight`、`slotBooked`、`checkoutFailed`、`invalidResponse`、`createFailed`；预订页 `book/[rinkId]` 错误提示全部使用 i18n。
+- §四 12–16 架构与性能留待后续迭代。
 
 ---
 

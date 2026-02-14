@@ -125,9 +125,19 @@
     @apply bg-blue-100 text-blue-800 border-blue-200;
   }
   
-  /* 输入框焦点效果 */
+  /* 输入框焦点效果 - GoGo spec #64BEF0 */
   .input-focus {
-    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#64BEF0] focus:border-[#64BEF0] transition-all duration-200;
+  }
+
+  /* 链接：浅色背景 - spec text-slate-600 hover text-[#0E4877] */
+  .link-light {
+    @apply text-slate-600 hover:text-[#0E4877] transition-colors duration-150;
+  }
+
+  /* 链接：深色/Footer 白字 hover #64BEF0 */
+  .link-dark {
+    @apply text-white hover:text-[#64BEF0] transition-colors duration-150;
   }
   
   /* 网格背景 */
@@ -293,9 +303,10 @@ html {
   }
 }
 
-/* 焦点可见性 */
+/* 焦点可见性 - GoGo spec ring-2 ring-[#64BEF0]，便于无障碍 */
 :focus-visible {
-  @apply outline-none ring-2 ring-primary ring-offset-2;
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #64BEF0;
 }
 
 /* 选中文本样式 - GoGo spec */

@@ -42,7 +42,11 @@
     "close": "Fermer",
     "back": "Retour",
     "next": "Suivant",
-    "submit": "Soumettre"
+    "submit": "Soumettre",
+    "required": "Ce champ est requis",
+    "formError": "Veuillez corriger les erreurs ci-dessous",
+    "invalidEmail": "Veuillez entrer un courriel valide",
+    "tryAgain": "Réessayer"
   },
   "footer": {
     "poweredBy": "Propulsé par Vercel"
@@ -94,7 +98,13 @@
     "creating": "Création en cours...",
     "checkingAvailability": "vérification des disponibilités...",
     "booked": "réservé",
-    "slotsBookedHint": "Certains créneaux sont déjà réservés pour cette date. Les créneaux réservés sont désactivés."
+    "slotsBookedHint": "Certains créneaux sont déjà réservés pour cette date. Les créneaux réservés sont désactivés.",
+    "fillRequired": "Veuillez remplir la date, l'heure de début et la durée.",
+    "spanMidnight": "Une réservation ne peut pas franchir minuit. Choisissez une durée plus courte ou une heure plus tôt.",
+    "slotBooked": "Ce créneau est déjà réservé. Choisissez un autre créneau.",
+    "checkoutFailed": "Échec du passage à la caisse. Veuillez réessayer.",
+    "invalidResponse": "Réponse de paiement invalide.",
+    "createFailed": "Échec de la création de la réservation. Veuillez réessayer."
   },
   "dashboard": {
     "title": "Tableau de bord",
