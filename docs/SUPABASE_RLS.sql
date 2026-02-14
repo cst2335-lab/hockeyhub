@@ -196,3 +196,9 @@ CREATE POLICY "Users can insert own rink update log"
 -- 可选：bookings 表增加 Stripe 支付相关列（支付流程使用）
 -- ============================================
 -- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_payment_intent_id text;
+
+-- ============================================
+-- 可选：profiles 表增加 role（权限与路由保护使用）
+-- ============================================
+-- 合法取值：player, parent, club_admin, rink_manager, super_admin
+-- ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';

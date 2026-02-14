@@ -72,19 +72,28 @@ export default function DashboardLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Route guard: /manage-rink only for rink_manager
+  useEffect(() => {
+    if (userEmail == null) return;
+    const isManageRink = pathname?.includes('/manage-rink');
+    if (isManageRink && !isRinkManager) {
+      router.replace(withLocale('/dashboard'));
+    }
+  }, [userEmail, pathname, isRinkManager, router, withLocale]);
+
   async function checkUser() {
     const {
       data: {user}
     } = await supabase.auth.getUser();
     if (user) {
       setUserEmail(user.email || null);
-      const {data: manager} = await supabase
-        .from('rink_managers')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('verified', true)
-        .maybeSingle();
-      setIsRinkManager(!!manager);
+      const [profileRes, { data: manager }] = await Promise.all([
+        supabase.from('profiles').select('role').eq('id', user.id).maybeSingle(),
+        supabase.from('rink_managers').select('id').eq('user_id', user.id).eq('verified', true).maybeSingle(),
+      ]);
+      const profile = profileRes.error ? null : profileRes.data;
+      const hasRinkManagerRole = (profile as { role?: string } | null)?.role === 'rink_manager' || !!manager;
+      setIsRinkManager(!!hasRinkManagerRole);
     } else {
       setIsRinkManager(false);
       router.push(withLocale('/login'));

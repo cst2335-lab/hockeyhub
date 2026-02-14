@@ -42,8 +42,9 @@ export default function ManageRinkPage() {
     special_notes: '',
   });
 
-  // 初始化：要求登录；加载当前用户的 rink（仅 verified 管理员）
+  // 初始化：要求登录；加载当前用户的 rink（仅 verified 管理员）；非管理员重定向到 dashboard
   useEffect(() => {
+    let redirecting = false;
     (async () => {
       try {
         const {
@@ -78,9 +79,12 @@ export default function ManageRinkPage() {
           });
         } else {
           setMyRink(null);
+          redirecting = true;
+          router.replace(withLocale('/dashboard'));
+          return;
         }
       } finally {
-        setLoadingPage(false);
+        if (!redirecting) setLoadingPage(false);
       }
     })();
   }, [router, supabase, withLocale]);
