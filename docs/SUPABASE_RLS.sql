@@ -149,9 +149,45 @@ CREATE POLICY "Anyone can view rinks"
 -- CREATE POLICY "Rink managers can update rinks" ...
 
 -- ============================================
+-- 8. payments（支付记录，需解决 UNRESTRICTED）
+-- ============================================
+-- 若表不存在可跳过；若字段名不同请按实际 schema 调整（如 user_id / booking_id）
+ALTER TABLE IF EXISTS payments ENABLE ROW LEVEL SECURITY;
+
+-- 用户仅能查看自己的支付记录（假设有 user_id 列）
+CREATE POLICY "Users can view own payments"
+  ON payments FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+-- 插入通常由后端/Stripe Webhook 用 service role 完成；若前端也创建记录，可加：
+-- CREATE POLICY "Users can insert own payments"
+--   ON payments FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
+-- ============================================
+-- 9. rink_updates_log（冰场更新日志，需解决 UNRESTRICTED）
+-- ============================================
+ALTER TABLE IF EXISTS rink_updates_log ENABLE ROW LEVEL SECURITY;
+
+-- 已登录用户可读日志（便于管理页展示）；sync 接口用 service role 写入，不受限
+CREATE POLICY "Authenticated can view rink updates log"
+  ON rink_updates_log FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- 仅能插入自己为 updated_by 的记录（管理页提交）；服务端 full_sync 用 service role
+CREATE POLICY "Users can insert own rink update log"
+  ON rink_updates_log FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = updated_by);
+
+-- 日志表一般不更新/删除，如需可再加策略
+
+-- ============================================
 -- 注意
 -- ============================================
--- 1. 若表名或字段不同，请根据实际 schema 调整
+-- 1. 若表名或字段不同，请根据实际 schema 调整（如 payments 无 user_id 则改对应列名）
 -- 2. game_invitations 的 created_by 需存在
 -- 3. 执行后建议测试：未登录/登录状态下 CRUD 行为
 -- 4. Service Role Key 绕过 RLS，后端写入不受限
+-- 5. 执行后在 Supabase Dashboard 中确认 payments、rink_updates_log 已无 UNRESTRICTED
