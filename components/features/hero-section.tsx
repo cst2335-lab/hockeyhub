@@ -6,6 +6,7 @@ import { TypeAnimation } from 'react-type-animation';
 import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
+import { Container } from '@/components/ui/container';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -48,13 +49,14 @@ export default function HeroSection() {
         />
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
+      {/* Main content - Salient-style inner container spacing */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <Container>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center max-w-5xl mx-auto"
+          className="text-center max-w-5xl mx-auto pt-20 pb-16 lg:pt-32"
         >
           {/* GG Logo - bright blue */}
           <motion.div
@@ -184,13 +186,7 @@ export default function HeroSection() {
             </div>
           </motion.div>
         </motion.div>
-      </div>
-
-      {/* Bottom wave transition */}
-      <div className="absolute bottom-0 w-full">
-        <svg viewBox="0 0 1440 120" className="w-full h-20 fill-white">
-          <path d="M0,64 C480,140 960,0 1440,64 L1440,120 L0,120 Z"></path>
-        </svg>
+        </Container>
       </div>
     </section>
   );

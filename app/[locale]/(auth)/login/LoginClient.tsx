@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { SlimLayout } from '@/components/layout/slim-layout';
+import { Logo } from '@/components/ui/logo';
 
 export default function LoginClient() {
   const params = useParams<{ locale?: string }>();
@@ -36,14 +38,18 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">Welcome back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
-        </div>
+    <SlimLayout>
+      <div className="flex">
+        <Link href={`/${locale}`} aria-label="Home">
+          <Logo size="md" showText={true} light={false} className="h-10 w-auto" />
+        </Link>
+      </div>
+      <h2 className="mt-20 text-lg font-semibold text-gray-900">Welcome back</h2>
+      <p className="mt-2 text-sm text-gray-700">
+        Sign in to your account
+      </p>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+      <form className="mt-10 grid grid-cols-1 gap-y-8" onSubmit={handleLogin}>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -86,14 +92,13 @@ export default function LoginClient() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
-          <div className="text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <Link href={`/${locale}/register`} className="text-gogo-primary hover:text-gogo-dark">
-              Sign up
-            </Link>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="text-sm text-gray-700">
+          Don&apos;t have an account?{' '}
+          <Link href={`/${locale}/register`} className="font-medium text-gogo-primary hover:text-gogo-dark">
+            Sign up
+          </Link>
+        </div>
+      </form>
+    </SlimLayout>
   );
 }

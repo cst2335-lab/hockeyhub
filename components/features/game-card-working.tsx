@@ -47,7 +47,7 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg hover:shadow-xl hover:border-gogo-secondary hover:border transition-all duration-300 overflow-hidden h-full border border-slate-200">
+    <div className="bg-surface rounded-lg shadow-lg hover:shadow-xl hover:border-gogo-secondary hover:border transition-all duration-300 overflow-hidden h-full border border-slate-200">
       {/* Top colored bar */}
       <div className="h-2 bg-gradient-to-r from-gogo-primary to-gogo-secondary"></div>
       

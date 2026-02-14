@@ -128,7 +128,7 @@ export default function BookingDetailPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="bg-surface rounded-lg shadow-lg p-8">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{booking.rinks?.name}</h1>

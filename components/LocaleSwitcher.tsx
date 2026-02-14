@@ -41,11 +41,11 @@ export default function LocaleSwitcher() {
 
   return (
     <div
-      className="inline-flex items-center rounded-full border border-slate-300 bg-white px-1 py-1"
+      className="inline-flex items-center rounded-full border border-slate-300 dark:border-sky-800 bg-white dark:bg-slate-800/80 px-1 py-1"
       role="group"
       aria-label="Locale switcher"
     >
-      <Globe className="h-4 w-4 mx-2 text-slate-600" aria-hidden />
+      <Globe className="h-4 w-4 mx-2 text-slate-600 dark:text-sky-300" aria-hidden />
       {SUPPORTED_LIST.map(code => {
         const active = code === currentLocale;
         return (
@@ -56,7 +56,7 @@ export default function LocaleSwitcher() {
               'h-8 min-w-10 px-3 rounded-full text-sm font-medium transition',
               active
                 ? 'bg-gogo-primary text-white shadow'
-                : 'text-slate-800 hover:bg-slate-100'
+                : 'text-slate-800 dark:text-sky-100 hover:bg-slate-100 dark:hover:bg-white/10'
             ].join(' ')}
             aria-pressed={active}
             aria-current={active ? 'true' : undefined}

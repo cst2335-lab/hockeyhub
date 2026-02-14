@@ -390,4 +390,28 @@
 
 ---
 
+## 十四、导航与视觉优化（2026-02）
+
+**日期**：2026-02  
+**分支**：chore/next-phase-ops-and-polish
+
+### 14.1 导航栏优化
+- **移除 Post Game 按钮**：公网 Navbar 中去掉「Post Game」入口，简化导航。
+- **白天/黑夜视觉模式**：全站支持 light/dark 模式切换；集成 `next-themes`；新增 `ThemeProvider`、`ThemeToggle` 组件；Navbar 增加主题切换按钮。
+- **Navbar 适配主题**：白天模式白底深色文字，黑夜模式深蓝底浅色文字；链接、按钮、用户菜单、LocaleSwitcher 均适配双主题。
+
+### 14.2 Hero 区域
+- **移除波浪形白色过渡**：Hero 底部波浪形 SVG 白色过渡已删除，视觉更简洁。
+
+### 14.3 涉及文件
+- `components/layout/navbar.tsx` — 移除 Post Game、添加 ThemeToggle、双主题样式
+- `components/features/hero-section.tsx` — 移除底部波浪
+- `app/providers/theme-provider.tsx` — 新建
+- `components/ui/theme-toggle.tsx` — 新建
+- `components/ui/logo.tsx` — Logo 文字支持 dark 模式
+- `components/LocaleSwitcher.tsx` — 双主题样式
+- `app/[locale]/layout.tsx` — 包裹 ThemeProvider
+
+---
+
 *文档生成时间：2025-02 | 更新：2026-02*

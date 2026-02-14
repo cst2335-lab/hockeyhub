@@ -50,7 +50,7 @@ export default function BookingsPage() {
       </div>
 
       {bookings.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
+        <div className="bg-surface rounded-lg shadow p-8 text-center">
           <p className="text-gray-500 mb-4">{t('noBookings')}</p>
           <Link
             href={withLocale('/rinks')}
@@ -65,7 +65,7 @@ export default function BookingsPage() {
             <Link
               key={b.id}
               href={withLocale(`/bookings/${b.id}`)}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
+              className="bg-surface rounded-lg shadow p-6 hover:shadow-md transition"
             >
               <div className="flex items-start justify-between">
                 <div className="min-w-0">

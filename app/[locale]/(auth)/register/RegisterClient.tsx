@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { SlimLayout } from '@/components/layout/slim-layout';
+import { Logo } from '@/components/ui/logo';
 
 export default function RegisterClient() {
   const router = useRouter();
@@ -80,16 +82,18 @@ export default function RegisterClient() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your GoGoHockey account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Step {step} of 2: {step === 1 ? 'Basic Information' : 'Hockey Profile'}
-          </p>
-        </div>
+    <SlimLayout>
+      <div className="flex">
+        <Link href={`/${locale}`} aria-label="Home">
+          <Logo size="md" showText={true} light={false} className="h-10 w-auto" />
+        </Link>
+      </div>
+      <h2 className="mt-20 text-lg font-semibold text-gray-900">
+        Create your GoGoHockey account
+      </h2>
+      <p className="mt-2 text-sm text-gray-700">
+        Step {step} of 2: {step === 1 ? 'Basic Information' : 'Hockey Profile'}
+      </p>
 
         {step === 1 ? (
           <form className="mt-8 space-y-6" onSubmit={handleStep1Submit}>
@@ -300,15 +304,12 @@ export default function RegisterClient() {
           </form>
         )}
 
-        <div className="text-center">
-          <span className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href={`/${locale}/login`} className="font-medium text-gogo-primary hover:text-gogo-dark">
-              Sign in
-            </Link>
-          </span>
-        </div>
+      <div className="mt-10 text-sm text-gray-700">
+        Already have an account?{' '}
+        <Link href={`/${locale}/login`} className="font-medium text-gogo-primary hover:text-gogo-dark">
+          Sign in
+        </Link>
       </div>
-    </div>
+    </SlimLayout>
   );
 }

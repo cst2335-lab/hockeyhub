@@ -3,7 +3,7 @@
 综合功能完善、用户体验、技术架构、国际化、安全、性能及 **UI 视觉更新优化** 的完整修改方案。
 
 **参考**：[UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md)  
-**阶段二（2026-02）**：导航与功能按钮逻辑、Dashboard 与主页导航视觉统一已完成，见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)。
+**阶段二（2026-02）**：导航与功能按钮逻辑、Dashboard 与主页导航视觉统一已完成；**chore/next-phase-ops-and-polish**：移除 Post Game、全站白天/黑夜模式、移除 Hero 底部波浪、Navbar 双主题适配已完成，见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)。
 
 ---
 
@@ -21,9 +21,9 @@
 
 ### 1.2 视觉一致性
 
-- [ ] **链接**：浅色背景用 `text-slate-600` hover `text-[#0E4877]`；深色/Footer 用白字 hover `#64BEF0`
+- [x] **链接**：浅色背景用 `text-slate-600` hover `text-[#0E4877]`（.link-light）；深色/Footer 用白字 hover `#64BEF0`（.link-dark）
 - [ ] **Section 标题**：统一使用 `#64BEF0` 或 primary
-- [ ] **选择/焦点**：selection `bg-[#64BEF0]/30`，focus ring `ring-2 ring-[#64BEF0]`
+- [x] **选择/焦点**：selection `bg-[#64BEF0]/30`，focus ring `ring-2 ring-[#64BEF0]`（globals.css）
 
 ### 1.3 页面级视觉优化
 

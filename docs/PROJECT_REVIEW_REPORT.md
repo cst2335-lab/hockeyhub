@@ -111,6 +111,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 8. **Bug 修复**：Navbar 中 `useCallback` 正确导入  
 9. **阶段二导航与按钮（2026-02）**：公网 Navbar 与 Hero 增加 Dashboard 入口，登录后跳转 Dashboard，Footer 已登录显示 Dashboard，clubs/bookings 按钮链与 locale 修复，Dashboard 顶栏与主页视觉统一（Logo、深色栏、通知仅铃铛），详见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)  
 10. **RLS 补充（2026-02）**：`payments`、`rink_updates_log` 已补充行级安全策略，消除 UNRESTRICTED，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)  
+11. **导航与视觉优化（2026-02）**：移除 Post Game 按钮；全站白天/黑夜视觉模式（next-themes）；Navbar 双主题适配；移除 Hero 底部波浪形白色过渡，详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §十四。
 
 ---
 
@@ -174,11 +175,12 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 ## 八、相关文档
 
+- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（已完成 / 进行中 / 下阶段）  
 - [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)：完整修改方案（含 UI 视觉优化）  
 - [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)：阶段二导航与按钮任务及完成记录  
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：详细修改记录  
-- [DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)：开发日志（阶段二、视觉统一、文档）  
 - [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)：Supabase RLS 策略（含 payments、rink_updates_log）  
+- [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md)：部署与 API 说明  
 - [README.md](../README.md)：项目根目录说明与运行方式  
 - [docs/README.md](./README.md)：文档索引  
 

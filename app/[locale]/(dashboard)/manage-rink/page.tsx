@@ -147,7 +147,7 @@ export default function ManageRinkPage() {
 
   if (loadingPage) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
       </div>
     );
@@ -155,7 +155,7 @@ export default function ManageRinkPage() {
 
   if (!myRink) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-background p-8">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-4">{t('portalTitle')}</h1>
           <div className="bg-yellow-50 p-4 rounded">
@@ -181,7 +181,7 @@ export default function ManageRinkPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
           <Link href={withLocale('/dashboard')} className="text-gray-600 hover:underline">
@@ -190,7 +190,7 @@ export default function ManageRinkPage() {
         </div>
         <h1 className="text-2xl font-bold mb-4">{t('manageTitle', { name: myRink.name })}</h1>
 
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
+        <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-lg shadow">
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">{t('hourlyRate')}</label>
             <input

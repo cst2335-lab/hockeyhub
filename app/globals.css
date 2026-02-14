@@ -7,12 +7,15 @@
     --gogo-dark: 214 52% 19%;
     --gogo-primary: 207 79% 26%;
     --gogo-secondary: 201 82% 67%;
-    --background: 0 0% 100%;
+    /* 柔和背景，减轻白底刺眼：偏浅灰蓝 */
+    --background: 214 32% 96%;
     --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
+    --card: 0 0% 98%;
     --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
+    --popover: 0 0% 98%;
     --popover-foreground: 222.2 84% 4.9%;
+    /* 卡片/区块软白 */
+    --surface: 0 0% 98%;
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
@@ -60,6 +63,10 @@
     @apply bg-background text-foreground;
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
+  }
+  /* 与 Salient 模板一致：标题用 Lexend */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-lexend), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   }
 }
 

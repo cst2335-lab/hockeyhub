@@ -215,7 +215,7 @@ export default function GamesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
@@ -237,7 +237,7 @@ export default function GamesPage() {
         </div>
 
         {/* Search + Filters */}
-        <div className="mb-6 bg-white rounded-lg shadow p-4">
+        <div className="mb-6 bg-surface rounded-lg shadow p-4">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -376,7 +376,7 @@ export default function GamesPage() {
               return (
                 <div
                   key={game.id}
-                  className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow relative ${
+                  className={`bg-surface rounded-lg shadow-md hover:shadow-lg transition-shadow relative ${
                     game.isExpired ? 'opacity-75' : ''
                   }`}
                 >
@@ -471,7 +471,7 @@ export default function GamesPage() {
           )}
           </>
         ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
+          <div className="text-center py-12 bg-surface rounded-lg shadow">
             <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No games found</h3>
             <p className="text-gray-500 mb-6">

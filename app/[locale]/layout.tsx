@@ -1,15 +1,29 @@
 // app/[locale]/layout.tsx
 import '../globals.css';
-import {NextIntlClientProvider} from 'next-intl';
-import {notFound} from 'next/navigation';
-import type {ReactNode} from 'react';
-import {Toaster} from 'sonner';
-import {locales} from '../../i18n';
-import {QueryProvider} from '@/app/providers/query-provider';
+import { Inter, Lexend } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
+import { Toaster } from 'sonner';
+import { locales } from '../../i18n';
+import { QueryProvider } from '@/app/providers/query-provider';
+import { ThemeProvider } from '@/app/providers/theme-provider';
 import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/conditional-nav';
 
 import type { Viewport } from 'next';
 import type { Metadata } from 'next';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const lexend = Lexend({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-lexend',
+});
 
 const titles: Record<string, string> = {
   en: 'GoGoHockey – Find Games & Book Ice in Ottawa',
@@ -63,20 +77,37 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // 加载多语言消息
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  // 加载多语言消息（失败时回退到 en，避免 JSON 解析报错如 "Unexpected end of JSON input"）
+  let messages: Record<string, unknown>;
+  try {
+    const mod = await import(`../../messages/${locale}.json`);
+    messages = mod?.default;
+    if (!messages || typeof messages !== 'object') throw new Error('Invalid messages');
+  } catch {
+    try {
+      messages = (await import('../../messages/en.json')).default;
+    } catch {
+      messages = { nav: { home: 'Home', login: 'Sign In', register: 'Get Started' } };
+    }
+  }
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <QueryProvider>
-          <NextIntlClientProvider locale={locale} messages={messages}>
-            <ConditionalNavbar />
-            {children}
-            <ConditionalFooter />
-            <Toaster position="top-center" richColors closeButton />
-          </NextIntlClientProvider>
-        </QueryProvider>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      className={`${inter.variable} ${lexend.variable}`}
+    >
+      <body className="min-h-full font-sans antialiased" suppressHydrationWarning>
+        <ThemeProvider>
+          <QueryProvider>
+            <NextIntlClientProvider locale={locale} messages={messages}>
+              <ConditionalNavbar />
+              {children}
+              <ConditionalFooter />
+              <Toaster position="top-center" richColors closeButton />
+            </NextIntlClientProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

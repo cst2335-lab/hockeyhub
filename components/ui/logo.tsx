@@ -52,7 +52,7 @@ export function Logo({ size = 'md', showText = true, light = false, className }:
             'font-extrabold tracking-tight',
             light
               ? 'text-white drop-shadow-md'
-              : 'bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-sky-600',
+              : 'bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-sky-600 dark:from-sky-100 dark:to-sky-300',
             size === 'sm' && 'text-lg',
             size === 'md' && 'text-2xl',
             size === 'lg' && 'text-5xl sm:text-6xl md:text-7xl'

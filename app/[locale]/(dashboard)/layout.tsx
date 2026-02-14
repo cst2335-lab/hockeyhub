@@ -141,7 +141,7 @@ export default function DashboardLayout({
     exact ? pathname === href : pathname === href || (pathname?.startsWith(href) ?? false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Top Navigation - same visual as main Navbar (homepage) */}
       <header className="sticky top-0 z-40 bg-[#18304B] text-sky-100 shadow-lg border-b border-sky-900/50">
         <nav className="container mx-auto h-16 px-4 flex items-center justify-between">

@@ -212,14 +212,14 @@ export default function BookRinkPage() {
     <div className="container mx-auto p-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">{t('title', { name: rink.name })}</h1>
 
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-surface rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">{t('rinkDetails')}</h2>
         <p className="text-gray-600">{rink.address}</p>
         {rink.phone && <p className="text-gray-600">{rink.phone}</p>}
         <p className="text-lg font-medium mt-2">${hourlyRate}/hour</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
+      <form onSubmit={handleSubmit} className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">{t('bookingInfo')}</h2>
 
         <div className="space-y-4">

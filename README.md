@@ -37,6 +37,7 @@ bun dev
 | 文档 | 说明 |
 |------|------|
 | [docs/README.md](./docs/README.md) | 文档索引 |
+| [docs/NEXT_PHASE_TASKS.md](./docs/NEXT_PHASE_TASKS.md) | 任务与阶段规划（已完成 / 进行中 / 下阶段） |
 | [docs/PROJECT_REVIEW_REPORT.md](./docs/PROJECT_REVIEW_REPORT.md) | 项目综述报告（供审查与建议） |
 | [docs/CHANGELOG_IMPROVEMENTS.md](./docs/CHANGELOG_IMPROVEMENTS.md) | 优化修改日志 |
 | [docs/UI_VISUAL_SPEC_FOR_REUSE.md](./docs/UI_VISUAL_SPEC_FOR_REUSE.md) | UI 视觉规范 |

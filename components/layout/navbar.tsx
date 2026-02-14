@@ -9,7 +9,9 @@ import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
 import {LayoutDashboard, Home, Users, MapPin, Bell, LogOut, User as UserIcon} from 'lucide-react';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Logo } from '@/components/ui/logo';
+import { Container } from '@/components/ui/container';
 
 function cx(...cls: (string | false | null | undefined)[]) {
   return cls.filter(Boolean).join(' ');
@@ -19,7 +21,6 @@ const SUPPORTED = new Set(['en', 'fr']);
 
 export default function Navbar() {
   const t = useTranslations('nav');
-  const tActions = useTranslations('actions');
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -75,8 +76,9 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#18304B] text-sky-100 shadow-lg border-b border-sky-900/50">
-      <nav className="container mx-auto h-16 px-4 flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-white dark:bg-[#18304B] text-slate-800 dark:text-sky-100 shadow-lg border-b border-slate-200 dark:border-sky-900/50 transition-colors">
+      <Container>
+      <nav className="flex h-16 items-center justify-between">
         <Link href={withLocale('/')} className="group" aria-label="Go home">
           <Logo size="md" showText={true} light={false} className="group-hover:opacity-90 transition-opacity" />
         </Link>
@@ -89,8 +91,8 @@ export default function Navbar() {
                 className={cx(
                   'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
                   isActive('/dashboard')
-                    ? 'bg-white/20 text-white ring-1 ring-white/30'
-                    : 'text-sky-100 hover:text-white hover:bg-white/10'
+                    ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                    : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                 )}
                 aria-label={t('dashboard')}
               >
@@ -104,8 +106,8 @@ export default function Navbar() {
               className={cx(
                 'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
                 isActive('/games')
-                  ? 'bg-white/20 text-white ring-1 ring-white/30'
-                  : 'text-sky-100 hover:text-white hover:bg-white/10'
+                  ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
               <Home className="h-4 w-4" /> {t('games')}
@@ -117,8 +119,8 @@ export default function Navbar() {
               className={cx(
                 'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
                 isActive('/clubs')
-                  ? 'bg-white/20 text-white ring-1 ring-white/30'
-                  : 'text-sky-100 hover:text-white hover:bg-white/10'
+                  ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
               <Users className="h-4 w-4" /> {t('clubs')}
@@ -130,8 +132,8 @@ export default function Navbar() {
               className={cx(
                 'inline-flex items-center gap-2 px-3 py-2 rounded-lg transition',
                 isActive('/rinks')
-                  ? 'bg-white/20 text-white ring-1 ring-white/30'
-                  : 'text-sky-100 hover:text-white hover:bg-white/10'
+                  ? 'bg-gogo-primary/20 dark:bg-white/20 text-gogo-dark dark:text-white ring-1 ring-gogo-primary/40 dark:ring-white/30'
+                  : 'text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
               )}
             >
               <MapPin className="h-4 w-4" /> {t('rinks')}
@@ -140,7 +142,7 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          {/* ✅ 用 Suspense 包裹 LocaleSwitcher */}
+          <ThemeToggle />
           <Suspense fallback={<div className="w-20 h-8" />}>
             <LocaleSwitcher />
           </Suspense>
@@ -149,7 +151,7 @@ export default function Navbar() {
             <>
               <Link
                 href={withLocale('/dashboard')}
-                className="md:hidden inline-flex h-9 items-center gap-2 px-3 rounded-lg text-sky-100 hover:text-white hover:bg-white/10 transition"
+                className="md:hidden inline-flex h-9 items-center gap-2 px-3 rounded-lg text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
                 aria-label={t('dashboard')}
               >
                 <LayoutDashboard className="h-4 w-4" />
@@ -158,7 +160,7 @@ export default function Navbar() {
               <Link
                 href={withLocale('/notifications')}
                 className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg relative
-                           text-sky-100 hover:text-white hover:bg-white/10 transition"
+                           text-slate-700 dark:text-sky-100 hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
                 aria-label={unreadCount > 0 ? `${t('notifications')} (${unreadCount} unread)` : t('notifications')}
               >
                 <Bell className="h-5 w-5" />
@@ -169,37 +171,28 @@ export default function Navbar() {
                 )}
               </Link>
 
-              <Link
-                href={withLocale('/games/new')}
-                className="hidden sm:inline-flex h-9 items-center px-4 rounded-lg text-white font-medium
-                           bg-gradient-to-r from-gogo-primary to-gogo-secondary hover:to-gogo-secondary/90
-                           shadow hover:shadow-md transition drop-shadow-sm"
-              >
-                {tActions('join')}
-              </Link>
-
               <div className="relative group inline-flex items-center gap-2">
-                <span className="hidden sm:inline-block text-sm text-sky-100 truncate max-w-[140px]" title={user.email ?? undefined}>
+                <span className="hidden sm:inline-block text-sm text-slate-700 dark:text-sky-100 truncate max-w-[140px]" title={user.email ?? undefined}>
                   {user.email}
                 </span>
                 <button
-                  className="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-full bg-slate-100
-                             hover:bg-slate-200 text-slate-700"
+                  className="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-100
+                             hover:bg-slate-300 dark:hover:bg-slate-200 text-slate-700 dark:text-slate-700"
                   aria-label="Open user menu"
                 >
                   <UserIcon className="h-5 w-5" />
                 </button>
                 <div
-                  className="absolute right-0 mt-2 w-44 bg-white rounded-lg border shadow-lg py-2
+                  className="absolute right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg py-2
                              invisible opacity-0 group-hover:visible group-hover:opacity-100
-                             transition text-slate-800"
+                             transition text-slate-800 dark:text-slate-100"
                 >
-                  <Link href={withLocale('/profile')} className="block px-3 py-2 text-sm hover:bg-slate-50 text-slate-800">
+                  <Link href={withLocale('/profile')} className="block px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100">
                     {t('profile')}
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 text-slate-800"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 text-slate-800 dark:text-slate-100"
                   >
                     <LogOut className="h-4 w-4" /> {t('logout')}
                   </button>
@@ -210,8 +203,8 @@ export default function Navbar() {
             <>
               <Link
                 href={withLocale('/login')}
-                className="h-9 inline-flex items-center px-3 rounded-lg text-sky-100
-                           hover:text-white hover:bg-white/10 transition"
+                className="h-9 inline-flex items-center px-3 rounded-lg text-slate-700 dark:text-sky-100
+                           hover:text-gogo-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
               >
                 {t('login')}
               </Link>
@@ -227,6 +220,7 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+      </Container>
 
       <div className="h-[3px] w-full bg-gradient-to-r from-gogo-primary via-gogo-secondary to-gogo-primary" />
     </header>

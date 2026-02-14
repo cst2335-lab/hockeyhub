@@ -1,6 +1,7 @@
 // app/[locale]/page.tsx
 import HeroSection from '@/components/features/hero-section';
 import GameCard from '@/components/features/game-card-working';
+import { Container } from '@/components/ui/container';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function HomePage() {
@@ -15,8 +16,8 @@ export default async function HomePage() {
   return (
     <main>
       <HeroSection />
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-background">
+        <Container>
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Recent Games</h2>
             <p className="text-xl text-gray-600">Join a game happening soon</p>
@@ -33,7 +34,7 @@ export default async function HomePage() {
               <p className="text-sm text-gray-400 mt-2">Check back later or create your own game!</p>
             </div>
           )}
-        </div>
+        </Container>
       </section>
     </main>
   );

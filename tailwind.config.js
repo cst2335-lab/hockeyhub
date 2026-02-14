@@ -18,7 +18,12 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-lexend)', 'var(--font-inter)', 'sans-serif'],
+      },
       colors: {
+        surface: 'hsl(var(--surface, 0 0% 98%))',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
