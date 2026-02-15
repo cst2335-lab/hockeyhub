@@ -1,8 +1,8 @@
 # GoGoHockey 项目综述报告
 
 **用途**：供其他 AI 及人员进行全局审查，对网站优化提升、尤其是功能完善提出意见建议。  
-**版本**：2.0.0  
-**更新日期**：2026-02
+**版本**：2.1.0  
+**更新日期**：2026-02-13
 
 ---
 
@@ -84,16 +84,17 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 |------|------|----------|
 | 首页 | `/` | Hero、最近比赛展示 |
 | 登录/注册 | `/login`, `/register` |  Supabase Auth |
-| Dashboard | `/dashboard` | 统计：开放比赛数、预订数、冰场数 |
+| Dashboard | `/dashboard` | 统计、我发布的/感兴趣的比赛、我的预订列表、赛季统计；支付成功跳转并在此展示 toast |
 | 比赛 | `/games` | 列表、筛选、发布、详情、编辑、感兴趣、评分 |
-| 我的比赛 | `/my-games` | 我发布的、我感兴趣的 |
 | 冰场 | `/rinks` | 列表、搜索、筛选、预订入口 |
-| 冰场预订 | `/book/[rinkId]` | 选择日期时段、冲突校验、提交预订 |
-| 我的预订 | `/bookings` | 预订列表、详情、取消 |
+| 冰场预订 | `/book/[rinkId]` | 选择日期时段、冲突校验、提交预订（支付成功跳转 Dashboard） |
+| 预订详情 | `/bookings/[id]` | 单条预订详情、取消；返回链到 Dashboard |
 | 俱乐部 | `/clubs` | 列表、新建 |
 | 通知 | `/notifications` | 列表、已读/未读、删除 |
 | 个人资料 | `/profile` | 查看、编辑 |
 | 冰场管理 | `/manage-rink` | 冰场信息维护（需权限） |
+
+**说明**：`/my-games`、`/bookings` 已重定向至 `/dashboard`，其内容已合并进 Dashboard 页；列表与赛季统计均在 Dashboard 内展示。
 
 ---
 
@@ -111,7 +112,8 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 8. **Bug 修复**：Navbar 中 `useCallback` 正确导入  
 9. **阶段二导航与按钮（2026-02）**：公网 Navbar 与 Hero 增加 Dashboard 入口，登录后跳转 Dashboard，Footer 已登录显示 Dashboard，clubs/bookings 按钮链与 locale 修复，Dashboard 顶栏与主页视觉统一（Logo、深色栏、通知仅铃铛），详见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[DEV_LOG_2026-02-13.md](./DEV_LOG_2026-02-13.md)  
 10. **RLS 补充（2026-02）**：`payments`、`rink_updates_log` 已补充行级安全策略，消除 UNRESTRICTED，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)  
-11. **导航与视觉优化（2026-02）**：移除 Post Game 按钮；全站白天/黑夜视觉模式（next-themes）；Navbar 双主题适配；移除 Hero 底部波浪形白色过渡，详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §十四。
+11. **导航与视觉优化（2026-02）**：移除 Post Game 按钮；全站白天/黑夜视觉模式（next-themes）；Navbar 双主题适配；移除 Hero 底部波浪形白色过渡，详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §十四。  
+12. **导航与 Dashboard 优化（2026-02）**：主导航改为 Play（Ice Rinks、Find Game）、Community（Clubs）；用户头像下拉为 Profile、Dashboard、Sign Out；My Games、My Bookings、Season Statistics 合并入 Dashboard；`/my-games`、`/bookings` 重定向至 `/dashboard`；Stripe 支付成功跳转 `/dashboard?session_id=...`，Dashboard 页处理 session_id 并展示支付成功 toast 后清除 URL；预订详情「返回」改为 Back to Dashboard；legacy `app/(dashboard)` 导航与链接统一为 Dashboard；Navbar「Get Started」白底按钮文字对比度修复（`[&_a.bg-white]:text-gogo-primary`），详见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)。
 
 ---
 
@@ -119,7 +121,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 ### 6.1 功能完善
 
-- [ ] **支付流程**：Stripe 已安装但未接入预订流程，应如何设计支付、退款、失败处理？  
+- [ ] **支付流程**：Stripe 已安装；预订创建 Checkout 的 `success_url` 已指向 `/dashboard?session_id=...`，Dashboard 页会展示支付成功 toast 并清除 URL。退款、失败处理、Webhook 校验等仍待完善，见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)。  
 - [ ] **权限与角色**：冰场管理、俱乐部管理等是否需要 RBAC？  
 - [ ] **数据校验**：Supabase RLS、服务端校验是否充分？  
 - [ ] **预订流程**：是否需增加确认邮件、取消规则、提醒逻辑？  
@@ -176,6 +178,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 ## 八、相关文档
 
 - [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（已完成 / 进行中 / 下阶段）  
+- [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)：功能增强路线图（比赛匹配、预订管理、支付、移动端、RBAC、SEO 等与 P0–P3 优先级）  
 - [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)：完整修改方案（含 UI 视觉优化）  
 - [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)：阶段二导航与按钮任务及完成记录  
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：详细修改记录  
