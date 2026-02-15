@@ -8,6 +8,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  async redirects() {
+    return [
+      { source: '/:locale/my-games', destination: '/:locale/dashboard', permanent: true },
+      { source: '/:locale/my-games/:path*', destination: '/:locale/dashboard', permanent: true },
+      { source: '/:locale/bookings', destination: '/:locale/dashboard', permanent: true },
+      // /bookings/:id stays - users click from dashboard to view booking details
+    ];
+  },
   images: {
     remotePatterns: [
       {

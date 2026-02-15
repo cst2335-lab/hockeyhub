@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: { default: titles[lang] ?? titles.en, template: '%s | GoGoHockey' },
     description: descriptions[lang] ?? descriptions.en,
-    icons: { icon: '/icon.svg', apple: '/icon-192.png' },
+    icons: { icon: '/img/icons/icon.svg', apple: '/img/icons/icon-192.png' },
     openGraph: {
       title: titles[lang] ?? titles.en,
       description: descriptions[lang] ?? descriptions.en,

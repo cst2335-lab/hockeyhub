@@ -77,6 +77,7 @@ const config = {
         gogo: {
           dark: '#18304B',
           primary: '#0E4877',
+          'primary-hover': '#165a8f',
           secondary: '#64BEF0',
         }
       },

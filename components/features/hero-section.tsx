@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowRight, Calendar, MapPin, Users, PlayCircle, Star, LayoutDashboard, Search, UserCircle, ClipboardCheck } from 'lucide-react';
+import { ArrowRight, Users, PlayCircle, LayoutDashboard, UserCircle, ClipboardCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import { Container } from '@/components/ui/container';
@@ -12,17 +12,13 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-
 export default function HeroSection() {
   const params = useParams();
   const t = useTranslations('hero');
-  const tActions = useTranslations('actions');
   const locale = (params?.locale as string) || 'en';
   const withLocale = (path: string) => `/${locale}${path}`.replace(/\/{2,}/g, '/');
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
-
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -35,26 +31,20 @@ export default function HeroSection() {
     return () => data.subscription.unsubscribe();
   }, [supabase]);
 
-  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const q = searchQuery.trim();
-    window.location.href = withLocale(q ? `/games?q=${encodeURIComponent(q)}` : '/games');
-  }, [searchQuery, withLocale]);
-
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gogo-dark via-gogo-primary to-gogo-secondary">
       {/* Animated background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <div className="absolute inset-0 bg-[url('/img/patterns/grid.svg')] opacity-10" />
         <motion.div
           animate={{ rotate: 360, x: [0, 80, 0], y: [0, -40, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-20 right-20 w-28 h-28 rounded-full bg-gogo-secondary/20"
+          className="absolute top-20 right-20 w-28 h-28 rounded-full bg-gogo-secondary"
         />
         <motion.div
           animate={{ rotate: -360, x: [0, -80, 0], y: [0, 40, 0] }}
           transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="absolute bottom-20 left-20 w-36 h-36 rounded-full bg-gogo-secondary/15"
+          className="absolute bottom-20 left-20 w-36 h-36 rounded-full bg-gogo-secondary"
         />
       </div>
 
@@ -94,34 +84,6 @@ export default function HeroSection() {
           >
             {t('tagline')}
           </motion.p>
-
-          {/* Figma: Search bar */}
-          <motion.form
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            onSubmit={handleSearchSubmit}
-            className="max-w-xl mx-auto mb-8"
-          >
-            <div className="relative flex rounded-xl overflow-hidden shadow-xl bg-white border border-border">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                className="w-full pl-12 pr-4 py-3.5 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-gogo-secondary focus:ring-inset"
-                aria-label={t('searchPlaceholder')}
-              />
-              <button
-                type="submit"
-                className="px-5 py-3 bg-gogo-primary text-white font-semibold hover:bg-gogo-dark transition-colors shrink-0"
-              >
-                <Search className="h-5 w-5 sm:mr-2" />
-                <span className="hidden sm:inline">{tActions('search')}</span>
-              </button>
-            </div>
-          </motion.form>
 
           {/* Animated subtitle */}
           <div className="text-lg sm:text-xl md:text-2xl text-white/90 mb-6 h-10 font-medium">

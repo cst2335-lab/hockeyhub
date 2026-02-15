@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "menu": "Menu",
+    "play": "Play",
     "about": "About",
     "community": "Community",
     "dashboard": "Dashboard",
@@ -191,6 +192,7 @@
     "title": "Dashboard",
     "heroSubtitle": "Get started",
     "heroTitle": "Everything you need for hockey",
+    "heroTitleWithName": "Hi {name}, everything you need for hockey",
     "heroDesc": "Find games, book ice time, manage your schedule, and connect with local players.",
     "openGames": "Open Game Invitations",
     "upcomingBookings": "Upcoming Bookings",
