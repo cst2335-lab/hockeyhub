@@ -1,11 +1,20 @@
 // app/[locale]/page.tsx
-import HeroSection from '@/components/features/hero-section';
-import GameCard from '@/components/features/game-card-working';
+import dynamic from 'next/dynamic';
 import { HomePlatformSection } from '@/components/features/home-platform-section';
 import { HomeCTASection } from '@/components/features/home-cta-section';
 import { Container } from '@/components/ui/container';
 import { createClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
+
+const HeroSection = dynamic(
+  () => import('@/components/features/hero-section').then((m) => m.default),
+  { ssr: true }
+);
+
+const GameCard = dynamic(
+  () => import('@/components/features/game-card-working').then((m) => m.default),
+  { ssr: true }
+);
 
 export default async function HomePage() {
   const t = await getTranslations('home');

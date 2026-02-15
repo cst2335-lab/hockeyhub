@@ -91,6 +91,33 @@ export default async function LocaleLayout({
     }
   }
 
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://gogohockey.ca').replace(/\/$/, '');
+  const siteUrl = `${baseUrl}/${locale}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        name: 'GoGoHockey',
+        url: siteUrl,
+        description: descriptions[locale] ?? descriptions.en,
+        inLanguage: locale === 'fr' ? 'fr-CA' : 'en-CA',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/games?q={search_term_string}` },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Organization',
+        name: 'GoGoHockey',
+        url: baseUrl,
+        logo: `${baseUrl}/img/logo/icon.svg`,
+        description: descriptions.en,
+      },
+    ],
+  };
+
   return (
     <html
       lang={locale}
@@ -98,6 +125,10 @@ export default async function LocaleLayout({
       className={`${inter.variable} ${lexend.variable}`}
     >
       <body className="min-h-full font-sans antialiased" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider>
           <QueryProvider>
             <NextIntlClientProvider locale={locale} messages={messages}>

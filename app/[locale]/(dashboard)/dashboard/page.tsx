@@ -255,6 +255,27 @@ export default function DashboardPage() {
 
   const manageCard = { href: '/manage-rink', subKey: 'cardManageRinkSub', titleKey: 'cardManageRinkTitle', descKey: 'cardManageRinkDesc', icon: Settings, gradient: 'from-amber-600 to-orange-500' } as const;
 
+  // Next booking starting within 24h (confirmed only) for reminder banner
+  const upcomingReminder = useMemo(() => {
+    const now = new Date();
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const confirmed = bookings.filter((b) => b.status === 'confirmed');
+    for (const b of confirmed) {
+      const start = new Date(`${b.booking_date}T${(b.start_time || '00:00').slice(0, 5)}`);
+      if (start > now && start <= in24h) {
+        const hoursLeft = Math.max(0.5, (start.getTime() - now.getTime()) / (60 * 60 * 1000));
+        return {
+          id: b.id,
+          rink: (b.rinks as { name?: string } | null)?.name ?? 'Rink',
+          date: formatDateByLocale(b.booking_date, locale),
+          time: (b.start_time || '').slice(0, 5),
+          hoursLeft: Math.round(hoursLeft * 2) / 2,
+        };
+      }
+    }
+    return null;
+  }, [bookings, locale]);
+
   return (
     <div className="bg-background py-16 sm:py-24">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -264,6 +285,26 @@ export default function DashboardPage() {
           <span>{t('title')}</span>
         </h1>
         <p className="mt-4 max-w-xl text-muted-foreground">{t('heroDesc')}</p>
+
+        {upcomingReminder && (
+          <div className="mt-6 rounded-xl border border-gogo-secondary bg-gogo-primary/10 px-4 py-3 flex flex-wrap items-center gap-3">
+            <Clock className="h-5 w-5 text-gogo-primary shrink-0" />
+            <span className="text-sm text-foreground">
+              {t('bookingReminder', {
+                rink: upcomingReminder.rink,
+                hours: upcomingReminder.hoursLeft,
+                date: upcomingReminder.date,
+                time: upcomingReminder.time,
+              })}
+            </span>
+            <Link
+              href={withLocale(`/bookings/${upcomingReminder.id}`)}
+              className="ml-auto shrink-0 text-sm font-medium text-gogo-primary hover:text-gogo-dark underline"
+            >
+              {t('viewBooking')}
+            </Link>
+          </div>
+        )}
 
         {/* Metrics */}
         <div className="mt-8 flex flex-wrap gap-4 sm:mt-10">

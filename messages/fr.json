@@ -50,7 +50,10 @@
     "required": "Ce champ est requis",
     "formError": "Veuillez corriger les erreurs ci-dessous",
     "invalidEmail": "Veuillez entrer un courriel valide",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "errorPageDesc": "Une erreur inattendue s'est produite. Veuillez réessayer ou revenir.",
+    "backToHome": "Retour à l'accueil",
+    "backToDashboard": "Retour au tableau de bord"
   },
   "footer": {
     "clubsAndLeagues": "Clubs et ligues",
@@ -215,7 +218,9 @@
     "cardClubsDesc": "Connectez-vous avec les clubs, ligues et groupes de hockey locaux.",
     "cardManageRinkSub": "Gérer la patinoire",
     "cardManageRinkTitle": "Portail gestionnaire",
-    "cardManageRinkDesc": "Mettez à jour les détails, équipements et disponibilités de la patinoire."
+    "cardManageRinkDesc": "Mettez à jour les détails, équipements et disponibilités de la patinoire.",
+    "bookingReminder": "Rappel : Vous avez de la glace à {rink} dans {hours} h — {date} à {time}",
+    "viewBooking": "Voir la réservation"
   },
   "manageRink": {
     "portalTitle": "Portail gestionnaire de patinoire",
@@ -254,6 +259,7 @@
     "dateFilterUpcoming": "À venir",
     "dateFilterPast": "Passés",
     "sortByDate": "Par date",
+    "sortByRecommended": "Recommandé pour vous",
     "sortByInterest": "Par intérêt",
     "sortByViews": "Par vues",
     "clearFilters": "Effacer les filtres",

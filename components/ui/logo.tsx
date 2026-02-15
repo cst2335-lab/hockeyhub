@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 type LogoProps = {
@@ -31,14 +32,13 @@ export function Logo({ size = 'md', showText = true, light = false, className }:
           size === 'lg' && 'drop-shadow-xl'
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/img/logo/icon.svg"
           alt="GoGoHockey"
           width={d}
           height={d}
           className="object-contain"
-          style={{ width: d, height: d }}
+          unoptimized
         />
       </div>
       {showText && (

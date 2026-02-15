@@ -50,7 +50,10 @@
     "required": "This field is required",
     "formError": "Please fix the errors below",
     "invalidEmail": "Please enter a valid email",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "errorPageDesc": "An unexpected error occurred. Please try again or go back.",
+    "backToHome": "Back to Home",
+    "backToDashboard": "Back to Dashboard"
   },
   "footer": {
     "clubsAndLeagues": "Clubs & Leagues",
@@ -215,7 +218,9 @@
     "cardClubsDesc": "Connect with clubs, leagues, and local hockey groups.",
     "cardManageRinkSub": "Manage Rink",
     "cardManageRinkTitle": "Rink manager portal",
-    "cardManageRinkDesc": "Update rink details, amenities, and availability."
+    "cardManageRinkDesc": "Update rink details, amenities, and availability.",
+    "bookingReminder": "Reminder: You have ice time at {rink} in {hours} hour(s) — {date} at {time}",
+    "viewBooking": "View booking"
   },
   "manageRink": {
     "portalTitle": "Rink Manager Portal",
@@ -254,6 +259,7 @@
     "dateFilterUpcoming": "Upcoming",
     "dateFilterPast": "Past",
     "sortByDate": "By Date",
+    "sortByRecommended": "Recommended for you",
     "sortByInterest": "By Interest",
     "sortByViews": "By Views",
     "clearFilters": "Clear Filters",

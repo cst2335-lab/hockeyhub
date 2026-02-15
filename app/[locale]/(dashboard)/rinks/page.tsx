@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils/format'
+import { RinkCardSkeleton } from '@/components/ui/skeleton'
 
 type Rink = {
   id: string
@@ -134,8 +135,20 @@ export default function RinksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="h-10 w-64 bg-muted animate-pulse rounded mb-2" />
+        <div className="h-5 w-48 bg-muted animate-pulse rounded mb-6" />
+        <div className="bg-card border border-border dark:border-slate-700 rounded-xl shadow-sm p-4 mb-6 grid gap-4 md:grid-cols-4">
+          <div className="md:col-span-2 h-10 bg-muted animate-pulse rounded-lg" />
+          <div className="h-10 bg-muted animate-pulse rounded-lg" />
+          <div className="h-10 bg-muted animate-pulse rounded-lg" />
+          <div className="h-10 bg-muted animate-pulse rounded-lg" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <RinkCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     )
   }

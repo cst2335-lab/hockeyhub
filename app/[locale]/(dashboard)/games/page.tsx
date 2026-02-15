@@ -21,6 +21,8 @@ import {
   X,
   BadgeInfo,
 } from 'lucide-react';
+import { GameCardSkeleton } from '@/components/ui/skeleton';
+import { sortGamesByMatch } from '@/lib/matching/score';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -41,7 +43,7 @@ interface Game {
 }
 
 type DateFilter = 'all' | 'upcoming' | 'past';
-type SortBy = 'date' | 'interest' | 'views';
+type SortBy = 'date' | 'interest' | 'views' | 'recommended';
 
 const PAGE_SIZE = 20;
 
@@ -83,6 +85,24 @@ export default function GamesPage() {
   });
 
   const games = gamesData ?? [];
+
+  // User preferences for "Recommended" sort (age_group, skill_level, area)
+  const { data: userPrefs } = useQuery({
+    queryKey: ['games-user-prefs'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('age_group, skill_level, area')
+        .eq('id', user.id)
+        .maybeSingle();
+      const p = data as { age_group?: string; skill_level?: string; area?: string } | null;
+      if (!p?.age_group && !p?.skill_level && !p?.area) return null;
+      return { age_group: p?.age_group ?? null, skill_level: p?.skill_level ?? null, location: p?.area ?? null };
+    },
+  });
+
   const prevFiltersRef = useRef<string>('');
 
   // UI state
@@ -138,21 +158,26 @@ export default function GamesPage() {
       list = list.filter((g) => g.location?.toLowerCase().includes(q));
     }
 
-    list.sort((a, b) => {
-      switch (sortBy) {
-        case 'interest':
-          return (b.interested_count || 0) - (a.interested_count || 0);
-        case 'views':
-          return (b.view_count || 0) - (a.view_count || 0);
-        case 'date':
-        default:
-          if (a.isExpired !== b.isExpired) return a.isExpired ? 1 : -1;
-          return (a.game_date || '').localeCompare(b.game_date || '');
-      }
-    });
+    if (sortBy === 'recommended' && userPrefs) {
+      list = sortGamesByMatch(list, userPrefs);
+    } else {
+      list.sort((a, b) => {
+        switch (sortBy) {
+          case 'interest':
+            return (b.interested_count || 0) - (a.interested_count || 0);
+          case 'views':
+            return (b.view_count || 0) - (a.view_count || 0);
+          case 'date':
+          case 'recommended':
+          default:
+            if (a.isExpired !== b.isExpired) return a.isExpired ? 1 : -1;
+            return (a.game_date || '').localeCompare(b.game_date || '');
+        }
+      });
+    }
 
     return list;
-  }, [games, dateFilter, searchTerm, ageGroupFilter, skillLevelFilter, locationFilter, sortBy]);
+  }, [games, dateFilter, searchTerm, ageGroupFilter, skillLevelFilter, locationFilter, sortBy, userPrefs]);
 
   useEffect(() => {
     if (prevFiltersRef.current !== filterKey) {
@@ -182,7 +207,7 @@ export default function GamesPage() {
         locationFilter ||
         ageGroupFilter !== 'all' ||
         skillLevelFilter !== 'all' ||
-        sortBy !== 'date',
+        (sortBy !== 'date' && sortBy !== 'recommended'),
     );
 
   const formatDate = (dateStr: string) => {
@@ -208,8 +233,22 @@ export default function GamesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gogo-primary" />
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <div className="h-9 w-48 bg-muted animate-pulse rounded" />
+              <div className="h-5 w-32 mt-2 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="h-10 w-28 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="mb-6 h-14 w-full max-w-md bg-muted animate-pulse rounded-xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <GameCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -321,6 +360,7 @@ export default function GamesPage() {
                   className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-gogo-secondary"
                 >
                   <option value="date">{t('sortByDate')}</option>
+                  <option value="recommended">{t('sortByRecommended')}</option>
                   <option value="interest">{t('sortByInterest')}</option>
                   <option value="views">{t('sortByViews')}</option>
                 </select>
