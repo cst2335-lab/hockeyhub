@@ -10,6 +10,7 @@ import {Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIte
 import {Logo} from '@/components/ui/logo';
 import {UserAvatar} from '@/components/ui/user-avatar';
 import {Container} from '@/components/ui/container';
+import BottomNav from '@/components/layout/bottom-nav';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 
@@ -386,8 +387,11 @@ export default function DashboardLayout({
         <div className="h-[3px] w-full bg-gradient-to-r from-gogo-primary via-gogo-secondary to-gogo-primary" />
       </Disclosure>
 
-      {/* Page Content */}
-      <main>{children}</main>
+      {/* Page Content — pb for mobile bottom nav */}
+      <main className="pb-14 lg:pb-0">{children}</main>
+
+      {/* Mobile-only bottom nav: Play, Community, Dashboard, Profile */}
+      <BottomNav />
     </div>
   );
 }

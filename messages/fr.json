@@ -360,7 +360,7 @@
     "total": "Total",
     "cancelBooking": "Annuler la réservation",
     "cancelling": "Annulation...",
-    "cancelConfirm": "Voulez-vous vraiment annuler cette réservation? Remboursement: intégral si 48 h avant le début, sinon 90 % (frais 10 %).",
+    "cancelConfirm": "Voulez-vous vraiment annuler cette réservation? Remboursement: intégral si 24 h avant le début, 50 % si 12–24 h, aucun si moins de 12 h.",
     "cancelSuccess": "Réservation annulée. Le remboursement sera traité le cas échéant.",
     "cancelError": "Échec de l'annulation",
     "paymentSuccess": "Paiement réussi! Votre réservation est confirmée."

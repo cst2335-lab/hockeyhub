@@ -362,7 +362,7 @@
     "total": "Total",
     "cancelBooking": "Cancel Booking",
     "cancelling": "Cancelling...",
-    "cancelConfirm": "Are you sure you want to cancel this booking? Refund: full if 48+ hours before start, otherwise 90% (10% fee).",
+    "cancelConfirm": "Are you sure you want to cancel this booking? Refund: full if 24+ hours before start, 50% if 12–24 hours, none if less than 12 hours.",
     "cancelSuccess": "Booking cancelled successfully. Refund will be processed if applicable.",
     "cancelError": "Failed to cancel booking",
     "paymentSuccess": "Payment successful! Your booking is confirmed."

@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
+import { getRefundAmountCents } from '@/lib/booking/policies';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
 
-/** Cancel a confirmed booking. Refund: full if within 48h of booking start, else 90% (10% fee). */
+/** Cancel a confirmed booking. Refund per CANCELLATION_POLICY: full if >=24h before start, 50% if >=12h, none otherwise. */
 export async function POST(request: NextRequest) {
   const auth = await requireAuth();
   if (auth.error) return auth.error;
@@ -46,22 +47,23 @@ export async function POST(request: NextRequest) {
     const bookingStart = new Date(`${booking.booking_date}T${booking.start_time}`);
     const now = new Date();
     const hoursUntilStart = (bookingStart.getTime() - now.getTime()) / (1000 * 60 * 60);
-    const fullRefund = hoursUntilStart >= 48;
     const totalCents = Math.round(Number(booking.total) * 100);
-    const refundAmountCents = fullRefund ? totalCents : Math.round(totalCents * 0.9);
+    const refundAmountCents = getRefundAmountCents(totalCents, hoursUntilStart);
 
-    try {
-      await stripe.refunds.create({
-        payment_intent: paymentIntentId,
-        amount: refundAmountCents,
-        reason: 'requested_by_customer',
-      });
-    } catch (err) {
-      console.error('Stripe refund error:', err);
-      return NextResponse.json(
-        { error: 'Refund failed. Please contact support.' },
-        { status: 502 }
-      );
+    if (refundAmountCents > 0) {
+      try {
+        await stripe.refunds.create({
+          payment_intent: paymentIntentId,
+          amount: refundAmountCents,
+          reason: 'requested_by_customer',
+        });
+      } catch (err) {
+        console.error('Stripe refund error:', err);
+        return NextResponse.json(
+          { error: 'Refund failed. Please contact support.' },
+          { status: 502 }
+        );
+      }
     }
   }
 

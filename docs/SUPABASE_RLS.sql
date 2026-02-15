@@ -1,6 +1,7 @@
 -- GoGoHockey Supabase RLS 策略
 -- 在 Supabase Dashboard → SQL Editor 中执行
 -- 执行前请确认表名与字段名与当前 schema 一致
+-- 本脚本可重复执行：每条 CREATE POLICY 前有 DROP POLICY IF EXISTS
 
 -- ============================================
 -- 1. 启用 RLS
@@ -14,24 +15,25 @@ ALTER TABLE IF EXISTS profiles ENABLE ROW LEVEL SECURITY;
 -- ============================================
 -- 2. game_invitations
 -- ============================================
--- 所有人可读（开放比赛列表）
+DROP POLICY IF EXISTS "Anyone can view open games" ON game_invitations;
 CREATE POLICY "Anyone can view open games"
   ON game_invitations FOR SELECT
   USING (true);
 
--- 登录用户可创建
+DROP POLICY IF EXISTS "Authenticated users can create games" ON game_invitations;
 CREATE POLICY "Authenticated users can create games"
   ON game_invitations FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = created_by);
 
--- 仅创建者可更新/删除
+DROP POLICY IF EXISTS "Users can update own games" ON game_invitations;
 CREATE POLICY "Users can update own games"
   ON game_invitations FOR UPDATE
   TO authenticated
   USING (auth.uid() = created_by)
   WITH CHECK (auth.uid() = created_by);
 
+DROP POLICY IF EXISTS "Users can delete own games" ON game_invitations;
 CREATE POLICY "Users can delete own games"
   ON game_invitations FOR DELETE
   TO authenticated
@@ -40,11 +42,13 @@ CREATE POLICY "Users can delete own games"
 -- ============================================
 -- 3. game_interests
 -- ============================================
+DROP POLICY IF EXISTS "Users can view own interests" ON game_interests;
 CREATE POLICY "Users can view own interests"
   ON game_interests FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view interests for own games" ON game_interests;
 CREATE POLICY "Users can view interests for own games"
   ON game_interests FOR SELECT
   TO authenticated
@@ -56,16 +60,19 @@ CREATE POLICY "Users can view interests for own games"
     )
   );
 
+DROP POLICY IF EXISTS "Authenticated users can create interest" ON game_interests;
 CREATE POLICY "Authenticated users can create interest"
   ON game_interests FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own interests" ON game_interests;
 CREATE POLICY "Users can update own interests"
   ON game_interests FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own interests" ON game_interests;
 CREATE POLICY "Users can delete own interests"
   ON game_interests FOR DELETE
   TO authenticated
@@ -74,22 +81,26 @@ CREATE POLICY "Users can delete own interests"
 -- ============================================
 -- 4. bookings
 -- ============================================
+DROP POLICY IF EXISTS "Users can view own bookings" ON bookings;
 CREATE POLICY "Users can view own bookings"
   ON bookings FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Authenticated users can create bookings" ON bookings;
 CREATE POLICY "Authenticated users can create bookings"
   ON bookings FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own bookings" ON bookings;
 CREATE POLICY "Users can update own bookings"
   ON bookings FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own bookings" ON bookings;
 CREATE POLICY "Users can delete own bookings"
   ON bookings FOR DELETE
   TO authenticated
@@ -98,19 +109,20 @@ CREATE POLICY "Users can delete own bookings"
 -- ============================================
 -- 5. notifications
 -- ============================================
+DROP POLICY IF EXISTS "Users can view own notifications" ON notifications;
 CREATE POLICY "Users can view own notifications"
   ON notifications FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
 
--- 插入由 service role 或后端完成，无需 policy
--- 用户可更新（标记已读）、删除自己的通知
+DROP POLICY IF EXISTS "Users can update own notifications" ON notifications;
 CREATE POLICY "Users can update own notifications"
   ON notifications FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own notifications" ON notifications;
 CREATE POLICY "Users can delete own notifications"
   ON notifications FOR DELETE
   TO authenticated
@@ -119,17 +131,20 @@ CREATE POLICY "Users can delete own notifications"
 -- ============================================
 -- 6. profiles
 -- ============================================
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
   TO authenticated
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
   TO authenticated
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile"
   ON profiles FOR INSERT
   TO authenticated
@@ -140,13 +155,21 @@ CREATE POLICY "Users can insert own profile"
 -- ============================================
 ALTER TABLE IF EXISTS rinks ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view rinks" ON rinks;
 CREATE POLICY "Anyone can view rinks"
   ON rinks FOR SELECT
   USING (true);
 
--- 修改 rinks 需 rink_manager 等角色（如有 profiles.role）
--- 此处简化：仅 service role 可写
--- CREATE POLICY "Rink managers can update rinks" ...
+DROP POLICY IF EXISTS "Rink managers can update own rinks" ON rinks;
+CREATE POLICY "Rink managers can update own rinks"
+  ON rinks FOR UPDATE
+  TO authenticated
+  USING (
+    auth.uid() IN (
+      SELECT user_id FROM rink_managers
+      WHERE rink_id = rinks.id AND verified = true
+    )
+  );
 
 -- ============================================
 -- 8. payments（支付记录，需解决 UNRESTRICTED）
@@ -154,7 +177,7 @@ CREATE POLICY "Anyone can view rinks"
 -- 若表不存在可跳过；若字段名不同请按实际 schema 调整（如 user_id / booking_id）
 ALTER TABLE IF EXISTS payments ENABLE ROW LEVEL SECURITY;
 
--- 用户仅能查看自己的支付记录（假设有 user_id 列）
+DROP POLICY IF EXISTS "Users can view own payments" ON payments;
 CREATE POLICY "Users can view own payments"
   ON payments FOR SELECT
   TO authenticated
@@ -169,13 +192,13 @@ CREATE POLICY "Users can view own payments"
 -- ============================================
 ALTER TABLE IF EXISTS rink_updates_log ENABLE ROW LEVEL SECURITY;
 
--- 已登录用户可读日志（便于管理页展示）；sync 接口用 service role 写入，不受限
+DROP POLICY IF EXISTS "Authenticated can view rink updates log" ON rink_updates_log;
 CREATE POLICY "Authenticated can view rink updates log"
   ON rink_updates_log FOR SELECT
   TO authenticated
   USING (true);
 
--- 仅能插入自己为 updated_by 的记录（管理页提交）；服务端 full_sync 用 service role
+DROP POLICY IF EXISTS "Users can insert own rink update log" ON rink_updates_log;
 CREATE POLICY "Users can insert own rink update log"
   ON rink_updates_log FOR INSERT
   TO authenticated
