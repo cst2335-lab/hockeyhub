@@ -258,7 +258,7 @@ export default function DashboardLayout({
           </div>
 
           {/* Right: theme, locale, notifications, user, hamburger — same as main Navbar */}
-          <div className="flex items-center gap-1 sm:gap-2 [&_.text-muted-foreground]:text-sky-100 [&_button]:text-white [&_a]:text-white shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 [&_.text-muted-foreground]:text-sky-100 [&_button]:text-white [&_a]:text-white [&_a.bg-white]:text-gogo-primary shrink-0">
             <ThemeToggle />
             <Suspense fallback={<div className="w-16 h-8 shrink-0" />}>
               <LocaleSwitcher />
