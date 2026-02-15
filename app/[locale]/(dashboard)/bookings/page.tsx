@@ -3,16 +3,14 @@
 
 import {useCallback, useEffect} from 'react';
 import Link from 'next/link';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import {formatCurrency, formatDateByLocale} from '@/lib/utils/format';
 import {useBookings} from '@/lib/hooks';
 import {useTranslations} from 'next-intl';
-import {toast} from 'sonner';
 
 export default function BookingsPage() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations('bookings');
   const { bookings, isLoading: loading, user } = useBookings();
 
@@ -26,14 +24,6 @@ export default function BookingsPage() {
       router.push(withLocale('/login'));
     }
   }, [loading, user, router, withLocale]);
-
-  useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    if (sessionId) {
-      toast.success('Payment successful! Your booking is confirmed.');
-      router.replace(withLocale('/bookings'), { scroll: false });
-    }
-  }, [searchParams, router, withLocale]);
 
   if (loading) {
     return (

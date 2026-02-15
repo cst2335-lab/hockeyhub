@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         quantity: 1,
       },
     ],
-    success_url: `${origin}/${locale}/bookings?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
+    success_url: `${origin}/${locale}/dashboard?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
     cancel_url: `${origin}/${locale}/book/${rinkId}?cancelled=1`,
     metadata: {
       booking_id: booking.id,

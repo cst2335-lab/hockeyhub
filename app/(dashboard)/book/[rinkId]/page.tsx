@@ -72,8 +72,8 @@ export default function BookRinkPage() {
       })
 
     if (!error) {
-        alert('Booking created successfully! Redirecting to your bookings...')
-        router.push('/bookings')
+        alert('Booking created successfully! Redirecting to dashboard...')
+        router.push('/dashboard')
     } else {
         console.error('Booking error:', error)
         alert('Failed to create booking. Please try again.')

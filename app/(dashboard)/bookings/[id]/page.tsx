@@ -52,7 +52,7 @@ export default function BookingDetailPage() {
 
     if (error) {
       console.error('Error fetching booking:', error);
-      router.push(withLocale('/bookings'));
+      router.push(withLocale('/dashboard'));
     } else {
       setBooking(data);
     }
@@ -77,7 +77,7 @@ export default function BookingDetailPage() {
       return;
     }
     alert('Booking cancelled successfully');
-    router.push(withLocale('/bookings'));
+    router.push(withLocale('/dashboard'));
   };
 
   if (loading) {
@@ -108,10 +108,10 @@ export default function BookingDetailPage() {
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <button
-          onClick={() => router.push(withLocale('/bookings'))}
+          onClick={() => router.push(withLocale('/dashboard'))}
           className="text-gray-600 hover:text-gray-800"
         >
-          ← Back to My Bookings
+          ← Back to Dashboard
         </button>
       </div>
 

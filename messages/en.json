@@ -344,6 +344,7 @@
     "noBookings": "No bookings yet.",
     "browseRinksToBook": "Browse rinks to book",
     "backToBookings": "← Back to My Bookings",
+    "backToDashboard": "← Back to Dashboard",
     "notFound": "Booking not found",
     "bookingDetails": "Booking Details",
     "rinkInfo": "Rink Information",
@@ -363,7 +364,8 @@
     "cancelling": "Cancelling...",
     "cancelConfirm": "Are you sure you want to cancel this booking? Refund: full if 48+ hours before start, otherwise 90% (10% fee).",
     "cancelSuccess": "Booking cancelled successfully. Refund will be processed if applicable.",
-    "cancelError": "Failed to cancel booking"
+    "cancelError": "Failed to cancel booking",
+    "paymentSuccess": "Payment successful! Your booking is confirmed."
   },
   "profilePage": {
     "notFound": "Profile not found",

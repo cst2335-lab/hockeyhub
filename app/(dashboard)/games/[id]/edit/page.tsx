@@ -66,7 +66,7 @@ export default function EditGamePage() {
 
       if (error || !game) {
         alert('Game not found');
-        router.push('/my-games');
+        router.push('/dashboard');
         return;
       }
 
@@ -94,7 +94,7 @@ export default function EditGamePage() {
     } catch (error) {
       console.error('Error loading game:', error);
       alert('Failed to load game');
-      router.push('/my-games');
+      router.push('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -154,8 +154,8 @@ export default function EditGamePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500">You don't have permission to edit this game</p>
-          <Link href="/my-games" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
-            Back to My Games
+          <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
+            Back to Dashboard
           </Link>
         </div>
       </div>
@@ -173,11 +173,11 @@ export default function EditGamePage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/my-games"
+            href="/dashboard"
             className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to My Games
+            Back to Dashboard
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Edit Game</h1>
           <p className="mt-2 text-gray-600">Update your game information</p>
@@ -376,7 +376,7 @@ export default function EditGamePage() {
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
             <Link
-              href="/my-games"
+              href="/dashboard"
               className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition flex items-center justify-center gap-2"
             >
               <X className="h-4 w-4" />

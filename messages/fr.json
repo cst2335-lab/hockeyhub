@@ -342,6 +342,7 @@
     "noBookings": "Aucune réservation.",
     "browseRinksToBook": "Voir les patinoires pour réserver",
     "backToBookings": "← Retour à mes réservations",
+    "backToDashboard": "← Retour au tableau de bord",
     "notFound": "Réservation introuvable",
     "bookingDetails": "Détails de la réservation",
     "rinkInfo": "Informations sur la patinoire",
@@ -361,7 +362,8 @@
     "cancelling": "Annulation...",
     "cancelConfirm": "Voulez-vous vraiment annuler cette réservation? Remboursement: intégral si 48 h avant le début, sinon 90 % (frais 10 %).",
     "cancelSuccess": "Réservation annulée. Le remboursement sera traité le cas échéant.",
-    "cancelError": "Échec de l'annulation"
+    "cancelError": "Échec de l'annulation",
+    "paymentSuccess": "Paiement réussi! Votre réservation est confirmée."
   },
   "profilePage": {
     "notFound": "Profil introuvable",

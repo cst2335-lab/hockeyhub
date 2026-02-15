@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import {createClient} from '@/lib/supabase/client';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
-import {Home, Trophy, MapPin, Calendar, Users, Bell, LogOut, FileText} from 'lucide-react';
+import {Home, Trophy, MapPin, Users, Bell, LogOut} from 'lucide-react';
 
 /**
  * Dashboard shell (top nav + children)
@@ -105,12 +105,11 @@ export default function DashboardLayout({
   }
 
   // Define nav items without locale; we prepend it via `withLocale`
+  // My Games & My Bookings merged into Dashboard; removed from main nav
   const navItems = [
     {path: '/dashboard', label: 'Dashboard', icon: Home},
     {path: '/games', label: 'Games', icon: Trophy},
-    {path: '/my-games', label: 'My Games', icon: FileText},
     {path: '/rinks', label: 'Rinks', icon: MapPin},
-    {path: '/bookings', label: 'My Bookings', icon: Calendar},
     {path: '/clubs', label: 'Clubs', icon: Users}
   ] as const;
 

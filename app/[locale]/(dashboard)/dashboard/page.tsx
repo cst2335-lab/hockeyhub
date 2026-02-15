@@ -4,7 +4,7 @@ import { useMemo, useEffect, useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBookings } from '@/lib/hooks';
@@ -66,8 +66,18 @@ export default function DashboardPage() {
   const tProfile = useTranslations('profilePage');
 
   const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const locale = (params?.locale as string) || 'en';
   const withLocale = useCallback((p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/'), [locale]);
+
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      toast.success(tBookings('paymentSuccess'));
+      router.replace(withLocale('/dashboard'), { scroll: false });
+    }
+  }, [searchParams, router, withLocale, tBookings]);
 
   const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();

@@ -77,7 +77,7 @@ export default function EditGamePage() {
 
       if (error || !game) {
         toast.error('Game not found');
-        router.push(withLocale('/my-games'));
+        router.push(withLocale('/dashboard'));
         return;
       }
 
@@ -104,7 +104,7 @@ export default function EditGamePage() {
     } catch (err) {
       console.error('Error loading game:', err);
       toast.error('Failed to load game');
-      router.push(withLocale('/my-games'));
+      router.push(withLocale('/dashboard'));
     } finally {
       setLoading(false);
     }
@@ -175,7 +175,7 @@ export default function EditGamePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">{tMyGames('noPermission')}</p>
-          <Link href={withLocale('/my-games')} className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 mt-4 inline-block">
+          <Link href={withLocale('/dashboard')} className="text-gogo-primary hover:text-gogo-dark dark:hover:text-sky-300 mt-4 inline-block">
             {tMyGames('backToMyGames')}
           </Link>
         </div>
@@ -189,7 +189,7 @@ export default function EditGamePage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href={withLocale('/my-games')}
+            href={withLocale('/dashboard')}
             className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4 transition"
           >
             <ArrowLeft className="h-4 w-4 mr-2 shrink-0" />
@@ -392,7 +392,7 @@ export default function EditGamePage() {
               {saving ? tGames('saving') : tGames('saveChanges')}
             </button>
             <Link
-              href={withLocale('/my-games')}
+              href={withLocale('/dashboard')}
               className="flex-1 bg-muted text-foreground py-2 px-4 rounded-lg hover:bg-muted/80 text-center transition flex items-center justify-center gap-2"
             >
               <X className="h-4 w-4" />

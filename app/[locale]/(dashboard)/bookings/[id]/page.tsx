@@ -56,7 +56,7 @@ export default function BookingDetailPage() {
 
     if (error || !data) {
       console.error('Error fetching booking:', error);
-      router.push(withLocale('/bookings'));
+      router.push(withLocale('/dashboard'));
     } else {
       setBooking(data);
     }
@@ -88,7 +88,7 @@ export default function BookingDetailPage() {
         return;
       }
       toast.success(t('cancelSuccess'));
-      router.push(withLocale('/bookings'));
+      router.push(withLocale('/dashboard'));
     } catch {
       toast.error(t('cancelError'));
       setCancelling(false);
@@ -123,10 +123,10 @@ export default function BookingDetailPage() {
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <button
-          onClick={() => router.push(withLocale('/bookings'))}
+          onClick={() => router.push(withLocale('/dashboard'))}
           className="text-muted-foreground hover:text-foreground transition"
         >
-          {t('backToBookings')}
+          {t('backToDashboard')}
         </button>
       </div>
 
