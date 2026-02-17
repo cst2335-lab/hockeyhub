@@ -367,7 +367,7 @@
 
 **日期**：2026-02  
 **分支**：feat/nav-dashboard-and-cta  
-**参考**：docs/PHASE2_NAV_AND_BUTTON_TASKS.md、docs/DEV_LOG_2026-02-13.md
+**参考**：docs/NEXT_PHASE_TASKS.md
 
 ### 13.1 阶段二：导航与功能按钮
 - 公网 Navbar 已登录时增加 Dashboard 链接（含移动端）；主页通知改为仅铃铛图标 + 未读角标
@@ -458,6 +458,34 @@
 - `app/[locale]/(dashboard)/book/[rinkId]/page.tsx` — calcEndTime 修复
 - `app/[locale]/(dashboard)/dashboard/page.tsx` — Bento 布局
 - `messages/en.json`、`messages/fr.json` — nav.menu、dashboard 卡片文案
+
+---
+
+## 十六、V2 评审任务记录与文档整理
+
+**日期**：2026-02  
+**优先级**：中（文档维护）
+
+### 修改内容
+
+1. **新建** `docs/V2_REVIEW_NEXT_PHASE.md`：V2 三方分析综合评审结论，P0（DB 约束、Webhook 幂等、调试路由保护、RBAC 确认）、P1（HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化）、P2（XSS、SEO、Zod 兜底）。
+2. **更新** `docs/NEXT_PHASE_TASKS.md`：下阶段以 V2 评审优先；§四 替换为 P0/P1/P2 任务；分支建议 `feat/v2-p0-safety`、`feat/v2-p1-roi`。
+3. **更新** `docs/README.md`：增加 V2_REVIEW_NEXT_PHASE 索引，精简文档说明。
+4. **删除** `docs/UI_OPTIMIZATION_AUDIT.md`：已完成项，内容已汇总至 CHANGELOG。
+5. **删除** `docs/PHASE2_NAV_AND_BUTTON_TASKS.md`：阶段二已完成，内容已汇总至 NEXT_PHASE_TASKS §2.2。
+6. **修正引用**：NEXT_PHASE_TASKS、PROJECT_REVIEW_REPORT、CHANGELOG_IMPROVEMENTS、MODIFICATION_PLAN 中指向已删除文档的链接。
+
+### 解决的问题
+
+- 下阶段任务来源不明确，V2 评审结论未集中记录。
+- docs 目录存在冗余与过期文档，索引重复。
+
+### 后续（2026-02 文档整合）
+
+- **NEXT_PHASE_TASKS** §四：精简为摘要表，完整内容指向 V2_REVIEW_NEXT_PHASE，避免交叉重复。
+- **ENHANCEMENT_ROADMAP** §七：增加「当前下阶段以 V2 评审为准」，§八 增加 V2_REVIEW_NEXT_PHASE 链接。
+- **MODIFICATION_PLAN**：增加早期方案说明，下阶段指向 V2_REVIEW_NEXT_PHASE、NEXT_PHASE_TASKS。
+- **PROJECT_REVIEW_REPORT** §6：精简为指向 V2 评审，避免重复清单。
 
 ---
 

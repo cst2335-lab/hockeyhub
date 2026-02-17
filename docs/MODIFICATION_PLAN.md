@@ -1,9 +1,10 @@
 # GoGoHockey 修改方案
 
+> **早期方案（2025-02）**。大量项已完成（骨架屏、错误边界、P0–P2 增强等）。**当前下阶段见** [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)。
+
 综合功能完善、用户体验、技术架构、国际化、安全、性能及 **UI 视觉更新优化** 的完整修改方案。
 
-**参考**：[UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md)  
-**阶段二（2026-02）**：导航与功能按钮逻辑、Dashboard 与主页导航视觉统一已完成；**chore/next-phase-ops-and-polish**：移除 Post Game、全站白天/黑夜模式、移除 Hero 底部波浪、Navbar 双主题适配已完成，见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)。
+**参考**：[UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md)。
 
 ---
 

@@ -2,15 +2,17 @@
 
 基于 [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理。
 
+**下阶段优先**：V2 三方分析综合评审结论，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。
+
 ---
 
 ## 一、任务总览
 
 | 状态 | 数量 | 说明 |
 |------|------|------|
-| **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、白天/黑夜模式 |
+| **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、P0–P2 增强 |
 | **进行中** | §三 | 无（当前无进行中任务） |
-| **下阶段** | §四 | 支付流程、预订确认、权限与角色、架构与性能 |
+| **下阶段** | §四 | V2 评审 P0（DB 约束、Webhook 幂等、调试路由保护、RBAC 确认） |
 
 ---
 
@@ -45,7 +47,7 @@
 - Dashboard 顶栏与主页视觉统一（Logo、深色栏、底部渐变条）
 - RLS 补充：payments、rink_updates_log
 
-详见 [PHASE2_NAV_AND_BUTTON_TASKS.md](./PHASE2_NAV_AND_BUTTON_TASKS.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)。
+详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)。
 
 ---
 
@@ -57,46 +59,25 @@
 
 ## 四、下阶段任务
 
-### 4.1 高优先级（P0 / P1）
+> **完整任务与实施说明**（含 SQL、验收标准、评分预期）：[V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。本节仅列摘要，避免重复。
 
-| 任务 | 说明 |
-|------|------|
-| **支付流程** | 新建 `/api/stripe/checkout`；预订 pending → confirmed（支付成功）→ cancelled；配置 Stripe Webhook；约定退款规则（如 48 小时内可退） |
-| **预订确认与取消** | 预订成功后发送确认邮件（详情 + 取消链接）；提前 24 小时提醒（可选）；取消规则落地 |
-| **测试** | 补充关键流程 E2E（登录、预订、发布比赛），可选 Playwright |
+| 优先级 | 任务摘要 |
+|--------|----------|
+| **P0** | 预订冲突 DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 |
+| **P1** | HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化 |
+| **P2** | XSS、语言包精简、SEO JSON-LD、Zod 兜底 |
+| **其他** | E2E、PWA、i18n 收尾（按需） |
 
-### 4.2 中优先级（P1 / P2）
-
-| 任务 | 说明 |
-|------|------|
-| **权限与角色** | profiles 增加 role；middleware 或布局检查路由权限（如 /manage-rink 仅 rink_manager）；与 rink_managers 统一 |
-| **PWA 与 i18n 收尾** | 检查 Service Worker 缓存策略；Dashboard 导航栏剩余硬编码文案迁入 messages |
-
-### 4.3 架构与性能（P2 / P3，留待后续）
-
-- 尚未使用 React Query 的页面逐步迁移
-- API 路由统一认证检查
-- 输入过滤与安全（富文本 sanitize、XSS/注入防护）
-- 图片 next/image、懒加载；长列表分页或虚拟滚动
-- SEO：openGraph、结构化数据补充
+**实施顺序**：P0 四件套 → P1 → P2 → 其他。
 
 ---
 
-## 五、建议实施顺序
-
-1. **支付 + 预订确认**：打通预订→支付→确认邮件→取消规则
-2. **测试**：补 1～2 条关键 E2E
-3. **权限**：role 字段与 manage-rink 等路由保护
-4. **PWA、i18n 收尾**：按迭代排期
-
----
-
-## 六、分支与实施计划
+## 五、分支与实施计划
 
 | 分支名 | 包含任务 | 说明 |
 |--------|----------|------|
-| **`feat/stripe-payment-and-booking-flow`** | 支付流程、预订确认与取消规则 | 核心业务闭环 |
-| **`feat/roles-and-route-guards`** | 权限与角色 | 可与支付分支并行 |
+| **`feat/v2-p0-safety`** | DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 | V2 评审 P0，Beta 前置 |
+| **`feat/v2-p1-roi`** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1 |
 | **`chore/next-phase-ops-and-polish`** | 测试、监控、文档、PWA、i18n、UI/无障碍、导航/主题 | 已完成 |
 
 ### 创建分支示例
@@ -104,9 +85,7 @@
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feat/stripe-payment-and-booking-flow
-# 或
-git checkout -b feat/roles-and-route-guards
+git checkout -b feat/v2-p0-safety
 ```
 
 ---

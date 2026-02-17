@@ -313,16 +313,14 @@ export const useGames = (filters) => {
 
 ## 七、实施优先级建议
 
+> **当前下阶段以 V2 评审为准**，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。下表为长期路线图，与 V2 评审 P0/P1/P2 有重叠，执行时以 V2 为准。
+
 | 优先级 | 项 | 说明 |
 |--------|----|------|
-| **P0** | Stripe Webhook | 支付安全 |
-| **P0** | 角色权限系统 | 数据安全 |
-| **P0** | 预订取消政策 | 用户信任 |
-| **P0** | 移动端底部导航 | 主要用户群体 |
-| **P1** | 比赛智能匹配 | 提升匹配效率 |
-| **P1** | 预订提醒系统 | 体验与留存 |
-| **P1** | React Query 全面迁移 | 数据层统一 |
-| **P1** | 错误边界与骨架屏 | 体验与稳定性 |
+| **P0** | Stripe Webhook、DB 预订约束、调试路由保护、RBAC | 支付安全、预订可靠性、权限（V2 评审优先） |
+| **P0** | 预订取消政策、移动端底部导航 | 用户信任、主要群体（已完成） |
+| **P1** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1 |
+| **P1** | 比赛智能匹配、预订提醒系统 | 提升匹配效率、体验与留存 |
 | **P2** | PWA 推送、数据分析、SEO、性能 | 增长与性能 |
 | **P3** | 社区论坛、成就、高级匹配 | 长期社区建设 |
 
@@ -330,6 +328,7 @@ export const useGames = (filters) => {
 
 ## 八、相关文档
 
-- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：当前任务与阶段
+- [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)：**当前下阶段实施任务**（P0/P1/P2，含 SQL、验收标准）
+- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划
 - [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：已完成的修改记录
