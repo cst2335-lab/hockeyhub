@@ -229,6 +229,27 @@ export default function DashboardPage() {
     }
   }
 
+  // Next booking starting within 24h (confirmed only) for reminder banner
+  const upcomingReminder = useMemo(() => {
+    const now = new Date();
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const confirmed = bookings.filter((b) => b.status === 'confirmed');
+    for (const b of confirmed) {
+      const start = new Date(`${b.booking_date}T${(b.start_time || '00:00').slice(0, 5)}`);
+      if (start > now && start <= in24h) {
+        const hoursLeft = Math.max(0.5, (start.getTime() - now.getTime()) / (60 * 60 * 1000));
+        return {
+          id: b.id,
+          rink: (b.rinks as { name?: string } | null)?.name ?? 'Rink',
+          date: formatDateByLocale(b.booking_date, locale),
+          time: (b.start_time || '').slice(0, 5),
+          hoursLeft: Math.round(hoursLeft * 2) / 2,
+        };
+      }
+    }
+    return null;
+  }, [bookings, locale]);
+
   const isLoading = authLoading || metricsLoading || (!!user && myGamesLoading);
 
   if (isLoading && metrics === undefined) {
@@ -254,27 +275,6 @@ export default function DashboardPage() {
   ] as const;
 
   const manageCard = { href: '/manage-rink', subKey: 'cardManageRinkSub', titleKey: 'cardManageRinkTitle', descKey: 'cardManageRinkDesc', icon: Settings, gradient: 'from-amber-600 to-orange-500' } as const;
-
-  // Next booking starting within 24h (confirmed only) for reminder banner
-  const upcomingReminder = useMemo(() => {
-    const now = new Date();
-    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const confirmed = bookings.filter((b) => b.status === 'confirmed');
-    for (const b of confirmed) {
-      const start = new Date(`${b.booking_date}T${(b.start_time || '00:00').slice(0, 5)}`);
-      if (start > now && start <= in24h) {
-        const hoursLeft = Math.max(0.5, (start.getTime() - now.getTime()) / (60 * 60 * 1000));
-        return {
-          id: b.id,
-          rink: (b.rinks as { name?: string } | null)?.name ?? 'Rink',
-          date: formatDateByLocale(b.booking_date, locale),
-          time: (b.start_time || '').slice(0, 5),
-          hoursLeft: Math.round(hoursLeft * 2) / 2,
-        };
-      }
-    }
-    return null;
-  }, [bookings, locale]);
 
   return (
     <div className="bg-background py-16 sm:py-24">
