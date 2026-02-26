@@ -4,6 +4,11 @@ Ottawa youth ice hockey community platform built with Next.js 15 (App Router), T
 
 ## Cursor Cloud specific instructions
 
+### Preferred working mode (lightweight / no-start)
+
+- For discovery tasks (for example, "hello world" onboarding checks), inspect markdown/docs first and summarize findings before writing code.
+- Do **not** start long-running services by default (including `npm run dev`) unless the user explicitly asks to run them.
+
 ### Services
 
 | Service | How to run | Notes |
