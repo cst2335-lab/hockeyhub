@@ -46,7 +46,7 @@ See `package.json` scripts. Key commands:
 
 ### Gotchas
 
-- **Sentry warnings**: The dev server emits Sentry warnings about `onRouterTransitionStart` and deprecated `sentry.client.config.ts`. These are non-blocking and can be ignored.
+- **Sentry setup location**: Client init lives in `instrumentation-client.ts` (with `onRouterTransitionStart` export). Do not reintroduce deprecated `sentry.client.config.ts`.
 - **`next lint` deprecation**: Next.js 15.5+ deprecates `next lint` in favor of the ESLint CLI directly. The `npm run lint` script still works but exits with code 1 due to the deprecation notice.
 - **Protected routes**: Pages like `/en/rinks`, `/en/games`, `/en/dashboard` require authentication and will redirect to `/en/login` without a valid Supabase session.
 - **Package manager**: Uses npm (lockfile: `package-lock.json`).
