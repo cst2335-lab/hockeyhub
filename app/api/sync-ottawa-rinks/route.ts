@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/client'
+import { createServiceClient } from '@/lib/supabase/service'
+import { extractBearerToken, shouldAuthorizeCronRequest } from '@/lib/security/cron-auth'
 
 // Complete Ottawa rinks dataset (60 entries)
 // Keep this list as-is; code below will deduplicate by address+phone in-memory.
@@ -89,19 +90,25 @@ const OTTAWA_RINKS_COMPLETE = [
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
+  const runId = crypto.randomUUID()
 
-  // Skip auth in test mode, otherwise check CRON secret
-  if (!testMode && process.env.NODE_ENV === 'production') {
-    const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const cronAuth = shouldAuthorizeCronRequest({
+    nodeEnv: process.env.NODE_ENV,
+    testMode,
+    providedToken: extractBearerToken(request.headers.get('authorization')),
+    expectedToken: process.env.CRON_SECRET,
+  })
+  if (!cronAuth.allowed) {
+    return NextResponse.json(
+      { error: 'Unauthorized', reason: cronAuth.reason, run_id: runId },
+      { status: 401 }
+    )
   }
 
   try {
-    console.log('🏒 Sync started at:', new Date().toISOString())
+    console.log(`[sync-ottawa-rinks:${runId}] started at`, new Date().toISOString())
 
-    const supabase = createClient()
+    const supabase = createServiceClient()
 
     // Current count
     const { count: currentCount } = await supabase
@@ -111,6 +118,7 @@ export async function GET(request: Request) {
     // Test mode only reports status
     if (testMode) {
       return NextResponse.json({
+        run_id: runId,
         test: true,
         message: 'Ready to sync! Remove ?test=true to execute',
         current_rinks: currentCount || 0,
@@ -145,7 +153,7 @@ const INPUT = Array.from(uniqueMap.values())
 
 
         if (findErr) {
-          errors.push(`Lookup failed for ${rink.name}: ${findErr.message}`)
+          errors.push(`[lookup] ${rink.name}: ${findErr.message}`)
           continue
         }
 
@@ -171,10 +179,10 @@ const INPUT = Array.from(uniqueMap.values())
               .eq('id', existing.id)
 
             if (error) {
-              errors.push(`Update failed for ${rink.name}: ${error.message}`)
+              errors.push(`[update] ${rink.name}: ${error.message}`)
             } else {
               updated++
-              console.log(`✅ Updated: ${rink.name}`)
+              console.log(`[sync-ottawa-rinks:${runId}] updated ${rink.name}`)
             }
           }
         } else {
@@ -197,14 +205,15 @@ const INPUT = Array.from(uniqueMap.values())
             })
 
           if (error) {
-            errors.push(`Insert failed for ${rink.name}: ${error.message}`)
+            errors.push(`[insert] ${rink.name}: ${error.message}`)
           } else {
             added++
-            console.log(`✅ Added: ${rink.name}`)
+            console.log(`[sync-ottawa-rinks:${runId}] added ${rink.name}`)
           }
         }
-      } catch (e: any) {
-        errors.push(`Error processing ${rink.name}: ${e.message}`)
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Unknown error'
+        errors.push(`[process] ${rink.name}: ${message}`)
       }
     }
 
@@ -213,6 +222,7 @@ const INPUT = Array.from(uniqueMap.values())
       .from('rink_updates_log')
       .insert({
         changes: {
+          run_id: runId,
           added,
           updated,
           errors: errors.length,
@@ -227,10 +237,11 @@ const INPUT = Array.from(uniqueMap.values())
       .from('rinks')
       .select('*', { count: 'exact', head: true })
 
-    console.log(`🎉 Sync completed: ${added} added, ${updated} updated`)
+    console.log(`[sync-ottawa-rinks:${runId}] completed: ${added} added, ${updated} updated`)
 
     return NextResponse.json({
       success: true,
+      run_id: runId,
       message: 'Sync completed successfully!',
       stats: {
         initial_count: currentCount || 0,
@@ -242,10 +253,11 @@ const INPUT = Array.from(uniqueMap.values())
       errors: errors.length > 0 ? errors : undefined,
       time: new Date().toISOString(),
     })
-  } catch (error: any) {
-    console.error('❌ Sync error:', error)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error(`[sync-ottawa-rinks:${runId}] failed:`, message)
     return NextResponse.json(
-      { error: 'Sync failed', details: error?.message },
+      { error: 'Sync failed', details: message, run_id: runId },
       { status: 500 }
     )
   }

@@ -28,7 +28,7 @@
 
 | 方法 | 路径 | 说明 | 认证 |
 |------|------|------|------|
-| POST | `/api/sync-ottawa-rinks` | 同步 Ottawa 冰场数据；生产环境需 `Authorization: Bearer <CRON_SECRET>` 或测试模式 | CRON 密钥或测试 |
+| POST | `/api/sync-ottawa-rinks` | 同步 Ottawa 冰场数据；生产环境强制 `Authorization: Bearer <CRON_SECRET>`（不允许 test bypass） | CRON 密钥 |
 
 ---
 

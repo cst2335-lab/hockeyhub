@@ -24,7 +24,7 @@
 | STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET | 支付流程 |
 | RESEND_API_KEY / RESEND_FROM | 确认邮件 |
 | NEXT_PUBLIC_APP_URL | 应用根 URL |
-| CRON_SECRET | 定时任务鉴权（可选） |
+| CRON_SECRET | 定时任务鉴权（建议必填，生产环境接口会校验） |
 
 ## 4. 本地开发
 
