@@ -1,7 +1,5 @@
 /**
- * Client-side Sentry init for Next.js (Turbopack convention).
- * When using Turbopack, move the init from sentry.client.config.ts here.
- * Currently sentry.client.config.ts still holds the init for webpack builds.
+ * Client-side Sentry init for Next.js instrumentation-client convention.
  */
 import * as Sentry from '@sentry/nextjs';
 
@@ -15,3 +13,6 @@ if (dsn) {
     environment: process.env.NODE_ENV,
   });
 }
+
+// Enables router transition tracing in Next.js App Router.
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
