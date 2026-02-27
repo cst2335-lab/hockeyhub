@@ -7,6 +7,11 @@ export type Rink = {
   hourly_rate: number | string | null;
   amenities: string[] | null;
   booking_url: string | null;
+  source?: string | null;
+  data_source?: string | null;
+  last_synced_at?: string | null;
+  image_url?: string | null;
+  image_verified?: boolean | null;
 };
 
 type PostgrestErrorLike = { message?: string | null } | null;
@@ -28,7 +33,7 @@ type SupabaseRinksClient = {
 export async function fetchRinksListQuery(supabase: SupabaseRinksClient): Promise<Rink[]> {
   const { data, error } = await supabase
     .from('rinks')
-    .select('id, name, address, city, phone, hourly_rate, amenities, booking_url')
+    .select('*')
     .order('name', { ascending: true });
 
   if (error) throw new Error(error.message ?? 'Failed to load rinks');

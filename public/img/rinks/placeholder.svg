@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Rink image placeholder</title>
+  <desc id="desc">Default placeholder for rink cards.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E4877" />
+      <stop offset="100%" stop-color="#64BEF0" />
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)" />
+  <g opacity="0.22">
+    <path d="M0 360 C 200 300, 400 420, 960 320 L960 540 L0 540 Z" fill="#ffffff" />
+  </g>
+  <g fill="#ffffff">
+    <circle cx="480" cy="210" r="70" opacity="0.85" />
+    <rect x="320" y="300" width="320" height="24" rx="12" opacity="0.9" />
+    <rect x="370" y="338" width="220" height="18" rx="9" opacity="0.7" />
+  </g>
+</svg>

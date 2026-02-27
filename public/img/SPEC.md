@@ -8,6 +8,11 @@ public/img/
 ├── logo/            # Brand logo assets / 品牌 Logo
 │   ├── icon.svg     # Icon only (nav, favicon) / 纯图标（导航栏、favicon）
 │   └── logo.svg     # Full logo with text / 完整 Logo 含文字
+├── rinks/           # Rink card placeholders / 冰场卡片占位图
+│   ├── placeholder.svg
+│   ├── official.svg
+│   ├── imported.svg
+│   └── community.svg
 ├── icons/           # PWA & favicon / PWA 与网站图标
 │   ├── icon.svg     # Favicon (SVG) / 网站图标
 │   ├── icon-192.png # PWA 192×192
@@ -31,6 +36,7 @@ public/img/
 | PWA icon 192 | `/img/icons/icon-192.png` | `manifest.json`, `layout.tsx` |
 | PWA icon 512 | `/img/icons/icon-512.png` | `manifest.json` |
 | Grid pattern | `/img/patterns/grid.svg` | `hero-section`, `game-card` |
+| Rink placeholders | `/img/rinks/*.svg` | `rinks` card image fallback/auto layers |
 
 ## Brand Colors (GoGoHockey) / 品牌色
 

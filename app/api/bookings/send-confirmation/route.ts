@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { requireAuth } from '@/lib/api/auth';
+import { getCancellationPolicyHtml } from '@/lib/booking/policy-copy';
 
 type Body = {
   rinkName: string;
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
   }
 
   const subject = `GoGoHockey – Booking confirmation: ${rinkName}`;
+  const policyHtml = getCancellationPolicyHtml();
   const html = `
     <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
       <h2 style="color: #0E4877;">Booking Confirmation</h2>
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
         <tr><td style="padding: 8px 16px 8px 0; color: #666;">Duration</td><td>${hours} hour(s)</td></tr>
         <tr><td style="padding: 8px 16px 8px 0; color: #666;">Total</td><td>$${total.toFixed(2)}</td></tr>
       </table>
+      ${policyHtml}
       <p>Thank you for using GoGoHockey!</p>
     </div>
   `;
