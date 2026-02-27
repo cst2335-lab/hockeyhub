@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { createClient } from '@/lib/supabase/server';
 import { fetchGamesListQuery } from '@/lib/queries/games';
+import { createPublicServerClient } from '@/lib/supabase/public-server';
 
 export default async function GamesListLayout({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient();
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicServerClient();
     await queryClient.prefetchQuery({
       queryKey: ['games'],
       queryFn: () => fetchGamesListQuery(supabase),
