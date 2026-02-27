@@ -98,15 +98,14 @@ export default function DashboardLayout({
     if (user) {
       setUserEmail(user.email || null);
       const [profileRes, { data: manager }] = await Promise.all([
-        supabase.from('profiles').select('role, full_name, avatar_url').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('full_name, avatar_url').eq('id', user.id).maybeSingle(),
         supabase.from('rink_managers').select('id').eq('user_id', user.id).eq('verified', true).maybeSingle(),
       ]);
-      const profile = profileRes.error ? null : (profileRes.data as { role?: string; full_name?: string; avatar_url?: string } | null);
+      const profile = profileRes.error ? null : (profileRes.data as { full_name?: string; avatar_url?: string } | null);
       const meta = user.user_metadata as Record<string, unknown> | undefined;
       setUserName((profile?.full_name ?? meta?.full_name ?? meta?.name ?? null) as string | null);
       setAvatarUrl((profile?.avatar_url ?? meta?.avatar_url ?? null) as string | null);
-      const hasRinkManagerRole = profile?.role === 'rink_manager' || !!manager;
-      setIsRinkManager(!!hasRinkManagerRole);
+      setIsRinkManager(!!manager);
     } else {
       setIsRinkManager(false);
       setUserName(null);

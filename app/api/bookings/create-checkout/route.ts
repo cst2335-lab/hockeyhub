@@ -4,9 +4,11 @@ import Stripe from 'stripe';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 import { bookingFormSchema } from '@/lib/validations/booking';
+import { isBookingOverlapConstraintError } from '@/lib/booking/conflict-constraint';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
+const SLOT_UNAVAILABLE_MESSAGE = 'This slot is no longer available';
 
 type Body = { rinkId: string; bookingDate: string; startTime: string; hours: number; locale?: string };
 
@@ -94,7 +96,7 @@ export async function POST(request: NextRequest) {
   );
   if (hasConflict) {
     return NextResponse.json(
-      { error: 'This time slot is already booked' },
+      { error: SLOT_UNAVAILABLE_MESSAGE },
       { status: 409 }
     );
   }
@@ -124,6 +126,13 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (insertError || !booking) {
+    if (isBookingOverlapConstraintError(insertError)) {
+      return NextResponse.json(
+        { error: SLOT_UNAVAILABLE_MESSAGE },
+        { status: 409 }
+      );
+    }
+
     console.error('Booking insert error:', insertError);
     return NextResponse.json(
       { error: 'Failed to create booking' },

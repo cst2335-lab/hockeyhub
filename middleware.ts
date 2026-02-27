@@ -1,13 +1,30 @@
-// middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
+import { isDebugRoute } from '@/lib/security/debug-routes';
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   locales: ['en', 'fr'],
   defaultLocale: 'en',
-  localePrefix: 'always' // 确保总是有 locale 前缀
+  localePrefix: 'always',
 });
 
+export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (isDebugRoute(pathname)) {
+    if (process.env.NODE_ENV === 'production') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  }
+
+  return intlMiddleware(request);
+}
+
 export const config = {
-  // Exclude debug pages, api, static files
-  matcher: ['/((?!api|_next|_vercel|check-database|test-connection|test-notifications|.*\\..*).*)'],
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
 };

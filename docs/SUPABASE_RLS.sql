@@ -107,7 +107,42 @@ CREATE POLICY "Users can delete own bookings"
   USING (auth.uid() = user_id);
 
 -- ============================================
--- 5. notifications
+-- 5. bookings 防并发超卖 + Stripe webhook 幂等
+-- ============================================
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'no_overlapping_bookings'
+  ) THEN
+    ALTER TABLE bookings
+      ADD CONSTRAINT no_overlapping_bookings
+      EXCLUDE USING GIST (
+        rink_id WITH =,
+        tsrange(
+          (booking_date::timestamp + start_time::time),
+          (booking_date::timestamp + end_time::time),
+          '[)'
+        ) WITH &&
+      )
+      WHERE (status <> 'cancelled');
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_event_id text UNIQUE NOT NULL,
+  processed_at timestamptz DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_stripe_webhook_events_event_id
+  ON stripe_webhook_events(stripe_event_id);
+
+-- ============================================
+-- 6. notifications
 -- ============================================
 DROP POLICY IF EXISTS "Users can view own notifications" ON notifications;
 CREATE POLICY "Users can view own notifications"
@@ -129,8 +164,24 @@ CREATE POLICY "Users can delete own notifications"
   USING (auth.uid() = user_id);
 
 -- ============================================
--- 6. profiles
+-- 7. profiles
 -- ============================================
+ALTER TABLE IF EXISTS profiles
+  ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'profiles_role_check'
+  ) THEN
+    ALTER TABLE profiles
+      ADD CONSTRAINT profiles_role_check
+      CHECK (role IN ('player', 'parent', 'club_admin', 'rink_manager', 'super_admin'))
+      NOT VALID;
+  END IF;
+END $$;
+
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
@@ -151,7 +202,7 @@ CREATE POLICY "Users can insert own profile"
   WITH CHECK (auth.uid() = id);
 
 -- ============================================
--- 7. rinks（公开只读）
+-- 8. rinks（公开只读）
 -- ============================================
 ALTER TABLE IF EXISTS rinks ENABLE ROW LEVEL SECURITY;
 
@@ -172,7 +223,7 @@ CREATE POLICY "Rink managers can update own rinks"
   );
 
 -- ============================================
--- 8. payments（支付记录，需解决 UNRESTRICTED）
+-- 9. payments（支付记录，需解决 UNRESTRICTED）
 -- ============================================
 -- 若表不存在可跳过；若字段名不同请按实际 schema 调整（如 user_id / booking_id）
 ALTER TABLE IF EXISTS payments ENABLE ROW LEVEL SECURITY;
@@ -188,7 +239,7 @@ CREATE POLICY "Users can view own payments"
 --   ON payments FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
--- 9. rink_updates_log（冰场更新日志，需解决 UNRESTRICTED）
+-- 10. rink_updates_log（冰场更新日志，需解决 UNRESTRICTED）
 -- ============================================
 ALTER TABLE IF EXISTS rink_updates_log ENABLE ROW LEVEL SECURITY;
 
@@ -219,9 +270,3 @@ CREATE POLICY "Users can insert own rink update log"
 -- 可选：bookings 表增加 Stripe 支付相关列（支付流程使用）
 -- ============================================
 -- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS stripe_payment_intent_id text;
-
--- ============================================
--- 可选：profiles 表增加 role（权限与路由保护使用）
--- ============================================
--- 合法取值：player, parent, club_admin, rink_manager, super_admin
--- ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';

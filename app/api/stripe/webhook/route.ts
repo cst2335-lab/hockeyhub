@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/service';
 import { Resend } from 'resend';
+import { claimStripeWebhookEvent } from '@/lib/stripe/webhook-idempotency';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
@@ -34,6 +35,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
+  const supabase = createServiceClient();
+  try {
+    const claim = await claimStripeWebhookEvent(supabase, event.id);
+    if (claim === 'duplicate') {
+      return NextResponse.json({ received: true, deduplicated: true });
+    }
+  } catch (err) {
+    console.error('Webhook: failed to persist event id', event.id, err);
+    return NextResponse.json({ error: 'Failed to persist webhook event id' }, { status: 500 });
+  }
+
   if (event.type !== 'checkout.session.completed') {
     return NextResponse.json({ received: true });
   }
@@ -44,8 +56,6 @@ export async function POST(request: NextRequest) {
     console.error('Webhook: no booking_id in metadata');
     return NextResponse.json({ received: true });
   }
-
-  const supabase = createServiceClient();
 
   const paymentIntentId =
     typeof session.payment_intent === 'string'

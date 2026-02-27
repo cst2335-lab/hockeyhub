@@ -11,7 +11,8 @@
 | POST | `/api/bookings/create-checkout` | 创建待支付预订并返回 Stripe Checkout URL，前端重定向至该 URL | 需要 |
 | POST | `/api/bookings/cancel` | 取消指定预订；若已支付则按规则退款（如 ≥48h 全额） | 需要 |
 | POST | `/api/bookings/send-confirmation` | 手动重发预订确认邮件（可选） | 需要 |
-| POST | `/api/stripe/webhook` | Stripe Webhook：处理 `checkout.session.completed`，更新预订状态并发确认邮件 | 使用 Stripe 签名验证 |
+| POST | `/api/webhooks/stripe` | Stripe Webhook（推荐）：处理支付事件并执行 `stripe_event_id` 幂等去重 | 使用 Stripe 签名验证 |
+| POST | `/api/stripe/webhook` | Stripe Webhook（兼容旧路径）：处理支付事件并执行 `stripe_event_id` 幂等去重 | 使用 Stripe 签名验证 |
 
 ---
 

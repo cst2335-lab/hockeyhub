@@ -92,13 +92,13 @@ export default function DashboardPage() {
     (async () => {
       const { data: { user: u } } = await supabase.auth.getUser();
       if (!u) return;
-      const [profileRes, { data: manager }] = await Promise.all([
-        supabase.from('profiles').select('role').eq('id', u.id).maybeSingle(),
-        supabase.from('rink_managers').select('id').eq('user_id', u.id).eq('verified', true).maybeSingle(),
-      ]);
-      const profile = profileRes.error ? null : (profileRes.data as { role?: string } | null);
-      const hasRole = profile?.role === 'rink_manager' || !!manager;
-      setIsRinkManager(!!hasRole);
+      const { data: manager } = await supabase
+        .from('rink_managers')
+        .select('id')
+        .eq('user_id', u.id)
+        .eq('verified', true)
+        .maybeSingle();
+      setIsRinkManager(!!manager);
     })();
   }, [supabase]);
 

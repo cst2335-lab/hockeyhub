@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/service';
+import { claimStripeWebhookEvent } from '@/lib/stripe/webhook-idempotency';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -39,6 +40,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Webhook signature verification failed: ${message}` }, { status: 400 });
   }
 
+  const supabase = createServiceClient();
+
+  try {
+    const claim = await claimStripeWebhookEvent(supabase, event.id);
+    if (claim === 'duplicate') {
+      return NextResponse.json({ received: true, deduplicated: true });
+    }
+  } catch (err) {
+    console.error('Stripe webhook: failed to persist event id', event.id, err);
+    return NextResponse.json(
+      { error: 'Failed to persist webhook event id' },
+      { status: 500 }
+    );
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -51,7 +67,6 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        const supabase = createServiceClient();
         const { error } = await supabase
           .from('bookings')
           .update({
