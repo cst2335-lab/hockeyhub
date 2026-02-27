@@ -4,10 +4,10 @@ type PostgrestErrorLike = {
 } | null | undefined;
 
 type StripeWebhookEventsInsert = {
-  from: (table: 'stripe_webhook_events') => {
+  from: (table: string) => {
     insert: (
       values: { stripe_event_id: string } | Array<{ stripe_event_id: string }>
-    ) => Promise<{ error: PostgrestErrorLike }>;
+    ) => PromiseLike<{ error: PostgrestErrorLike }>;
   };
 };
 
