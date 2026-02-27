@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { GameCardSkeleton } from '@/components/ui/skeleton';
 import { sortGamesByMatch } from '@/lib/matching/score';
+import { fetchGamesListQuery } from '@/lib/queries/games';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -55,33 +56,7 @@ export default function GamesPage() {
   // Fetch games with React Query
   const { data: gamesData, isLoading: loading } = useQuery({
     queryKey: ['games'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('game_invitations')
-        .select('*')
-        .order('game_date', { ascending: true });
-      if (error) throw error;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayStr = today.toISOString().split('T')[0];
-      const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
-
-      return (data || [])
-        .filter((g: { game_date?: string }) => !g.game_date || g.game_date >= sevenDaysAgoStr)
-        .map((g) => {
-          const row = g as unknown as Game;
-          return {
-            ...row,
-            status: (['open', 'matched', 'closed', 'cancelled'] as GameStatus[]).includes(row.status)
-              ? row.status
-              : 'open',
-            isExpired: row.game_date ? row.game_date < todayStr : false,
-          } as Game;
-        });
-    },
+    queryFn: () => fetchGamesListQuery(supabase),
   });
 
   const games = gamesData ?? [];

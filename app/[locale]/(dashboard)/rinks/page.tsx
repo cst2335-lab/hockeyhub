@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils/format'
 import { RinkCardSkeleton } from '@/components/ui/skeleton'
+import { fetchRinksListQuery } from '@/lib/queries/rinks'
 
 type Rink = {
   id: string
@@ -31,15 +32,7 @@ export default function RinksPage() {
 
   const { data: rinks = [], isLoading: loading } = useQuery({
     queryKey: ['rinks'],
-    queryFn: async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('rinks')
-        .select('id, name, address, city, phone, hourly_rate, amenities, booking_url')
-        .order('name', { ascending: true })
-      if (error) throw error
-      return (data as Rink[]) || []
-    },
+    queryFn: () => fetchRinksListQuery(createClient()),
   })
 
   // UI state
