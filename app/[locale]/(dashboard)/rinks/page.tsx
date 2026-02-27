@@ -20,7 +20,7 @@ export default function RinksPage() {
   const t = useTranslations('rinks')
   const tActions = useTranslations('actions')
 
-  const { data: rinks = [], isLoading: loading, isError, error: queryError } = useQuery({
+  const { data: rinks = [], isLoading: loading } = useQuery({
     queryKey: ['rinks'],
     queryFn: () => fetchRinksListQuery(createClient()),
   })
