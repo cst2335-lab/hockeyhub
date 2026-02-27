@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizePlainText } from '@/lib/utils/sanitize';
+import { escapeHtml, sanitizePlainText } from '@/lib/utils/sanitize';
 
 describe('sanitizePlainText', () => {
   it('returns empty for null/undefined', () => {
@@ -18,5 +18,13 @@ describe('sanitizePlainText', () => {
   it('limits length to 10000', () => {
     const long = 'a'.repeat(15000);
     expect(sanitizePlainText(long).length).toBe(10000);
+  });
+});
+
+describe('escapeHtml', () => {
+  it('escapes html special chars', () => {
+    expect(escapeHtml('<script>alert("x")</script>')).toBe(
+      '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;'
+    );
   });
 });

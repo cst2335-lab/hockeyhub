@@ -3,14 +3,12 @@ import { addHours, format, parse } from 'date-fns';
 import Stripe from 'stripe';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
-import { bookingFormSchema } from '@/lib/validations/booking';
+import { bookingCheckoutSchema } from '@/lib/validations/booking';
 import { isBookingOverlapConstraintError } from '@/lib/booking/conflict-constraint';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
 const SLOT_UNAVAILABLE_MESSAGE = 'This slot is no longer available';
-
-type Body = { rinkId: string; bookingDate: string; startTime: string; hours: number; locale?: string };
 
 function calcEndTime(
   dateStr: string,
@@ -35,26 +33,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'User email required for checkout' }, { status: 400 });
   }
 
-  let body: Body;
+  let body: unknown;
   try {
-    body = (await request.json()) as Body;
+    body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const parsed = bookingFormSchema.safeParse({
-    bookingDate: body.bookingDate,
-    startTime: body.startTime,
-    hours: body.hours,
-  });
-  if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.errors[0]?.message ?? 'Invalid booking data' },
+      { error: 'Invalid JSON', errorCode: 'INVALID_JSON' },
       { status: 400 }
     );
   }
 
-  const { rinkId, bookingDate, startTime, hours, locale = 'en' } = body;
+  const parsed = bookingCheckoutSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: parsed.error.errors[0]?.message ?? 'Invalid booking data',
+        errorCode: 'INVALID_BOOKING_PAYLOAD',
+      },
+      { status: 400 }
+    );
+  }
+
+  const { rinkId, bookingDate, startTime, hours, locale } = parsed.data;
   const { endTime, isOvernight } = calcEndTime(bookingDate, startTime, hours);
   if (isOvernight) {
     return NextResponse.json(
