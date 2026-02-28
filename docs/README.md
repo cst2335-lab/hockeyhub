@@ -20,6 +20,7 @@
 | [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md) | 权限与路由保护说明 |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | 部署指南（Vercel + 环境变量 + Supabase） |
 | [API.md](./API.md) | API 接口说明 |
+| [API_ERROR_CODES.md](./API_ERROR_CODES.md) | API 错误码对照表（`errorCode`） |
 
 ---
 

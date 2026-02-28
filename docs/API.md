@@ -60,5 +60,6 @@
 
 - **需登录接口**：未认证时返回 `401`，body 为 `{ "error": "Unauthorized", "message": "Authentication required" }`。
 - **服务端校验**：上述写接口统一采用 Zod 校验 + 文本净化，参数非法时返回 `400`，并带 `errorCode`（如 `INVALID_GAME_PAYLOAD`、`INVALID_BOOKING_PAYLOAD`）。
+- **错误码清单**：完整 `errorCode` 对照见 [API_ERROR_CODES.md](./API_ERROR_CODES.md)。
 - **Stripe Webhook**：必须在 Stripe Dashboard 配置端点 URL 与签名密钥，详见 [STRIPE_BOOKING_SETUP.md](./STRIPE_BOOKING_SETUP.md)。
 - 其他写操作若新增，建议统一使用 `lib/api/auth.ts` 中的 `requireAuth()` 做认证。
