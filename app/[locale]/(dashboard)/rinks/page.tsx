@@ -35,6 +35,16 @@ export default function RinksPage() {
   const pathname = usePathname()
   const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/')
+  const buildCorrectionHref = (rink: Rink) => {
+    const params = new URLSearchParams({
+      topic: 'rink-correction',
+      rinkId: rink.id,
+      rinkName: rink.name ?? '',
+      address: rink.address ?? '',
+      city: rink.city ?? '',
+    })
+    return withLocale(`/contact?${params.toString()}`)
+  }
 
   // Distinct cities for the filter
   const cities = useMemo(() => {
@@ -237,6 +247,7 @@ export default function RinksPage() {
             const imageMeta = resolveRinkCardImage(r)
             const sourceLabel = getSourceLabel(imageMeta.source)
             const lastSynced = formatLastSynced(r.last_synced_at)
+            const correctionHref = buildCorrectionHref(r)
             const confidencePercent = Math.round(imageMeta.confidence * 100)
             const imageLayerLabel =
               imageMeta.layer === 'manual'
@@ -319,6 +330,12 @@ export default function RinksPage() {
                     Go
                   </a>
                 </div>
+                <Link
+                  href={correctionHref}
+                  className="text-xs text-muted-foreground hover:text-gogo-primary hover:underline underline-offset-2"
+                >
+                  {t('reportCorrection')}
+                </Link>
               </div>
             )
           })}

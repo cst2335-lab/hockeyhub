@@ -102,7 +102,7 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 | 自动层 | 导入时匹配图片源 + confidence 阈值 | 已有 findBestMatch 可扩展 |
 | 人工层 | Admin 一键替换 + `image_verified=true` | 低     |
 
-**验收**：冰场卡片 0 破图，Top 20 冰场达到 `image_verified=true`。
+**验收**：冰场卡片 0 破图，Top 20 冰场达到 `image_verified=true`（可使用 [SQL_TOP20_IMAGE_VERIFIED.sql](./SQL_TOP20_IMAGE_VERIFIED.sql) 批量标记后人工复核）。
 
 ---
 

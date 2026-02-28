@@ -76,7 +76,13 @@
     "emailLabel": "Email",
     "locationLabel": "Location",
     "location": "Ottawa, Ontario, Canada",
-    "backHome": "Back to Home"
+    "backHome": "Back to Home",
+    "rinkCorrectionTitle": "Report rink data correction",
+    "rinkCorrectionHint": "Use this pre-filled draft email to report incorrect rink details.",
+    "rinkCorrectionAction": "Send correction email",
+    "rinkCorrectionId": "Rink ID: {value}",
+    "rinkCorrectionName": "Rink name: {value}",
+    "rinkCorrectionAddress": "Address: {value}"
   },
   "privacyPage": {
     "title": "Privacy Policy",
@@ -173,7 +179,8 @@
     "imageConfidence": "Image confidence: {percent}%",
     "prevPage": "Previous",
     "nextPage": "Next",
-    "pageOf": "Page {current} of {total}"
+    "pageOf": "Page {current} of {total}",
+    "reportCorrection": "Report correction"
   },
   "book": {
     "title": "Book {name}",

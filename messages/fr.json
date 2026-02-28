@@ -76,7 +76,13 @@
     "emailLabel": "Courriel",
     "locationLabel": "Emplacement",
     "location": "Ottawa, Ontario, Canada",
-    "backHome": "Retour à l'accueil"
+    "backHome": "Retour à l'accueil",
+    "rinkCorrectionTitle": "Signaler une correction de patinoire",
+    "rinkCorrectionHint": "Utilisez cet e-mail prérempli pour signaler des informations de patinoire incorrectes.",
+    "rinkCorrectionAction": "Envoyer un e-mail de correction",
+    "rinkCorrectionId": "ID de patinoire : {value}",
+    "rinkCorrectionName": "Nom de la patinoire : {value}",
+    "rinkCorrectionAddress": "Adresse : {value}"
   },
   "privacyPage": {
     "title": "Politique de confidentialité",
@@ -173,7 +179,8 @@
     "imageConfidence": "Confiance image : {percent} %",
     "prevPage": "Précédent",
     "nextPage": "Suivant",
-    "pageOf": "Page {current} sur {total}"
+    "pageOf": "Page {current} sur {total}",
+    "reportCorrection": "Signaler une correction"
   },
   "book": {
     "title": "Réserver {name}",
