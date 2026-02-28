@@ -156,7 +156,12 @@ export default function GameDetailsPage() {
 
       // increment views (only non-creator & logged-in)
       if (auth.user && g.created_by !== auth.user.id) {
-        await supabase.from('game_invitations').update({ view_count: (g.view_count || 0) + 1 }).eq('id', id);
+        await fetch('/api/games/view', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ gameId: id }),
+        });
       }
     } catch (e) {
       console.error('loadGameDetails error:', e);

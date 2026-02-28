@@ -24,6 +24,7 @@
 | POST | `/api/games/update` | 更新自己创建的比赛（服务端 Zod 校验 + sanitize） | 需要 |
 | POST | `/api/games/status` | 修改自己发布比赛的状态（open/matched/closed/cancelled） | 需要 |
 | POST | `/api/games/delete` | 删除自己发布的比赛 | 需要 |
+| POST | `/api/games/view` | 增加比赛浏览量（仅登录且非创建者生效） | 需要 |
 | POST | `/api/games/interest` | 对比赛表达兴趣（创建/幂等）并同步 `interested_count` | 需要 |
 | DELETE | `/api/games/interest` | 取消兴趣并同步 `interested_count` | 需要 |
 | POST | `/api/games/interest/remove` | 按 interest 记录删除我的兴趣并同步 `interested_count` | 需要 |

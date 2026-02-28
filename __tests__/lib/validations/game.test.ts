@@ -4,6 +4,7 @@ import {
   deleteGameSchema,
   gameInterestSchema,
   gameRatingSchema,
+  gameViewSchema,
   gameStatusUpdateSchema,
   removeGameInterestSchema,
   updateGameSchema,
@@ -132,5 +133,14 @@ describe('removeGameInterestSchema', () => {
   it('rejects non-uuid interest id', () => {
     const result = removeGameInterestSchema.safeParse({ interestId: 'abc' });
     expect(result.success).toBe(false);
+  });
+});
+
+describe('gameViewSchema', () => {
+  it('accepts valid game view payload', () => {
+    const result = gameViewSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+    });
+    expect(result.success).toBe(true);
   });
 });

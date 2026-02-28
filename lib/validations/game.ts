@@ -48,6 +48,10 @@ export const deleteGameSchema = z.object({
   gameId: z.string().uuid('Invalid game id'),
 });
 
+export const gameViewSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+});
+
 export const removeGameInterestSchema = z.object({
   interestId: z.string().uuid('Invalid interest id'),
 });
