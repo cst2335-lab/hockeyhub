@@ -18,3 +18,12 @@ export const createGameSchema = z.object({
 });
 
 export type CreateGameInput = z.infer<typeof createGameSchema>;
+
+export const gameStatusSchema = z.enum(['open', 'matched', 'closed', 'cancelled']);
+
+export const updateGameSchema = createGameSchema.extend({
+  gameId: z.string().uuid('Invalid game id'),
+  status: gameStatusSchema,
+});
+
+export type UpdateGameInput = z.infer<typeof updateGameSchema>;

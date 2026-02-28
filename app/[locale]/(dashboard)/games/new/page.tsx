@@ -7,8 +7,7 @@ import {createClient} from '@/lib/supabase/client';
 import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
 import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
-import {createGameSchema, type CreateGameInput} from '@/lib/validations/game';
-import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
+import {createGameSchema} from '@/lib/validations/game';
 
 export default function CreateGamePage() {
   const t = useTranslations('games');
@@ -81,33 +80,17 @@ export default function CreateGamePage() {
         return;
       }
 
-      const valid = parsed.data as CreateGameInput;
-      const sanitizedTitle = sanitizePlainText(valid.title).slice(0, 100);
-      const sanitizedLocation = sanitizePlainText(valid.location).slice(0, 200);
-      const sanitizedDescription = sanitizeOptionalText(valid.description ?? '', 1000);
-      const sanitizedContact = sanitizeOptionalText(valid.contact_info ?? '', 200);
-
-      const {data, error} = await supabase
-        .from('game_invitations')
-        .insert({
-          title: sanitizedTitle,
-          game_date: valid.game_date,
-          game_time: valid.game_time,
-          location: sanitizedLocation,
-          age_group: valid.age_group,
-          skill_level: valid.skill_level,
-          description: sanitizedDescription,
-          max_players: valid.max_players ? parseInt(valid.max_players) : null,
-          contact_info: sanitizedContact,
-          status: 'open',
-          created_by: user.id,
-          view_count: 0,
-          interested_count: 0
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const valid = parsed.data;
+      const res = await fetch('/api/games/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(valid),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to create game');
+      }
 
       // Localized redirect to details page
       router.push(withLocale(`/games/${data.id}`));
