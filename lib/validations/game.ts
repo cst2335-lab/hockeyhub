@@ -27,3 +27,17 @@ export const updateGameSchema = createGameSchema.extend({
 });
 
 export type UpdateGameInput = z.infer<typeof updateGameSchema>;
+
+export const gameInterestSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  message: z.string().max(1000, 'Message must be 1000 characters or less').optional().or(z.literal('')),
+});
+
+export const gameRatingSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  rating: z.coerce.number().int('Rating must be a whole number').min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
+  comment: z.string().max(500, 'Comment must be 500 characters or less').optional().or(z.literal('')),
+});
+
+export type GameInterestInput = z.infer<typeof gameInterestSchema>;
+export type GameRatingInput = z.infer<typeof gameRatingSchema>;

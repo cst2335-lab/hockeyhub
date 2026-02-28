@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createGameSchema, updateGameSchema } from '@/lib/validations/game';
+import {
+  createGameSchema,
+  gameInterestSchema,
+  gameRatingSchema,
+  updateGameSchema,
+} from '@/lib/validations/game';
 
 describe('createGameSchema', () => {
   it('accepts valid create payload', () => {
@@ -60,6 +65,44 @@ describe('updateGameSchema', () => {
       age_group: 'U13',
       skill_level: 'Intermediate',
       status: 'pending',
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('gameInterestSchema', () => {
+  it('accepts valid interest payload', () => {
+    const result = gameInterestSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+      message: 'Interested in joining.',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects too long interest message', () => {
+    const result = gameInterestSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+      message: 'a'.repeat(1001),
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('gameRatingSchema', () => {
+  it('accepts valid rating payload', () => {
+    const result = gameRatingSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+      rating: 4,
+      comment: 'Good experience',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects out-of-range rating', () => {
+    const result = gameRatingSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+      rating: 6,
+      comment: 'Too high',
     });
     expect(result.success).toBe(false);
   });
