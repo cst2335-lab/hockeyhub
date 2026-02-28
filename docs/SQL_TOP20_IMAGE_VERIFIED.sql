@@ -1,5 +1,6 @@
 -- Mark top 20 rink images as manually verified.
 -- Run in Supabase SQL Editor after human review of those 20 records.
+-- Alternative (CLI): npm run db:mark-top20-images -- --apply
 
 WITH top_20 AS (
   SELECT id
