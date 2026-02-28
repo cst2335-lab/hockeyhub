@@ -246,7 +246,7 @@ export default function RinksPage() {
             const tag = band(rateNum)
             const imageMeta = resolveRinkCardImage(r)
             const sourceLabel = getSourceLabel(imageMeta.source)
-            const lastSynced = formatLastSynced(r.last_synced_at)
+            const lastSynced = formatLastSynced(r.last_synced_at ?? r.last_synced ?? null)
             const correctionHref = buildCorrectionHref(r)
             const confidencePercent = Math.round(imageMeta.confidence * 100)
             const imageLayerLabel =

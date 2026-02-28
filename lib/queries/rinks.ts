@@ -10,6 +10,7 @@ export type Rink = {
   source?: string | null;
   data_source?: string | null;
   last_synced_at?: string | null;
+  last_synced?: string | null;
   image_url?: string | null;
   image_verified?: boolean | null;
 };
@@ -37,5 +38,16 @@ export async function fetchRinksListQuery(supabase: SupabaseRinksClient): Promis
     .order('name', { ascending: true });
 
   if (error) throw new Error(error.message ?? 'Failed to load rinks');
-  return (data as Rink[]) ?? [];
+
+  const rows = (data ?? []) as Array<Record<string, unknown>>;
+  return rows.map((row) => {
+    const typed = row as Rink;
+    const legacyLastSynced = (row.last_synced as string | null | undefined) ?? null;
+    const nextLastSyncedAt = (row.last_synced_at as string | null | undefined) ?? legacyLastSynced;
+    return {
+      ...typed,
+      last_synced: legacyLastSynced,
+      last_synced_at: nextLastSyncedAt,
+    };
+  });
 }
