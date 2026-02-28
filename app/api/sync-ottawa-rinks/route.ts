@@ -87,6 +87,44 @@ const OTTAWA_RINKS_COMPLETE = [
   { name: 'Russell Arena', address: '1084 Concession St, Russell, ON K4R 1C7', phone: '(613) 445-3444', hourly_rate: 150, booking_url: 'https://russell.ca' }
 ]
 
+type OptionalRinkColumns = {
+  data_source: boolean
+  last_synced_at: boolean
+  last_synced: boolean
+}
+
+function isMissingColumnError(message: string | null | undefined): boolean {
+  const normalized = (message ?? '').toLowerCase()
+  return normalized.includes('column') && normalized.includes('does not exist')
+}
+
+async function detectOptionalRinkColumns(
+  supabase: ReturnType<typeof createServiceClient>,
+  runId: string
+): Promise<OptionalRinkColumns> {
+  const optionalColumns: OptionalRinkColumns = {
+    data_source: false,
+    last_synced_at: false,
+    last_synced: false,
+  }
+
+  for (const column of Object.keys(optionalColumns) as Array<keyof OptionalRinkColumns>) {
+    const { error } = await supabase.from('rinks').select(column).limit(1)
+    if (!error) {
+      optionalColumns[column] = true
+      continue
+    }
+
+    if (!isMissingColumnError(error.message)) {
+      console.warn(
+        `[sync-ottawa-rinks:${runId}] optional column probe failed for ${column}: ${error.message}`
+      )
+    }
+  }
+
+  return optionalColumns
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const testMode = searchParams.get('test') === 'true'
@@ -115,6 +153,8 @@ export async function GET(request: Request) {
       .from('rinks')
       .select('*', { count: 'exact', head: true })
 
+    const optionalColumns = await detectOptionalRinkColumns(supabase, runId)
+
     // Test mode only reports status
     if (testMode) {
       return NextResponse.json({
@@ -124,33 +164,34 @@ export async function GET(request: Request) {
         current_rinks: currentCount || 0,
         available_rinks: OTTAWA_RINKS_COMPLETE.length,
         to_add: OTTAWA_RINKS_COMPLETE.length - (currentCount || 0),
+        optional_columns: optionalColumns,
         time: new Date().toISOString(),
       })
     }
 
     // --- in-memory dedup by (address + name) to allow multi-pad per address ---
-const uniqueMap = new Map<string, typeof OTTAWA_RINKS_COMPLETE[number]>()
-for (const r of OTTAWA_RINKS_COMPLETE) {
-  const k = `${String(r.address).trim().toLowerCase()}|${String(r.name).trim().toLowerCase()}`
-  if (!uniqueMap.has(k)) uniqueMap.set(k, r)
-}
-const INPUT = Array.from(uniqueMap.values())
-
+    const uniqueMap = new Map<string, typeof OTTAWA_RINKS_COMPLETE[number]>()
+    for (const r of OTTAWA_RINKS_COMPLETE) {
+      const k = `${String(r.address).trim().toLowerCase()}|${String(r.name).trim().toLowerCase()}`
+      if (!uniqueMap.has(k)) uniqueMap.set(k, r)
+    }
+    const inputRows = Array.from(uniqueMap.values())
 
     let added = 0
     let updated = 0
+    let metadataRefreshed = 0
     const errors: string[] = []
+    const syncedAt = new Date().toISOString()
 
-    for (const rink of INPUT) {
+    for (const rink of inputRows) {
       try {
-        // Match by name OR address (treat same-address as the same rink)
+        // Match by name + address after in-memory dedup.
         const { data: existing, error: findErr } = await supabase
-  .from('rinks')
-  .select('id, hourly_rate, address, phone, booking_url')
-  .eq('address', rink.address)
-  .eq('name', rink.name)
-  .maybeSingle()
-
+          .from('rinks')
+          .select('id, hourly_rate, address, phone, booking_url')
+          .eq('address', rink.address)
+          .eq('name', rink.name)
+          .maybeSingle()
 
         if (findErr) {
           errors.push(`[lookup] ${rink.name}: ${findErr.message}`)
@@ -165,24 +206,40 @@ const INPUT = Array.from(uniqueMap.values())
             existing.phone !== rink.phone ||
             existing.booking_url !== (rink.booking_url || null)
 
-          if (shouldUpdate) {
+          const shouldRefreshMetadata =
+            optionalColumns.data_source || optionalColumns.last_synced_at || optionalColumns.last_synced
+
+          if (shouldUpdate || shouldRefreshMetadata) {
+            const updatePayload: Record<string, unknown> = {
+              source: 'ottawa_sync',
+            }
+
+            if (shouldUpdate) {
+              updatePayload.hourly_rate = rink.hourly_rate
+              updatePayload.address = rink.address
+              updatePayload.phone = rink.phone
+              updatePayload.booking_url = rink.booking_url || null
+              updatePayload.availability_hours = '6:00 AM - 11:00 PM'
+            }
+
+            if (optionalColumns.data_source) updatePayload.data_source = 'imported'
+            if (optionalColumns.last_synced_at) updatePayload.last_synced_at = syncedAt
+            if (optionalColumns.last_synced) updatePayload.last_synced = syncedAt
+
             const { error } = await supabase
               .from('rinks')
-              .update({
-                hourly_rate: rink.hourly_rate,
-                address: rink.address,
-                phone: rink.phone,
-                booking_url: rink.booking_url || null,
-                availability_hours: '6:00 AM - 11:00 PM',
-                source: 'ottawa_sync',
-              })
+              .update(updatePayload)
               .eq('id', existing.id)
 
             if (error) {
               errors.push(`[update] ${rink.name}: ${error.message}`)
             } else {
-              updated++
-              console.log(`[sync-ottawa-rinks:${runId}] updated ${rink.name}`)
+              if (shouldUpdate) {
+                updated++
+                console.log(`[sync-ottawa-rinks:${runId}] updated ${rink.name}`)
+              } else {
+                metadataRefreshed++
+              }
             }
           }
         } else {
@@ -191,18 +248,23 @@ const INPUT = Array.from(uniqueMap.values())
           if (rink.hourly_rate > 200) amenitiesList.push('skate_rental')
           if (rink.hourly_rate > 250) amenitiesList.push('pro_shop')
 
+          const insertPayload: Record<string, unknown> = {
+            name: rink.name,
+            address: rink.address,
+            phone: rink.phone,
+            hourly_rate: rink.hourly_rate,
+            booking_url: rink.booking_url || null,
+            availability_hours: '6:00 AM - 11:00 PM',
+            source: 'ottawa_sync',
+            amenities: amenitiesList,
+          }
+          if (optionalColumns.data_source) insertPayload.data_source = 'imported'
+          if (optionalColumns.last_synced_at) insertPayload.last_synced_at = syncedAt
+          if (optionalColumns.last_synced) insertPayload.last_synced = syncedAt
+
           const { error } = await supabase
             .from('rinks')
-            .insert({
-              name: rink.name,
-              address: rink.address,
-              phone: rink.phone,
-              hourly_rate: rink.hourly_rate,
-              booking_url: rink.booking_url || null,
-              availability_hours: '6:00 AM - 11:00 PM',
-              source: 'ottawa_sync',
-              amenities: amenitiesList,
-            })
+            .insert(insertPayload)
 
           if (error) {
             errors.push(`[insert] ${rink.name}: ${error.message}`)
@@ -225,8 +287,10 @@ const INPUT = Array.from(uniqueMap.values())
           run_id: runId,
           added,
           updated,
+          metadata_refreshed: metadataRefreshed,
           errors: errors.length,
           total_processed: OTTAWA_RINKS_COMPLETE.length,
+          optional_columns: optionalColumns,
           error_details: errors.length > 0 ? errors : null,
         },
         update_type: 'full_sync',
@@ -237,7 +301,9 @@ const INPUT = Array.from(uniqueMap.values())
       .from('rinks')
       .select('*', { count: 'exact', head: true })
 
-    console.log(`[sync-ottawa-rinks:${runId}] completed: ${added} added, ${updated} updated`)
+    console.log(
+      `[sync-ottawa-rinks:${runId}] completed: ${added} added, ${updated} updated, ${metadataRefreshed} metadata refreshed`
+    )
 
     return NextResponse.json({
       success: true,
@@ -248,8 +314,10 @@ const INPUT = Array.from(uniqueMap.values())
         final_count: finalCount || 0,
         added,
         updated,
+        metadata_refreshed: metadataRefreshed,
         errors: errors.length,
       },
+      optional_columns: optionalColumns,
       errors: errors.length > 0 ? errors : undefined,
       time: new Date().toISOString(),
     })
