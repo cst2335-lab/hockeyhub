@@ -45,6 +45,7 @@
 | 方法 | 路径 | 说明 | 认证 |
 |------|------|------|------|
 | POST | `/api/notifications/test` | 测试发送通知（开发/调试用） | 需要 |
+| POST | `/api/notifications/manage` | 通知管理动作（`mark_read` / `mark_all_read` / `delete`） | 需要 |
 
 ---
 

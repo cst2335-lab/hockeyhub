@@ -135,3 +135,17 @@ All `errorCode` values are uppercase snake case and are intended for frontend br
 | `INVALID_RINK_UPDATE_PAYLOAD` | 400 | Failed Zod validation for rink update payload |
 | `RINK_MANAGER_REQUIRED` | 403 | User is not a verified manager for target rink |
 | `RINK_UPDATE_FAILED` | 500 | Database update failed |
+
+---
+
+## Notification APIs
+
+### `POST /api/notifications/manage`
+
+| errorCode | HTTP | Meaning |
+|---|---:|---|
+| `INVALID_JSON` | 400 | Invalid JSON payload |
+| `INVALID_NOTIFICATION_ACTION` | 400 | Failed schema validation for notification action payload |
+| `NOTIFICATION_NOT_FOUND` | 404 | Notification row not found or user not owner |
+| `NOTIFICATION_UPDATE_FAILED` | 500 | Database failure while marking notifications as read |
+| `NOTIFICATION_DELETE_FAILED` | 500 | Database failure while deleting notification |

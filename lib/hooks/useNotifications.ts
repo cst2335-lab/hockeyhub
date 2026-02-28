@@ -54,8 +54,14 @@ export function useNotifications() {
 
   const markAsRead = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id);
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'mark_read', notificationId: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to mark notification as read');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
@@ -64,13 +70,14 @@ export function useNotifications() {
 
   const markAllAsRead = useMutation({
     mutationFn: async () => {
-      if (!user?.id) return;
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'mark_all_read' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to mark all notifications as read');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
@@ -79,8 +86,14 @@ export function useNotifications() {
 
   const deleteNotification = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('notifications').delete().eq('id', id);
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'delete', notificationId: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to delete notification');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
