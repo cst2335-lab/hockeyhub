@@ -39,5 +39,18 @@ export const gameRatingSchema = z.object({
   comment: z.string().max(500, 'Comment must be 500 characters or less').optional().or(z.literal('')),
 });
 
+export const gameStatusUpdateSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  status: gameStatusSchema,
+});
+
+export const deleteGameSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+});
+
+export const removeGameInterestSchema = z.object({
+  interestId: z.string().uuid('Invalid interest id'),
+});
+
 export type GameInterestInput = z.infer<typeof gameInterestSchema>;
 export type GameRatingInput = z.infer<typeof gameRatingSchema>;

@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   createGameSchema,
+  deleteGameSchema,
   gameInterestSchema,
   gameRatingSchema,
+  gameStatusUpdateSchema,
+  removeGameInterestSchema,
   updateGameSchema,
 } from '@/lib/validations/game';
 
@@ -104,6 +107,30 @@ describe('gameRatingSchema', () => {
       rating: 6,
       comment: 'Too high',
     });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('gameStatusUpdateSchema', () => {
+  it('accepts valid status update payload', () => {
+    const result = gameStatusUpdateSchema.safeParse({
+      gameId: '11111111-2222-3333-4444-555555555555',
+      status: 'matched',
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('deleteGameSchema', () => {
+  it('rejects non-uuid game id', () => {
+    const result = deleteGameSchema.safeParse({ gameId: 'abc' });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('removeGameInterestSchema', () => {
+  it('rejects non-uuid interest id', () => {
+    const result = removeGameInterestSchema.safeParse({ interestId: 'abc' });
     expect(result.success).toBe(false);
   });
 });
