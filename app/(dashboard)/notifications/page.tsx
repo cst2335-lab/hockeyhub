@@ -105,8 +105,14 @@ export default function NotificationsPage() {
 
   async function markAsRead(id: string) {
     try {
-      const {error} = await supabase.from('notifications').update({is_read: true}).eq('id', id);
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'mark_read', notificationId: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to mark notification as read');
       setNotifications(prev => prev.map(n => (n.id === id ? {...n, is_read: true} : n)));
     } catch (error) {
       console.error('Error marking as read:', error);
@@ -115,18 +121,14 @@ export default function NotificationsPage() {
 
   async function markAllAsRead() {
     try {
-      const {
-        data: {user}
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const {error} = await supabase
-        .from('notifications')
-        .update({is_read: true})
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'mark_all_read' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to mark all notifications as read');
       setNotifications(prev => prev.map(n => ({...n, is_read: true})));
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -135,8 +137,14 @@ export default function NotificationsPage() {
 
   async function deleteNotification(id: string) {
     try {
-      const {error} = await supabase.from('notifications').delete().eq('id', id);
-      if (error) throw error;
+      const res = await fetch('/api/notifications/manage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: 'delete', notificationId: id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to delete notification');
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (error) {
       console.error('Error deleting notification:', error);

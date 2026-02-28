@@ -18,3 +18,43 @@ export const createGameSchema = z.object({
 });
 
 export type CreateGameInput = z.infer<typeof createGameSchema>;
+
+export const gameStatusSchema = z.enum(['open', 'matched', 'closed', 'cancelled']);
+
+export const updateGameSchema = createGameSchema.extend({
+  gameId: z.string().uuid('Invalid game id'),
+  status: gameStatusSchema,
+});
+
+export type UpdateGameInput = z.infer<typeof updateGameSchema>;
+
+export const gameInterestSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  message: z.string().max(1000, 'Message must be 1000 characters or less').optional().or(z.literal('')),
+});
+
+export const gameRatingSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  rating: z.coerce.number().int('Rating must be a whole number').min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
+  comment: z.string().max(500, 'Comment must be 500 characters or less').optional().or(z.literal('')),
+});
+
+export const gameStatusUpdateSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+  status: gameStatusSchema,
+});
+
+export const deleteGameSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+});
+
+export const gameViewSchema = z.object({
+  gameId: z.string().uuid('Invalid game id'),
+});
+
+export const removeGameInterestSchema = z.object({
+  interestId: z.string().uuid('Invalid interest id'),
+});
+
+export type GameInterestInput = z.infer<typeof gameInterestSchema>;
+export type GameRatingInput = z.infer<typeof gameRatingSchema>;

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
 import {toast} from 'sonner';
+import { createGameSchema } from '@/lib/validations/game';
 
 type GameStatus = 'open' | 'matched' | 'cancelled' | 'closed';
 
@@ -126,24 +127,38 @@ export default function EditGamePage() {
         return;
       }
 
-      const { error } = await supabase
-        .from('game_invitations')
-        .update({
-          title: formData.title,
-          game_date: formData.game_date,
-          game_time: formData.game_time,
-          location: formData.location,
-          age_group: formData.age_group,
-          skill_level: formData.skill_level,
-          description: formData.description,
-          max_players: formData.max_players ? parseInt(formData.max_players, 10) : null,
-          contact_info: formData.contact_info,
-          status: formData.status,
-        })
-        .eq('id', gameId)
-        .eq('created_by', user.id); // 只更新本人创建的
-
-      if (error) throw error;
+      const parsed = createGameSchema.safeParse({
+        title: formData.title,
+        game_date: formData.game_date,
+        game_time: formData.game_time,
+        location: formData.location,
+        age_group: formData.age_group,
+        skill_level: formData.skill_level,
+        description: formData.description || undefined,
+        max_players: formData.max_players || undefined,
+        contact_info: formData.contact_info || undefined,
+      });
+      if (!parsed.success) {
+        toast.error(parsed.error.errors[0]?.message ?? 'Please fix the form errors');
+        return;
+      }
+      const normalizedStatus: GameStatus = statusOptions.some((s) => s.value === formData.status)
+        ? formData.status
+        : 'open';
+      const res = await fetch('/api/games/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          ...parsed.data,
+          gameId,
+          status: normalizedStatus,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to update game');
+      }
 
       // Go to details (localized)
       router.push(withLocale(`/games/${gameId}`));

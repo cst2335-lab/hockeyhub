@@ -27,11 +27,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (process.env.SUPABASE_SERVICE_KEY) {
     try {
       const supabase = createServiceClient();
-      const { data: games } = await supabase
-        .from('game_invitations')
-        .select('id, updated_at')
-        .limit(500);
+      const [{ data: games }, { data: rinks }] = await Promise.all([
+        supabase
+          .from('game_invitations')
+          .select('id, updated_at')
+          .limit(500),
+        supabase
+          .from('rinks')
+          .select('id, updated_at')
+          .limit(500),
+      ]);
       const gameList = games ?? [];
+      const rinkList = rinks ?? [];
       for (const locale of locales) {
         for (const g of gameList) {
           const lastMod = g.updated_at ? new Date(g.updated_at as string) : new Date();
@@ -40,6 +47,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             lastModified: lastMod,
             changeFrequency: 'weekly' as const,
             priority: 0.6,
+          });
+        }
+
+        for (const rink of rinkList) {
+          const lastMod = rink.updated_at ? new Date(rink.updated_at as string) : new Date();
+          entries.push({
+            url: `${baseUrl}/${locale}/book/${rink.id}`,
+            lastModified: lastMod,
+            changeFrequency: 'weekly' as const,
+            priority: 0.5,
           });
         }
       }

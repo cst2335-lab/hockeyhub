@@ -92,13 +92,13 @@ export default function DashboardPage() {
     (async () => {
       const { data: { user: u } } = await supabase.auth.getUser();
       if (!u) return;
-      const [profileRes, { data: manager }] = await Promise.all([
-        supabase.from('profiles').select('role').eq('id', u.id).maybeSingle(),
-        supabase.from('rink_managers').select('id').eq('user_id', u.id).eq('verified', true).maybeSingle(),
-      ]);
-      const profile = profileRes.error ? null : (profileRes.data as { role?: string } | null);
-      const hasRole = profile?.role === 'rink_manager' || !!manager;
-      setIsRinkManager(!!hasRole);
+      const { data: manager } = await supabase
+        .from('rink_managers')
+        .select('id')
+        .eq('user_id', u.id)
+        .eq('verified', true)
+        .maybeSingle();
+      setIsRinkManager(!!manager);
     })();
   }, [supabase]);
 
@@ -163,11 +163,18 @@ export default function DashboardPage() {
 
   async function updateGameStatus(gameId: string, newStatus: string) {
     try {
-      const { error } = await supabase
-        .from('game_invitations')
-        .update({ status: newStatus })
-        .eq('id', gameId);
-      if (error) throw error;
+      const res = await fetch('/api/games/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          gameId,
+          status: newStatus,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to update game status');
+
       await queryClient.invalidateQueries({ queryKey: ['my-games'] });
       if (newStatus === 'cancelled') toast.success('Game cancelled successfully');
       else if (newStatus === 'matched') toast.success('Game marked as matched');
@@ -180,8 +187,15 @@ export default function DashboardPage() {
   async function deleteGame(gameId: string) {
     if (!confirm('Are you sure you want to delete this game? This action cannot be undone.')) return;
     try {
-      const { error } = await supabase.from('game_invitations').delete().eq('id', gameId);
-      if (error) throw error;
+      const res = await fetch('/api/games/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ gameId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to delete game');
+
       await queryClient.invalidateQueries({ queryKey: ['my-games'] });
       toast.success('Game deleted successfully');
     } catch (err) {
@@ -193,8 +207,15 @@ export default function DashboardPage() {
   async function removeInterest(interestId: string) {
     if (!confirm('Remove your interest in this game?')) return;
     try {
-      const { error } = await supabase.from('game_interests').delete().eq('id', interestId);
-      if (error) throw error;
+      const res = await fetch('/api/games/interest/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ interestId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to remove interest');
+
       await queryClient.invalidateQueries({ queryKey: ['my-games'] });
     } catch (err) {
       console.error(err);

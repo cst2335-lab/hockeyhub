@@ -11,10 +11,10 @@
 | `player` | 普通球员/用户 | 默认，注册时或 profiles.role 默认值 |
 | `parent` | 家长 | profiles.role |
 | `club_admin` | 俱乐部管理员 | profiles.role |
-| `rink_manager` | 冰场管理员 | profiles.role 或 rink_managers 表（verified=true） |
+| `rink_manager` | 冰场管理员 | `rink_managers`（`verified=true`） |
 | `super_admin` | 超级管理员 | profiles.role |
 
-当前实现：**Manage Rink** 仅对 `rink_manager` 开放，判定为 `profiles.role = 'rink_manager'` 或存在于 `rink_managers` 且 `verified = true`。
+当前实现：**Manage Rink** 仅对 `rink_managers.verified = true` 用户开放，确保与 RLS 策略一致。
 
 ---
 
@@ -49,8 +49,8 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';
 
 ## 4. 与 rink_managers 的关系
 
-- **rink_managers** 表仍为“谁可以管理哪家冰场”的数据源；**profiles.role** 为全局角色，便于后续扩展（如俱乐部、多角色）。
-- 判定“是否为冰场管理员”时同时考虑：`profiles.role = 'rink_manager'` 或 `rink_managers` 中存在该 user 且 `verified = true`，满足其一即视为 rink_manager。
+- **rink_managers** 表是“谁可以管理哪家冰场”的唯一授权来源（当前实现）。
+- **profiles.role** 保留为全局角色扩展字段（俱乐部/后台等），但不单独授予 manage-rink 权限。
 
 ---
 

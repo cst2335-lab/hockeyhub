@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:mark-top20-images": "node scripts/mark-top20-image-verified.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

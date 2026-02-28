@@ -76,7 +76,13 @@
     "emailLabel": "Email",
     "locationLabel": "Location",
     "location": "Ottawa, Ontario, Canada",
-    "backHome": "Back to Home"
+    "backHome": "Back to Home",
+    "rinkCorrectionTitle": "Report rink data correction",
+    "rinkCorrectionHint": "Use this pre-filled draft email to report incorrect rink details.",
+    "rinkCorrectionAction": "Send correction email",
+    "rinkCorrectionId": "Rink ID: {value}",
+    "rinkCorrectionName": "Rink name: {value}",
+    "rinkCorrectionAddress": "Address: {value}"
   },
   "privacyPage": {
     "title": "Privacy Policy",
@@ -162,9 +168,19 @@
     "avgPrice": "Average Price",
     "lowestPrice": "Lowest Price",
     "highestPrice": "Highest Price",
+    "sourceOfficial": "Official data",
+    "sourceImported": "Imported data",
+    "sourceCommunity": "Community data",
+    "sourceUnknown": "Unverified source",
+    "lastSynced": "Synced {date}",
+    "imageLayerManual": "Verified image",
+    "imageLayerAuto": "Auto image",
+    "imageLayerFallback": "Default image",
+    "imageConfidence": "Image confidence: {percent}%",
     "prevPage": "Previous",
     "nextPage": "Next",
-    "pageOf": "Page {current} of {total}"
+    "pageOf": "Page {current} of {total}",
+    "reportCorrection": "Report correction"
   },
   "book": {
     "title": "Book {name}",
@@ -369,6 +385,8 @@
     "cancelBooking": "Cancel Booking",
     "cancelling": "Cancelling...",
     "cancelConfirm": "Are you sure you want to cancel this booking? Refund: full if 24+ hours before start, 50% if 12–24 hours, none if less than 12 hours.",
+    "cancelConfirmWithRefund": "Are you sure you want to cancel this booking? Estimated refund now: {refundAmount}. Policy: full if 24+ hours before start, 50% if 12–24 hours, none if less than 12 hours.",
+    "estimatedRefund": "Estimated refund now: {amount}",
     "cancelSuccess": "Booking cancelled successfully. Refund will be processed if applicable.",
     "cancelError": "Failed to cancel booking",
     "paymentSuccess": "Payment successful! Your booking is confirmed."

@@ -76,7 +76,13 @@
     "emailLabel": "Courriel",
     "locationLabel": "Emplacement",
     "location": "Ottawa, Ontario, Canada",
-    "backHome": "Retour à l'accueil"
+    "backHome": "Retour à l'accueil",
+    "rinkCorrectionTitle": "Signaler une correction de patinoire",
+    "rinkCorrectionHint": "Utilisez cet e-mail prérempli pour signaler des informations de patinoire incorrectes.",
+    "rinkCorrectionAction": "Envoyer un e-mail de correction",
+    "rinkCorrectionId": "ID de patinoire : {value}",
+    "rinkCorrectionName": "Nom de la patinoire : {value}",
+    "rinkCorrectionAddress": "Adresse : {value}"
   },
   "privacyPage": {
     "title": "Politique de confidentialité",
@@ -162,9 +168,19 @@
     "avgPrice": "Prix moyen",
     "lowestPrice": "Prix le plus bas",
     "highestPrice": "Prix le plus élevé",
+    "sourceOfficial": "Données officielles",
+    "sourceImported": "Données importées",
+    "sourceCommunity": "Données communautaires",
+    "sourceUnknown": "Source non vérifiée",
+    "lastSynced": "Synchronisé le {date}",
+    "imageLayerManual": "Image vérifiée",
+    "imageLayerAuto": "Image auto",
+    "imageLayerFallback": "Image par défaut",
+    "imageConfidence": "Confiance image : {percent} %",
     "prevPage": "Précédent",
     "nextPage": "Suivant",
-    "pageOf": "Page {current} sur {total}"
+    "pageOf": "Page {current} sur {total}",
+    "reportCorrection": "Signaler une correction"
   },
   "book": {
     "title": "Réserver {name}",
@@ -367,6 +383,8 @@
     "cancelBooking": "Annuler la réservation",
     "cancelling": "Annulation...",
     "cancelConfirm": "Voulez-vous vraiment annuler cette réservation? Remboursement: intégral si 24 h avant le début, 50 % si 12–24 h, aucun si moins de 12 h.",
+    "cancelConfirmWithRefund": "Voulez-vous vraiment annuler cette réservation? Remboursement estimé maintenant : {refundAmount}. Politique : intégral si 24 h avant le début, 50 % si 12–24 h, aucun si moins de 12 h.",
+    "estimatedRefund": "Remboursement estimé maintenant : {amount}",
     "cancelSuccess": "Réservation annulée. Le remboursement sera traité le cas échéant.",
     "cancelError": "Échec de l'annulation",
     "paymentSuccess": "Paiement réussi! Votre réservation est confirmée."

@@ -7,6 +7,7 @@ import {toast} from 'sonner';
 import {createClient} from '@/lib/supabase/client';
 import {useRouter, useParams} from 'next/navigation';
 import {formatCurrency, formatDate} from '@/lib/utils/format';
+import { getRefundAmountCents } from '@/lib/booking/policies';
 
 /**
  * Booking detail page
@@ -28,6 +29,7 @@ export default function BookingDetailPage() {
 
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchBookingDetail = useCallback(async () => {
     if (!bookingId) return;
@@ -67,11 +69,19 @@ export default function BookingDetailPage() {
     fetchBookingDetail();
   }, [fetchBookingDetail]);
 
-  const [cancelling, setCancelling] = useState(false);
+  const estimatedRefundAmount = useMemo(() => {
+    if (!booking) return 0;
+    const bookingStart = new Date(`${booking.booking_date}T${String(booking.start_time || '00:00').slice(0, 5)}`);
+    const hoursUntilStart = (bookingStart.getTime() - Date.now()) / (1000 * 60 * 60);
+    if (!Number.isFinite(hoursUntilStart)) return 0;
+    const totalCents = Math.round(Number(booking.total || 0) * 100);
+    return getRefundAmountCents(totalCents, hoursUntilStart) / 100;
+  }, [booking]);
 
   const handleCancel = async () => {
     if (!bookingId) return;
-    if (!confirm(t('cancelConfirm'))) return;
+    const refundAmount = formatCurrency(estimatedRefundAmount);
+    if (!confirm(t('cancelConfirmWithRefund', { refundAmount }))) return;
 
     setCancelling(true);
     try {
@@ -212,13 +222,18 @@ export default function BookingDetailPage() {
 
         {booking.status !== 'cancelled' && booking.status !== 'completed' && (
           <div className="mt-8 flex gap-4">
-            <button
-              onClick={handleCancel}
-              disabled={cancelling}
-              className="px-6 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              {cancelling ? t('cancelling') : t('cancelBooking')}
-            </button>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                {t('estimatedRefund', { amount: formatCurrency(estimatedRefundAmount) })}
+              </p>
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="px-6 py-2 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {cancelling ? t('cancelling') : t('cancelBooking')}
+              </button>
+            </div>
           </div>
         )}
       </div>

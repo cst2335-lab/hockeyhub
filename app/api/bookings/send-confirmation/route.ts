@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { requireAuth } from '@/lib/api/auth';
-
-type Body = {
-  rinkName: string;
-  bookingDate: string;
-  startTime: string;
-  endTime: string;
-  hours: number;
-  total: number;
-};
+import { getCancellationPolicyHtml } from '@/lib/booking/policy-copy';
+import { sendBookingConfirmationSchema } from '@/lib/validations/booking';
+import { escapeHtml, sanitizePlainText } from '@/lib/utils/sanitize';
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuth();
@@ -23,23 +17,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: Body;
+  let body: unknown;
   try {
-    body = (await request.json()) as Body;
+    body = await request.json();
   } catch {
     return NextResponse.json(
-      { error: 'Invalid JSON body' },
+      { error: 'Invalid JSON body', errorCode: 'INVALID_JSON' },
       { status: 400 },
     );
   }
 
-  const { rinkName, bookingDate, startTime, endTime, hours, total } = body;
-  if (!rinkName || !bookingDate || !startTime || !endTime || hours == null || total == null) {
+  const parsed = sendBookingConfirmationSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Missing required fields: rinkName, bookingDate, startTime, endTime, hours, total' },
+      {
+        error: parsed.error.errors[0]?.message ?? 'Invalid confirmation payload',
+        errorCode: 'INVALID_CONFIRMATION_PAYLOAD',
+      },
       { status: 400 },
     );
   }
+  const { rinkName, bookingDate, startTime, endTime, hours, total } = parsed.data;
+  const safeRinkNameText = sanitizePlainText(rinkName) || 'Ice Rink';
+  const safeRinkNameHtml = escapeHtml(rinkName);
+  const safeBookingDate = escapeHtml(bookingDate);
+  const safeStartTime = escapeHtml(startTime);
+  const safeEndTime = escapeHtml(endTime);
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -47,18 +50,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, skipped: 'no api key' });
   }
 
-  const subject = `GoGoHockey – Booking confirmation: ${rinkName}`;
+  const subject = `GoGoHockey – Booking confirmation: ${safeRinkNameText}`;
+  const policyHtml = getCancellationPolicyHtml();
   const html = `
     <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
       <h2 style="color: #0E4877;">Booking Confirmation</h2>
       <p>Hi,</p>
-      <p>Your ice time has been reserved at <strong>${rinkName}</strong>.</p>
+      <p>Your ice time has been reserved at <strong>${safeRinkNameHtml}</strong>.</p>
       <table style="border-collapse: collapse; margin: 16px 0;">
-        <tr><td style="padding: 8px 16px 8px 0; color: #666;">Date</td><td>${bookingDate}</td></tr>
-        <tr><td style="padding: 8px 16px 8px 0; color: #666;">Time</td><td>${startTime} – ${endTime}</td></tr>
+        <tr><td style="padding: 8px 16px 8px 0; color: #666;">Date</td><td>${safeBookingDate}</td></tr>
+        <tr><td style="padding: 8px 16px 8px 0; color: #666;">Time</td><td>${safeStartTime} – ${safeEndTime}</td></tr>
         <tr><td style="padding: 8px 16px 8px 0; color: #666;">Duration</td><td>${hours} hour(s)</td></tr>
         <tr><td style="padding: 8px 16px 8px 0; color: #666;">Total</td><td>$${total.toFixed(2)}</td></tr>
       </table>
+      ${policyHtml}
       <p>Thank you for using GoGoHockey!</p>
     </div>
   `;

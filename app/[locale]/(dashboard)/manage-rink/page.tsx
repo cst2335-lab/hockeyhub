@@ -98,42 +98,18 @@ export default function ManageRinkPage() {
 
     setSaving(true);
     try {
-      const parsedRate = Number(formData.hourly_rate);
-      const hourly_rate =
-        Number.isFinite(parsedRate) && parsedRate >= 0 ? parsedRate : null;
-
-      const amenities =
-        formData.amenities.trim() === ''
-          ? []
-          : formData.amenities.split(',').map((a) => a.trim()).filter(Boolean);
-
-      const { error } = await supabase
-        .from('rinks')
-        .update({
-          hourly_rate,
-          booking_url: formData.booking_url || null,
-          amenities,
-          custom_info: {
-            peak_hours: formData.peak_hours || null,
-            special_notes: formData.special_notes || null,
-          },
-          source: 'manager_updated',
-        })
-        .eq('id', myRink.id);
-
-      if (error) throw error;
-
-      // 记录日志（若已登录）
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('rink_updates_log').insert({
-          rink_id: myRink.id,
-          updated_by: user.id,
-          changes: formData,
-          update_type: 'manager_update',
-        });
+      const res = await fetch('/api/rinks/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          rinkId: myRink.id,
+          ...formData,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to update rink');
       }
 
       toast.success(t('updateSuccess'));

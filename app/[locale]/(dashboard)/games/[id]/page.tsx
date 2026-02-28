@@ -8,6 +8,7 @@ import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
 import {toast} from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import { sanitizeOptionalText } from '@/lib/utils/sanitize';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -31,6 +32,9 @@ type Game = {
   host_club?: { name: string; contact_email: string | null; contact_phone: string | null };
   rink?: { name: string; address: string | null; phone: string | null };
 };
+
+const INTEREST_MESSAGE_MAX_LENGTH = 1000;
+const RATING_COMMENT_MAX_LENGTH = 500;
 
 export default function GameDetailsPage() {
   const router = useRouter();
@@ -152,7 +156,12 @@ export default function GameDetailsPage() {
 
       // increment views (only non-creator & logged-in)
       if (auth.user && g.created_by !== auth.user.id) {
-        await supabase.from('game_invitations').update({ view_count: (g.view_count || 0) + 1 }).eq('id', id);
+        await fetch('/api/games/view', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ gameId: id }),
+        });
       }
     } catch (e) {
       console.error('loadGameDetails error:', e);
@@ -173,40 +182,38 @@ export default function GameDetailsPage() {
     }
     try {
       if (!isInterested) {
-        const { error } = await supabase.from('game_interests').insert({
-          game_id: id,
-          user_id: currentUser.id,
-          message,
-          status: 'pending'
+        const res = await fetch('/api/games/interest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            gameId: id,
+            message: sanitizeOptionalText(message, INTEREST_MESSAGE_MAX_LENGTH),
+          }),
         });
-        if (error) throw error;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? 'Failed to submit interest');
 
         setIsInterested(true);
         setShowMessageForm(false);
         setMessage('');
-
-        if (game) {
-          await supabase
-            .from('game_invitations')
-            .update({ interested_count: (game.interested_count || 0) + 1 })
-            .eq('id', id);
+        if (typeof data.interestedCount === 'number') {
+          setGame((prev) => (prev ? { ...prev, interested_count: data.interestedCount } : prev));
         }
       } else {
-        const { error } = await supabase
-          .from('game_interests')
-          .delete()
-          .eq('game_id', id)
-          .eq('user_id', currentUser.id);
-        if (error) throw error;
+        const res = await fetch('/api/games/interest', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ gameId: id }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? 'Failed to remove interest');
 
         setIsInterested(false);
         setShowContactInfo(false);
-
-        if (game) {
-          await supabase
-            .from('game_invitations')
-            .update({ interested_count: Math.max((game.interested_count || 0) - 1, 0) })
-            .eq('id', id);
+        if (typeof data.interestedCount === 'number') {
+          setGame((prev) => (prev ? { ...prev, interested_count: data.interestedCount } : prev));
         }
       }
       // refresh hydrated state
@@ -214,60 +221,39 @@ export default function GameDetailsPage() {
     } catch (e) {
       console.error('handleInterest error:', e);
     }
-  }, [currentUser, game, id, isInterested, message, router, supabase, withLocale, loadGameDetails]);
+  }, [currentUser, id, isInterested, message, router, withLocale, loadGameDetails]);
 
   // submit rating
   const handleSubmitRating = useCallback(async () => {
     if (!currentUser || !game || tempRating === 0) return;
 
     try {
-      let opponentId: string | null = null;
-      if (isCreator) {
-        const { data } = await supabase
-          .from('game_interests')
-          .select('user_id')
-          .eq('game_id', id)
-          .maybeSingle();
-        opponentId = data?.user_id ?? null;
-      } else {
-        opponentId = game.created_by;
-      }
-      if (!opponentId) {
-        toast.error('Cannot determine opponent');
-        return;
-      }
-
-      const { error } = await supabase.from('game_ratings').insert({
-        game_id: id,
-        rater_id: currentUser.id,
-        rated_user_id: opponentId,
+      const res = await fetch('/api/games/rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          gameId: id,
         rating: tempRating,
-        comment: ratingComment.trim() || null
+        comment: sanitizeOptionalText(ratingComment, RATING_COMMENT_MAX_LENGTH)
+        }),
       });
-      if (error) throw error;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to submit rating');
+      }
 
       setHasRated(true);
       setUserRating(tempRating);
-
-      const { data: ratings } = await supabase
-        .from('game_ratings')
-        .select('rating')
-        .eq('rated_user_id', opponentId);
-
-      if (ratings && ratings.length > 0) {
-        const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
-        await supabase
-          .from('profiles')
-          .update({ average_rating: avg, total_ratings: ratings.length })
-          .eq('id', opponentId);
-      }
+      setRatingComment('');
+      setTempRating(0);
 
       toast.success('Rating submitted successfully!');
     } catch (e) {
       console.error('handleSubmitRating error:', e);
       toast.error('Failed to submit rating');
     }
-  }, [currentUser, game, id, isCreator, ratingComment, tempRating, supabase]);
+  }, [currentUser, game, id, ratingComment, tempRating]);
 
   if (loading) {
     return (
@@ -415,6 +401,7 @@ export default function GameDetailsPage() {
                         placeholder="Add a message (optional)"
                         className="w-full p-3 border rounded-lg"
                         rows={3}
+                        maxLength={INTEREST_MESSAGE_MAX_LENGTH}
                       />
                       <div className="flex gap-2">
                         <button
@@ -488,7 +475,7 @@ export default function GameDetailsPage() {
                       placeholder="Share your experience (optional)"
                       className="w-full p-3 border rounded-lg resize-none"
                       rows={3}
-                      maxLength={500}
+                      maxLength={RATING_COMMENT_MAX_LENGTH}
                     />
 
                     <button

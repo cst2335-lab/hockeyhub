@@ -9,7 +9,7 @@
 | 文档 | 说明 |
 |------|------|
 | [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) | **任务与阶段规划**：已完成 / 进行中 / 下阶段任务一览 |
-| [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md) | **V2 评审下阶段**：P0/P1/P2 实施任务（DB 约束、Webhook 幂等、HydrationBoundary 等） |
+| [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md) | **V2 评审下阶段**：P0/P1 已完成，当前聚焦 P2（DB 约束、Webhook 幂等、HydrationBoundary 等已落地） |
 | [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) | **修改日志**：历史改动汇总 |
 | [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md) | **功能增强路线图**：比赛匹配、预订管理、支付、RBAC、SEO 等 |
 | [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md) | **修改方案**：功能、体验、架构、UI 视觉（早期规划） |
@@ -20,13 +20,14 @@
 | [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md) | 权限与路由保护说明 |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | 部署指南（Vercel + 环境变量 + Supabase） |
 | [API.md](./API.md) | API 接口说明 |
+| [API_ERROR_CODES.md](./API_ERROR_CODES.md) | API 错误码对照表（`errorCode`） |
 
 ---
 
 ## 文档说明
 
 - **NEXT_PHASE_TASKS.md**：任务总览及分支实施计划；下阶段以 V2 评审为优先。
-- **V2_REVIEW_NEXT_PHASE.md**：V2 三方分析综合评审结论，P0（DB 约束、Webhook 幂等、调试路由、RBAC）、P1（HydrationBoundary、图片策略、Cron 安全）、P2（XSS、SEO、Zod）。
+- **V2_REVIEW_NEXT_PHASE.md**：V2 三方分析综合评审结论，P0/P1 已完成，当前推进 P2（XSS、SEO、Zod）。
 - **CHANGELOG_IMPROVEMENTS.md**：按修改周期记录的优化内容，历史汇总。
 - **ENHANCEMENT_ROADMAP.md**：核心业务增强、体验优化、架构改进、实施优先级。
 - **PROJECT_REVIEW_REPORT.md**：项目定位、技术栈、功能模块、审查要点。

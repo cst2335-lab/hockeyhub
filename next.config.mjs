@@ -8,6 +8,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // Externalize OpenTelemetry to avoid "Cannot find module './vendor-chunks/@opentelemetry.js'"
+  // in deployment contexts (standalone, serverless) where chunk path resolution can fail.
+  serverExternalPackages: ['@opentelemetry/api'],
   async redirects() {
     return [
       { source: '/:locale/my-games', destination: '/:locale/dashboard', permanent: true },

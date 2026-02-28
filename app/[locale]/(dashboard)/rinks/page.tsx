@@ -8,17 +8,9 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils/format'
 import { RinkCardSkeleton } from '@/components/ui/skeleton'
-
-type Rink = {
-  id: string
-  name: string
-  address: string
-  city: string | null
-  phone: string | null
-  hourly_rate: number | string | null
-  amenities: string[] | null
-  booking_url: string | null
-}
+import RinkCardImage from '@/components/rinks/rink-card-image'
+import { fetchRinksListQuery, type Rink } from '@/lib/queries/rinks'
+import { resolveRinkCardImage, type RinkDataSource } from '@/lib/rinks/card-metadata'
 
 type PriceBand = 'all' | 'budget' | 'standard' | 'premium'
 
@@ -27,19 +19,10 @@ const PAGE_SIZE = 20
 export default function RinksPage() {
   const t = useTranslations('rinks')
   const tActions = useTranslations('actions')
-  const tCommon = useTranslations('common')
 
   const { data: rinks = [], isLoading: loading } = useQuery({
     queryKey: ['rinks'],
-    queryFn: async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('rinks')
-        .select('id, name, address, city, phone, hourly_rate, amenities, booking_url')
-        .order('name', { ascending: true })
-      if (error) throw error
-      return (data as Rink[]) || []
-    },
+    queryFn: () => fetchRinksListQuery(createClient()),
   })
 
   // UI state
@@ -52,6 +35,16 @@ export default function RinksPage() {
   const pathname = usePathname()
   const locale = useMemo(() => (pathname?.split('/')?.[1] || '').trim(), [pathname])
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/')
+  const buildCorrectionHref = (rink: Rink) => {
+    const params = new URLSearchParams({
+      topic: 'rink-correction',
+      rinkId: rink.id,
+      rinkName: rink.name ?? '',
+      address: rink.address ?? '',
+      city: rink.city ?? '',
+    })
+    return withLocale(`/contact?${params.toString()}`)
+  }
 
   // Distinct cities for the filter
   const cities = useMemo(() => {
@@ -63,6 +56,28 @@ export default function RinksPage() {
   // Helpers
   const toNum = (v: number | string | null) =>
     typeof v === 'number' ? v : typeof v === 'string' ? Number.parseFloat(v) : Number.NaN
+
+  const getSourceLabel = (source: RinkDataSource) => {
+    if (source === 'official') return t('sourceOfficial')
+    if (source === 'imported') return t('sourceImported')
+    if (source === 'community') return t('sourceCommunity')
+    return t('sourceUnknown')
+  }
+
+  const sourceBadgeClass = (source: RinkDataSource) => {
+    if (source === 'official') return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300'
+    if (source === 'imported') return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300'
+    if (source === 'community') return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300'
+    return 'bg-muted text-muted-foreground'
+  }
+
+  const formatLastSynced = (value?: string | null) => {
+    if (!value) return null
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return null
+    const lang = locale === 'fr' ? 'fr-CA' : 'en-CA'
+    return t('lastSynced', { date: date.toLocaleDateString(lang) })
+  }
 
   const band = (rate: number) => {
     if (Number.isNaN(rate)) return null
@@ -229,12 +244,39 @@ export default function RinksPage() {
           {paginatedRinks.map((r) => {
             const rateNum = toNum(r.hourly_rate)
             const tag = band(rateNum)
+            const imageMeta = resolveRinkCardImage(r)
+            const sourceLabel = getSourceLabel(imageMeta.source)
+            const lastSynced = formatLastSynced(r.last_synced_at ?? r.last_synced ?? null)
+            const correctionHref = buildCorrectionHref(r)
+            const confidencePercent = Math.round(imageMeta.confidence * 100)
+            const imageLayerLabel =
+              imageMeta.layer === 'manual'
+                ? t('imageLayerManual')
+                : imageMeta.layer === 'auto'
+                  ? t('imageLayerAuto')
+                  : t('imageLayerFallback')
             return (
               <div key={r.id} className="bg-card text-card-foreground rounded-xl shadow-md p-6 flex flex-col gap-3 border border-border dark:border-slate-700 hover:border-gogo-secondary transition-colors">
-                <div className="flex items-start justify-between">
-                  <h3 className="text-xl font-semibold text-foreground">{r.name}</h3>
+                <div className="relative -m-6 mb-1 h-36 overflow-hidden rounded-t-xl bg-muted">
+                  <RinkCardImage
+                    src={imageMeta.src}
+                    fallbackSrc={imageMeta.fallbackSrc}
+                    alt={`${r.name} rink`}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 pb-3 pt-8">
+                    <h3 className="text-lg font-semibold text-white line-clamp-1">{r.name}</h3>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${sourceBadgeClass(imageMeta.source)}`}>
+                        {sourceLabel}
+                      </span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/85 text-slate-700">
+                        {imageLayerLabel}
+                      </span>
+                    </div>
+                  </div>
                   {tag && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                    <span className="absolute right-3 top-3 text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
                       {tag}
                     </span>
                   )}
@@ -244,6 +286,10 @@ export default function RinksPage() {
                   <div>📍 {r.address}</div>
                   {r.phone && <div>📞 {r.phone}</div>}
                   <div>💲 {Number.isNaN(rateNum) ? 'N/A' : `${formatCurrency(rateNum)}/hour`}</div>
+                  {lastSynced && <div>🕒 {lastSynced}</div>}
+                  {imageMeta.layer === 'auto' && (
+                    <div className="text-xs">{t('imageConfidence', { percent: confidencePercent })}</div>
+                  )}
                   {r.amenities && r.amenities.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-2">
                       {r.amenities.slice(0, 6).map((a) => (
@@ -284,6 +330,12 @@ export default function RinksPage() {
                     Go
                   </a>
                 </div>
+                <Link
+                  href={correctionHref}
+                  className="text-xs text-muted-foreground hover:text-gogo-primary hover:underline underline-offset-2"
+                >
+                  {t('reportCorrection')}
+                </Link>
               </div>
             )
           })}

@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 import { getRefundAmountCents } from '@/lib/booking/policies';
+import { cancelBookingSchema } from '@/lib/validations/booking';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
@@ -13,16 +14,27 @@ export async function POST(request: NextRequest) {
   if (auth.error) return auth.error;
   const user = auth.user!;
 
-  let body: { bookingId: string };
+  let body: unknown;
   try {
-    body = (await request.json()) as { bookingId: string };
+    body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid JSON', errorCode: 'INVALID_JSON' },
+      { status: 400 }
+    );
   }
-  const { bookingId } = body;
-  if (!bookingId) {
-    return NextResponse.json({ error: 'bookingId required' }, { status: 400 });
+
+  const parsed = cancelBookingSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: parsed.error.errors[0]?.message ?? 'Invalid cancellation payload',
+        errorCode: 'INVALID_CANCEL_PAYLOAD',
+      },
+      { status: 400 }
+    );
   }
+  const { bookingId } = parsed.data;
 
   const supabase = await createClient();
   const { data: booking, error: fetchErr } = await supabase
