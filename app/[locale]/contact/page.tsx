@@ -12,7 +12,7 @@ type ContactSearchParams = {
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<ContactSearchParams> | ContactSearchParams;
+  searchParams: Promise<ContactSearchParams>;
 };
 
 function pickSearchParam(value: string | string[] | undefined): string {
