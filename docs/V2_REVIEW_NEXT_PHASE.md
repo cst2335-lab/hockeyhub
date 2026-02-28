@@ -4,6 +4,12 @@
 **用途**：Beta 上线前必须完成项与后续迭代  
 **优先级**：P0 阻塞商业化，P1 高 ROI，P2 后续迭代  
 
+## 状态更新（2026-02-28）
+
+- ✅ P0：已完成
+- ✅ P1：已完成（包含 Top 20 `image_verified=true` 数据落地；`image_url` 为空时按名称前 20 回退标记）
+- 🔜 下一阶段：P2（XSS、语言包精简、SEO JSON-LD、Zod 兜底）
+
 ---
 
 ## 一、P0（本周，阻塞商业化）
@@ -82,7 +88,7 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 
 ---
 
-## 二、P1（下周，高 ROI）
+## 二、P1（已完成）
 
 ### 5. React Query + HydrationBoundary（V2 特有问题）
 
@@ -154,4 +160,4 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 
 ## 五、一句话总结
 
-> V2 已具备生产系统骨架，前端体验全面领先 V1，但「三把锁」（DB 约束锁定库存、Webhook 幂等锁定资金、Middleware 锁定调试路由）尚未全部扣紧。这三件事完成后，V2 可直接进入 Beta 上线状态。
+> V2 已完成 P0 与 P1 的核心闭环，已具备 Beta 上线骨架；下一阶段聚焦 P2 的安全细化与回归验证。

@@ -28,6 +28,34 @@ function usage() {
   console.log('Usage: npm run db:mark-top20-images -- [--apply]');
   console.log('  default: dry-run only');
   console.log('  --apply: update selected rows with image_verified=true');
+  console.log('  selection: top 20 with image_url, fallback to top 20 by name');
+}
+
+const SELECT_COLUMNS = 'id, name, image_url, image_verified, source, data_source';
+
+async function fetchCandidates(supabase) {
+  const primary = await supabase
+    .from('rinks')
+    .select(SELECT_COLUMNS)
+    .not('image_url', 'is', null)
+    .neq('image_url', '')
+    .order('name', { ascending: true })
+    .limit(20);
+
+  if (primary.error) return { error: primary.error };
+  const withImage = primary.data ?? [];
+  if (withImage.length > 0) {
+    return { candidates: withImage, mode: 'with_image_url' };
+  }
+
+  const fallback = await supabase
+    .from('rinks')
+    .select(SELECT_COLUMNS)
+    .order('name', { ascending: true })
+    .limit(20);
+  if (fallback.error) return { error: fallback.error };
+
+  return { candidates: fallback.data ?? [], mode: 'fallback_any_top20' };
 }
 
 async function main() {
@@ -68,24 +96,23 @@ async function main() {
     return;
   }
 
-  const { data, error } = await supabase
-    .from('rinks')
-    .select('id, name, image_url, image_verified, source, data_source')
-    .not('image_url', 'is', null)
-    .neq('image_url', '')
-    .order('name', { ascending: true })
-    .limit(20);
-
-  if (error) {
-    console.error('Failed to fetch candidates:', error.message);
+  const result = await fetchCandidates(supabase);
+  if (result.error) {
+    console.error('Failed to fetch candidates:', result.error.message);
     process.exitCode = 1;
     return;
   }
 
-  const candidates = data ?? [];
+  const { candidates, mode } = result;
   if (candidates.length === 0) {
-    console.log('No rink records with image_url found.');
+    console.log('No rink records found.');
     return;
+  }
+
+  if (mode === 'fallback_any_top20') {
+    console.warn(
+      'No rink records with image_url found. Falling back to top 20 rows by name for image_verified bootstrap.'
+    );
   }
 
   console.log(`Selected ${candidates.length} candidate rows (dry-run preview):`);

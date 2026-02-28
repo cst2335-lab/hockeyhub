@@ -3,6 +3,7 @@
 基于 [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理。
 
 **下阶段优先**：V2 三方分析综合评审结论，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。
+**状态更新（2026-02-28）**：V2 P0 / P1 已完成，当前聚焦 P2 收尾。
 
 ---
 
@@ -12,7 +13,7 @@
 |------|------|------|
 | **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、P0–P2 增强 |
 | **进行中** | §三 | 无（当前无进行中任务） |
-| **下阶段** | §四 | V2 评审 P0（DB 约束、Webhook 幂等、调试路由保护、RBAC 确认） |
+| **下阶段** | §四 | V2 评审 P2（XSS、语言包精简、SEO JSON-LD、Zod 兜底） |
 
 ---
 
@@ -38,6 +39,7 @@
 | **P0 增强（feat/p0-enhancements-2026-02-15）** | 预订取消政策：lib/booking/policies.ts（24h 全额、12–24h 50%、&lt;12h 不退）；取消 API 接入 getRefundAmountCents；i18n 更新 cancelConfirm。Stripe Webhook：app/api/webhooks/stripe/route.ts，签名校验，checkout.session.completed 更新 booking 为 confirmed 并写入 stripe_payment_intent_id，payment_intent.payment_failed 记录。RBAC：SUPABASE_RLS.sql 增加「Rink managers can update own rinks」策略。移动端底部导航：components/layout/bottom-nav.tsx（Play、Community、Dashboard、Profile），Dashboard 布局接入并 main 增加 pb-14 |
 | **P1 骨架屏与错误边界（2026-02）** | 骨架屏：components/ui/skeleton.tsx 增加 GameCardSkeleton、RinkCardSkeleton；Skeleton 基础组件使用 bg-muted。Games 页加载态改为页面骨架 + 6 张 GameCardSkeleton；Rinks 页加载态改为页面骨架 + 6 张 RinkCardSkeleton。错误边界：app/[locale]/error.tsx 使用 common.error、errorPageDesc、tryAgain、backToHome（i18n）；app/[locale]/(dashboard)/error.tsx 新建，Dashboard 内错误展示「Back to Dashboard」+ Try again；common 增加 errorPageDesc、backToHome、backToDashboard（en/fr） |
 | **P2 SEO、推荐与性能（2026-02）** | SEO：games/[id]/layout.tsx 中 generateMetadata 拉取比赛并设置 title/description/openGraph；app/sitemap.ts 异步 sitemap，拉取 game_invitations 生成 /[locale]/games/[id] 条目；app/[locale]/layout.tsx 增加 JSON-LD（WebSite + Organization，含 SearchAction）。推荐：lib/matching/score.ts 实现 scoreGameMatch、sortGamesByMatch（age_group、skill_level、location）；Games 页增加「recommended」排序，有用户偏好时按匹配度排序。预订提醒：Dashboard 页 upcomingReminder（24h 内首笔 confirmed 预订）展示横幅 +「View booking」链接。性能：components/ui/logo.tsx 使用 next/image 替代 img；首页 HeroSection、GameCard 使用 next/dynamic 代码分割（ssr: true） |
+| **V2 P1 ROI 收口（2026-02-28）** | 已完成 HydrationBoundary、图片三层策略、Cron 安全、数据可信度标签、预订规则 UI 化；Top 20 `image_verified=true` 已批量落地（`npm run db:mark-top20-images -- --apply`），脚本支持 `image_url` 为空时回退按名称前 20 标记 |
 
 ### 2.2 阶段二（feat/nav-dashboard-and-cta）已完成
 
@@ -53,7 +55,7 @@
 
 ## 三、进行中任务
 
-当前无进行中任务。支付、权限等分支待启动。
+当前无进行中任务。
 
 ---
 
@@ -63,12 +65,12 @@
 
 | 优先级 | 任务摘要 |
 |--------|----------|
-| **P0** | 预订冲突 DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 |
-| **P1** | HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化 |
+| **已完成** | P0（预订冲突 DB 约束、Webhook 幂等、调试路由保护、RBAC 确认） |
+| **已完成** | P1（HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化） |
 | **P2** | XSS、语言包精简、SEO JSON-LD、Zod 兜底 |
 | **其他** | E2E、PWA、i18n 收尾（按需） |
 
-**实施顺序**：P0 四件套 → P1 → P2 → 其他。
+**实施顺序**：已完成 P0 → P1；下一阶段 P2 → 其他。
 
 ---
 
@@ -76,8 +78,8 @@
 
 | 分支名 | 包含任务 | 说明 |
 |--------|----------|------|
-| **`feat/v2-p0-safety`** | DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 | V2 评审 P0，Beta 前置 |
-| **`feat/v2-p1-roi`** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1 |
+| **`feat/v2-p0-safety`** | DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 | V2 评审 P0（已完成） |
+| **`feat/v2-p1-roi`** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1（已完成） |
 | **`chore/next-phase-ops-and-polish`** | 测试、监控、文档、PWA、i18n、UI/无障碍、导航/主题 | 已完成 |
 
 ### 创建分支示例
