@@ -9,6 +9,7 @@ import { locales } from '../../i18n';
 import { QueryProvider } from '@/app/providers/query-provider';
 import { ThemeProvider } from '@/app/providers/theme-provider';
 import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/conditional-nav';
+import { serializeJsonLd } from '@/lib/utils/json-ld';
 
 import type { Viewport } from 'next';
 import type { Metadata } from 'next';
@@ -127,7 +128,7 @@ export default async function LocaleLayout({
       <body className="min-h-full font-sans antialiased" suppressHydrationWarning>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
         <ThemeProvider>
           <QueryProvider>

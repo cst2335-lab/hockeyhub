@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { serializeJsonLd } from '@/lib/utils/json-ld';
 
 type Params = { locale: string; rinkId: string };
 type RinkSeoRow = {
@@ -74,7 +75,7 @@ export default async function BookRinkLayout({
 }) {
   const { rinkId } = await params;
   const rink = await getRinkSeoRow(rinkId);
-  const rinkJsonLd = rink ? JSON.stringify(buildRinkJsonLd(rink)) : null;
+  const rinkJsonLd = rink ? serializeJsonLd(buildRinkJsonLd(rink)) : null;
 
   return (
     <>

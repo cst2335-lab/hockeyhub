@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { serializeJsonLd } from '@/lib/utils/json-ld';
 
 type Params = { locale: string; id: string };
 type GameSeoRow = {
@@ -99,7 +100,7 @@ export default async function GameIdLayout({
 }) {
   const { id } = await params;
   const game = await getGameSeoRow(id);
-  const sportsEventJsonLd = game ? JSON.stringify(buildSportsEventJsonLd(game)) : null;
+  const sportsEventJsonLd = game ? serializeJsonLd(buildSportsEventJsonLd(game)) : null;
 
   return (
     <>
