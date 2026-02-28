@@ -23,7 +23,7 @@ function pickSearchParam(value: string | string[] | undefined): string {
 export default async function ContactPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const resolvedSearch = (await searchParams) ?? {};
-  const t = await getTranslations('contactPage');
+  const t = await getTranslations({ locale, namespace: 'contactPage' });
   const withLocale = (p: string) => `/${locale}${p}`.replace(/\/{2,}/g, '/');
   const topic = pickSearchParam(resolvedSearch.topic);
   const isRinkCorrection = topic === 'rink-correction';
