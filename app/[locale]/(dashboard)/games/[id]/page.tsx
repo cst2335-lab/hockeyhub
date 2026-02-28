@@ -8,6 +8,7 @@ import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
 import {toast} from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import { sanitizeOptionalText } from '@/lib/utils/sanitize';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -31,6 +32,9 @@ type Game = {
   host_club?: { name: string; contact_email: string | null; contact_phone: string | null };
   rink?: { name: string; address: string | null; phone: string | null };
 };
+
+const INTEREST_MESSAGE_MAX_LENGTH = 1000;
+const RATING_COMMENT_MAX_LENGTH = 500;
 
 export default function GameDetailsPage() {
   const router = useRouter();
@@ -173,10 +177,11 @@ export default function GameDetailsPage() {
     }
     try {
       if (!isInterested) {
+        const safeMessage = sanitizeOptionalText(message, INTEREST_MESSAGE_MAX_LENGTH);
         const { error } = await supabase.from('game_interests').insert({
           game_id: id,
           user_id: currentUser.id,
-          message,
+          message: safeMessage,
           status: 'pending'
         });
         if (error) throw error;
@@ -242,7 +247,7 @@ export default function GameDetailsPage() {
         rater_id: currentUser.id,
         rated_user_id: opponentId,
         rating: tempRating,
-        comment: ratingComment.trim() || null
+        comment: sanitizeOptionalText(ratingComment, RATING_COMMENT_MAX_LENGTH)
       });
       if (error) throw error;
 
@@ -415,6 +420,7 @@ export default function GameDetailsPage() {
                         placeholder="Add a message (optional)"
                         className="w-full p-3 border rounded-lg"
                         rows={3}
+                        maxLength={INTEREST_MESSAGE_MAX_LENGTH}
                       />
                       <div className="flex gap-2">
                         <button
@@ -488,7 +494,7 @@ export default function GameDetailsPage() {
                       placeholder="Share your experience (optional)"
                       className="w-full p-3 border rounded-lg resize-none"
                       rows={3}
-                      maxLength={500}
+                      maxLength={RATING_COMMENT_MAX_LENGTH}
                     />
 
                     <button

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { normalizeHttpUrl, sanitizeOptionalText } from '@/lib/utils/sanitize';
 
 type Rink = {
   id: string;
@@ -105,17 +106,30 @@ export default function ManageRinkPage() {
       const amenities =
         formData.amenities.trim() === ''
           ? []
-          : formData.amenities.split(',').map((a) => a.trim()).filter(Boolean);
+          : formData.amenities
+              .split(',')
+              .map((a) => sanitizeOptionalText(a, 80))
+              .filter((a): a is string => Boolean(a));
+      const bookingUrl = normalizeHttpUrl(formData.booking_url, 1000);
+      const peakHours = sanitizeOptionalText(formData.peak_hours, 200);
+      const specialNotes = sanitizeOptionalText(formData.special_notes, 1000);
+      const sanitizedChanges = {
+        hourly_rate: formData.hourly_rate,
+        booking_url: bookingUrl,
+        amenities,
+        peak_hours: peakHours,
+        special_notes: specialNotes,
+      };
 
       const { error } = await supabase
         .from('rinks')
         .update({
           hourly_rate,
-          booking_url: formData.booking_url || null,
+          booking_url: bookingUrl,
           amenities,
           custom_info: {
-            peak_hours: formData.peak_hours || null,
-            special_notes: formData.special_notes || null,
+            peak_hours: peakHours,
+            special_notes: specialNotes,
           },
           source: 'manager_updated',
         })
@@ -131,7 +145,7 @@ export default function ManageRinkPage() {
         await supabase.from('rink_updates_log').insert({
           rink_id: myRink.id,
           updated_by: user.id,
-          changes: formData,
+          changes: sanitizedChanges,
           update_type: 'manager_update',
         });
       }

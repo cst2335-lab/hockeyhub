@@ -31,3 +31,32 @@ export function sanitizePlainText(input: string | null | undefined): string {
 export function escapeHtml(input: string | null | undefined): string {
   return sanitizePlainText(input).replace(HTML_ESCAPE_RE, (char) => HTML_ESCAPE_MAP[char] ?? char);
 }
+
+/**
+ * Sanitize text and return null when empty after normalization.
+ */
+export function sanitizeOptionalText(
+  input: string | null | undefined,
+  maxLength = MAX_PLAIN_LENGTH
+): string | null {
+  const normalized = sanitizePlainText(input).slice(0, Math.max(1, maxLength));
+  return normalized === '' ? null : normalized;
+}
+
+/**
+ * Normalize URL and only allow http(s).
+ */
+export function normalizeHttpUrl(
+  input: string | null | undefined,
+  maxLength = 2000
+): string | null {
+  const raw = sanitizeOptionalText(input, maxLength);
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}

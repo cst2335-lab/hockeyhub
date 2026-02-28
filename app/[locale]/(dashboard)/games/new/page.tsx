@@ -8,6 +8,7 @@ import {usePathname, useRouter} from 'next/navigation';
 import Link from 'next/link';
 import {ArrowLeft, Calendar, Clock, MapPin, Users, Trophy} from 'lucide-react';
 import {createGameSchema, type CreateGameInput} from '@/lib/validations/game';
+import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
 
 export default function CreateGamePage() {
   const t = useTranslations('games');
@@ -81,19 +82,23 @@ export default function CreateGamePage() {
       }
 
       const valid = parsed.data as CreateGameInput;
+      const sanitizedTitle = sanitizePlainText(valid.title).slice(0, 100);
+      const sanitizedLocation = sanitizePlainText(valid.location).slice(0, 200);
+      const sanitizedDescription = sanitizeOptionalText(valid.description ?? '', 1000);
+      const sanitizedContact = sanitizeOptionalText(valid.contact_info ?? '', 200);
 
       const {data, error} = await supabase
         .from('game_invitations')
         .insert({
-          title: valid.title,
+          title: sanitizedTitle,
           game_date: valid.game_date,
           game_time: valid.game_time,
-          location: valid.location,
+          location: sanitizedLocation,
           age_group: valid.age_group,
           skill_level: valid.skill_level,
-          description: valid.description || null,
+          description: sanitizedDescription,
           max_players: valid.max_players ? parseInt(valid.max_players) : null,
-          contact_info: valid.contact_info || null,
+          contact_info: sanitizedContact,
           status: 'open',
           created_by: user.id,
           view_count: 0,

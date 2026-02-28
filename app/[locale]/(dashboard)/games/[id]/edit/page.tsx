@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Trophy, Save, X } from 'lucide-react';
 import {toast} from 'sonner';
+import { createGameSchema } from '@/lib/validations/game';
+import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
 
 type GameStatus = 'open' | 'matched' | 'cancelled' | 'closed';
 
@@ -126,19 +128,43 @@ export default function EditGamePage() {
         return;
       }
 
+      const parsed = createGameSchema.safeParse({
+        title: formData.title,
+        game_date: formData.game_date,
+        game_time: formData.game_time,
+        location: formData.location,
+        age_group: formData.age_group,
+        skill_level: formData.skill_level,
+        description: formData.description || undefined,
+        max_players: formData.max_players || undefined,
+        contact_info: formData.contact_info || undefined,
+      });
+      if (!parsed.success) {
+        toast.error(parsed.error.errors[0]?.message ?? 'Please fix the form errors');
+        return;
+      }
+      const valid = parsed.data;
+      const sanitizedTitle = sanitizePlainText(valid.title).slice(0, 100);
+      const sanitizedLocation = sanitizePlainText(valid.location).slice(0, 200);
+      const sanitizedDescription = sanitizeOptionalText(valid.description ?? '', 1000);
+      const sanitizedContact = sanitizeOptionalText(valid.contact_info ?? '', 200);
+      const normalizedStatus: GameStatus = statusOptions.some((s) => s.value === formData.status)
+        ? formData.status
+        : 'open';
+
       const { error } = await supabase
         .from('game_invitations')
         .update({
-          title: formData.title,
-          game_date: formData.game_date,
-          game_time: formData.game_time,
-          location: formData.location,
-          age_group: formData.age_group,
-          skill_level: formData.skill_level,
-          description: formData.description,
-          max_players: formData.max_players ? parseInt(formData.max_players, 10) : null,
-          contact_info: formData.contact_info,
-          status: formData.status,
+          title: sanitizedTitle,
+          game_date: valid.game_date,
+          game_time: valid.game_time,
+          location: sanitizedLocation,
+          age_group: valid.age_group,
+          skill_level: valid.skill_level,
+          description: sanitizedDescription,
+          max_players: valid.max_players ? parseInt(valid.max_players, 10) : null,
+          contact_info: sanitizedContact,
+          status: normalizedStatus,
         })
         .eq('id', gameId)
         .eq('created_by', user.id); // 只更新本人创建的
