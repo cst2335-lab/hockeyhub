@@ -7,7 +7,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { normalizeHttpUrl, sanitizeOptionalText } from '@/lib/utils/sanitize';
 
 type Rink = {
   id: string;
@@ -99,55 +98,18 @@ export default function ManageRinkPage() {
 
     setSaving(true);
     try {
-      const parsedRate = Number(formData.hourly_rate);
-      const hourly_rate =
-        Number.isFinite(parsedRate) && parsedRate >= 0 ? parsedRate : null;
-
-      const amenities =
-        formData.amenities.trim() === ''
-          ? []
-          : formData.amenities
-              .split(',')
-              .map((a) => sanitizeOptionalText(a, 80))
-              .filter((a): a is string => Boolean(a));
-      const bookingUrl = normalizeHttpUrl(formData.booking_url, 1000);
-      const peakHours = sanitizeOptionalText(formData.peak_hours, 200);
-      const specialNotes = sanitizeOptionalText(formData.special_notes, 1000);
-      const sanitizedChanges = {
-        hourly_rate: formData.hourly_rate,
-        booking_url: bookingUrl,
-        amenities,
-        peak_hours: peakHours,
-        special_notes: specialNotes,
-      };
-
-      const { error } = await supabase
-        .from('rinks')
-        .update({
-          hourly_rate,
-          booking_url: bookingUrl,
-          amenities,
-          custom_info: {
-            peak_hours: peakHours,
-            special_notes: specialNotes,
-          },
-          source: 'manager_updated',
-        })
-        .eq('id', myRink.id);
-
-      if (error) throw error;
-
-      // 记录日志（若已登录）
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('rink_updates_log').insert({
-          rink_id: myRink.id,
-          updated_by: user.id,
-          changes: sanitizedChanges,
-          update_type: 'manager_update',
-        });
+      const res = await fetch('/api/rinks/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          rinkId: myRink.id,
+          ...formData,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? 'Failed to update rink');
       }
 
       toast.success(t('updateSuccess'));
