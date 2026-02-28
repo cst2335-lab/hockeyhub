@@ -50,6 +50,24 @@ async function main() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  const { data: sampleRows, error: sampleError } = await supabase
+    .from('rinks')
+    .select('*')
+    .limit(1);
+  if (sampleError) {
+    console.error('Failed to read rinks table:', sampleError.message);
+    process.exitCode = 1;
+    return;
+  }
+  const sample = sampleRows?.[0] ?? {};
+  const hasImageUrl = Object.prototype.hasOwnProperty.call(sample, 'image_url');
+  const hasImageVerified = Object.prototype.hasOwnProperty.call(sample, 'image_verified');
+  if (!hasImageUrl || !hasImageVerified) {
+    console.warn('rinks.image_url and/or rinks.image_verified is missing in current schema.');
+    console.warn('Run docs/SQL_RINK_IMAGE_COLUMNS.sql first, then re-run this script.');
+    return;
+  }
+
   const { data, error } = await supabase
     .from('rinks')
     .select('id, name, image_url, image_verified, source, data_source')
