@@ -97,25 +97,25 @@ export default function BookingDetailPage() {
   }
 
   const statusColors: Record<string, string> = {
-    confirmed: 'bg-green-100 text-green-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    cancelled: 'bg-red-100 text-red-800',
-    completed: 'bg-gray-100 text-gray-800',
+    confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
+    completed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
   };
-  const statusColor = statusColors[booking.status] || 'bg-gray-100 text-gray-800';
+  const statusColor = statusColors[booking.status] || 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300';
 
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <button
           onClick={() => router.push(withLocale('/dashboard'))}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-muted-foreground hover:text-foreground"
         >
           ← Back to Dashboard
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="bg-card text-card-foreground rounded-lg shadow-lg p-8 border border-border">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{booking.rinks?.name}</h1>
@@ -123,7 +123,7 @@ export default function BookingDetailPage() {
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold text-blue-600">{formatCurrency(booking.total)}</p>
-            <p className="text-sm text-gray-600">Total Amount</p>
+            <p className="text-sm text-muted-foreground">Total Amount</p>
           </div>
         </div>
 
@@ -132,21 +132,21 @@ export default function BookingDetailPage() {
             <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-600">Booking ID</p>
+                <p className="text-sm text-muted-foreground">Booking ID</p>
                 <p className="font-medium">{booking.id}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Date</p>
+                <p className="text-sm text-muted-foreground">Date</p>
                 <p className="font-medium">{formatDate(booking.booking_date)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Time</p>
+                <p className="text-sm text-muted-foreground">Time</p>
                 <p className="font-medium">
                   {booking.start_time} - {booking.end_time}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Duration</p>
+                <p className="text-sm text-muted-foreground">Duration</p>
                 <p className="font-medium">{booking.hours} hours</p>
               </div>
             </div>
@@ -156,17 +156,17 @@ export default function BookingDetailPage() {
             <h2 className="text-xl font-semibold mb-4">Rink Information</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-gray-600">Location</p>
+                <p className="text-sm text-muted-foreground">Location</p>
                 <p className="font-medium">{booking.rinks?.address}</p>
               </div>
               {booking.rinks?.phone && (
                 <div>
-                  <p className="text-sm text-gray-600">Phone</p>
+                  <p className="text-sm text-muted-foreground">Phone</p>
                   <p className="font-medium">{booking.rinks.phone}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-gray-600">Hourly Rate</p>
+                <p className="text-sm text-muted-foreground">Hourly Rate</p>
                 <p className="font-medium">{formatCurrency(booking.rinks?.hourly_rate)}</p>
               </div>
             </div>

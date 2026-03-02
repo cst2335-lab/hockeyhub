@@ -153,7 +153,7 @@ export default function EditGamePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">You don't have permission to edit this game</p>
+          <p className="text-muted-foreground">You don't have permission to edit this game</p>
           <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
             Back to Dashboard
           </Link>
@@ -168,26 +168,26 @@ export default function EditGamePage() {
   const minDate = tomorrow.toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-3xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Game</h1>
-          <p className="mt-2 text-gray-600">Update your game information</p>
+          <h1 className="text-3xl font-bold text-foreground">Edit Game</h1>
+          <p className="mt-2 text-muted-foreground">Update your game information</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-lg shadow p-6 space-y-6 border border-border">
           {/* Status */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="status" className="block text-sm font-medium text-muted-foreground700 mb-2">
               Game Status
             </label>
             <select
@@ -195,7 +195,7 @@ export default function EditGamePage() {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="open">Open - Accepting responses</option>
               <option value="matched">Matched - Found opponent</option>
@@ -205,7 +205,7 @@ export default function EditGamePage() {
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-muted-foreground700 mb-2">
               Game Title *
             </label>
             <input
@@ -216,14 +216,14 @@ export default function EditGamePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g., U13 Friendly Match Looking for Opponent"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="game_date" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_date" className="block text-sm font-medium text-muted-foreground700 mb-2">
                 <Calendar className="inline h-4 w-4 mr-1" />
                 Game Date *
               </label>
@@ -234,11 +234,11 @@ export default function EditGamePage() {
                 required
                 value={formData.game_date}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_time" className="block text-sm font-medium text-muted-foreground700 mb-2">
                 <Clock className="inline h-4 w-4 mr-1" />
                 Game Time *
               </label>
@@ -249,14 +249,14 @@ export default function EditGamePage() {
                 required
                 value={formData.game_time}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-muted-foreground700 mb-2">
               <MapPin className="inline h-4 w-4 mr-1" />
               Location *
             </label>
@@ -268,14 +268,14 @@ export default function EditGamePage() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Bell Sensplex, Kanata"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Age Group and Skill Level */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="age_group" className="block text-sm font-medium text-muted-foreground700 mb-2">
                 <Users className="inline h-4 w-4 mr-1" />
                 Age Group *
               </label>
@@ -285,7 +285,7 @@ export default function EditGamePage() {
                 required
                 value={formData.age_group}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {ageGroups.map(group => (
                   <option key={group} value={group}>{group}</option>
@@ -293,7 +293,7 @@ export default function EditGamePage() {
               </select>
             </div>
             <div>
-              <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="skill_level" className="block text-sm font-medium text-muted-foreground700 mb-2">
                 <Trophy className="inline h-4 w-4 mr-1" />
                 Skill Level *
               </label>
@@ -303,7 +303,7 @@ export default function EditGamePage() {
                 required
                 value={formData.skill_level}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>{level}</option>
@@ -314,7 +314,7 @@ export default function EditGamePage() {
 
           {/* Max Players */}
           <div>
-            <label htmlFor="max_players" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="max_players" className="block text-sm font-medium text-muted-foreground700 mb-2">
               Max Players (Optional)
             </label>
             <input
@@ -326,13 +326,13 @@ export default function EditGamePage() {
               value={formData.max_players}
               onChange={handleChange}
               placeholder="e.g., 20"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-muted-foreground700 mb-2">
               Description
             </label>
             <textarea
@@ -342,13 +342,13 @@ export default function EditGamePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Provide additional details about the game, rules, or requirements..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Contact Info */}
           <div>
-            <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="contact_info" className="block text-sm font-medium text-muted-foreground700 mb-2">
               Contact Information (Optional)
             </label>
             <input
@@ -358,9 +358,9 @@ export default function EditGamePage() {
               value={formData.contact_info}
               onChange={handleChange}
               placeholder="e.g., Coach John - 613-555-0123"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               This will be shared only with interested teams
             </p>
           </div>
@@ -377,7 +377,7 @@ export default function EditGamePage() {
             </button>
             <Link
               href="/dashboard"
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition flex items-center justify-center gap-2"
+              className="flex-1 bg-muted text-foreground py-2 px-4 rounded-md hover:bg-muted/80 text-center transition flex items-center justify-center gap-2"
             >
               <X className="h-4 w-4" />
               Cancel

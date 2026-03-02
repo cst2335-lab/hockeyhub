@@ -78,9 +78,9 @@ export default function GamesTestPage() {
       </div>
 
       {games.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">No sample data yet.</p>
-          <p className="text-gray-500 mt-1">Try posting a game, then refresh this page.</p>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-8 text-center border border-border">
+          <p className="text-muted-foreground">No sample data yet.</p>
+          <p className="text-muted-foreground mt-1">Try posting a game, then refresh this page.</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -88,22 +88,22 @@ export default function GamesTestPage() {
             <Link
               key={g.id}
               href={withLocale(`/games/${g.id}`)}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
+              className="bg-card text-card-foreground rounded-lg shadow p-6 hover:shadow-md transition border border-border"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">{g.title || 'Untitled Game'}</h3>
-                  <p className="text-gray-600 mt-1">
+                  <p className="text-muted-foreground mt-1">
                     📅 {g.game_date || 'TBD'} ⏰ {g.game_time || 'TBD'}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     {g.age_group || 'Age?'} · {g.skill_level || 'Level?'}
                   </p>
                 </div>
-                <div className="text-right text-sm text-gray-600">
+                <div className="text-right text-sm text-muted-foreground">
                   <div>👁 {g.view_count ?? 0}</div>
                   <div>❤️ {g.interested_count ?? 0}</div>
-                  <div className="mt-1 inline-block px-2 py-0.5 rounded bg-gray-100">
+                  <div className="mt-1 inline-block px-2 py-0.5 rounded bg-muted">
                     {g.status ?? 'open'}
                   </div>
                 </div>

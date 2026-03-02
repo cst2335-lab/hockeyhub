@@ -34,7 +34,7 @@ export default function ClubsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-card shadow-sm border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <a href="/" className="text-xl font-bold">🏒 GoGoHockey</a>
           <div className="flex gap-4">
@@ -62,7 +62,7 @@ export default function ClubsPage() {
         {loading ? (
           <LoadingSpinner />
         ) : clubs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
+          <div className="bg-card text-card-foreground rounded-lg shadow p-8 text-center border border-border">
             <p className="text-muted-foreground mb-4">No clubs registered yet</p>
             <a
               href="/clubs/new"
@@ -74,7 +74,7 @@ export default function ClubsPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {clubs.map((club) => (
-              <div key={club.id} className="bg-white rounded-lg shadow p-6">
+              <div key={club.id} className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
                 <div className="flex justify-between items-start mb-2">
                   <h2 className="text-xl font-semibold">{club.name}</h2>
                   {club.verified && (
@@ -105,7 +105,7 @@ export default function ClubsPage() {
                     {club.age_groups.split(',').map((ageGroup: string) => (
                       <span
                         key={ageGroup}
-                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                        className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 px-2 py-1 rounded text-xs"
                       >
                         {ageGroup}
                       </span>

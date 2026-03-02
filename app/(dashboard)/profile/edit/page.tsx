@@ -119,26 +119,26 @@ export default function EditProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Profile not found</p>
+          <p className="text-muted-foreground">Profile not found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.push(withLocale('/profile'))}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Profile
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
-          <p className="mt-2 text-gray-600">Update your hockey profile information</p>
+          <h1 className="text-3xl font-bold">Edit Profile</h1>
+          <p className="mt-2 text-muted-foreground">Update your hockey profile information</p>
         </div>
 
         {/* Message */}
@@ -146,8 +146,8 @@ export default function EditProfilePage() {
           <div
             className={`mb-6 p-4 rounded-lg ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200'
-                : 'bg-red-50 text-red-800 border border-red-200'
+                ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
+                : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
             }`}
           >
             {message.text}
@@ -157,26 +157,26 @@ export default function EditProfilePage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <div className="bg-card text-card-foreground shadow rounded-lg p-6 border border-border">
+            <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+                <label className="block text-sm font-medium text-card-foreground">Full Name *</label>
                 <input
                   type="text"
                   required
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm bg-background text-foreground focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.full_name || ''}
                   onChange={e => setProfile({...profile, full_name: e.target.value})}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                <label className="block text-sm font-medium text-card-foreground">Phone Number</label>
                 <input
                   type="tel"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm bg-background text-foreground focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="(613) 555-0100"
                   value={profile.phone || ''}
                   onChange={e => setProfile({...profile, phone: e.target.value})}
@@ -184,10 +184,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Area/Location *</label>
+                <label className="block text-sm font-medium text-card-foreground">Area/Location *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.area || ''}
                   onChange={e => setProfile({...profile, area: e.target.value})}
                 >
@@ -208,15 +208,15 @@ export default function EditProfilePage() {
           </div>
 
           {/* Hockey Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Hockey Information</h2>
+          <div className="bg-card text-card-foreground shadow rounded-lg p-6 border border-border">
+            <h2 className="text-lg font-semibold mb-4">Hockey Information</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Age Group *</label>
+                <label className="block text-sm font-medium text-card-foreground">Age Group *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.age_group || ''}
                   onChange={e => setProfile({...profile, age_group: e.target.value})}
                 >
@@ -232,10 +232,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Skill Level *</label>
+                <label className="block text-sm font-medium text-card-foreground">Skill Level *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.skill_level || ''}
                   onChange={e => setProfile({...profile, skill_level: e.target.value})}
                 >
@@ -251,10 +251,10 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Position *</label>
+                <label className="block text-sm font-medium text-card-foreground">Position *</label>
                 <select
                   required
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.position || ''}
                   onChange={e => setProfile({...profile, position: e.target.value})}
                 >
@@ -267,9 +267,9 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Preferred Shot</label>
+                <label className="block text-sm font-medium text-card-foreground">Preferred Shot</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-input bg-background text-foreground focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                   value={profile.preferred_shot || ''}
                   onChange={e => setProfile({...profile, preferred_shot: e.target.value})}
                 >
@@ -280,12 +280,12 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Years Playing</label>
+                <label className="block text-sm font-medium text-card-foreground">Years Playing</label>
                 <input
                   type="number"
                   min="0"
                   max="50"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm bg-background text-foreground focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   value={profile.years_playing || 0}
                   onChange={e =>
                     setProfile({...profile, years_playing: parseInt(e.target.value) || 0})
@@ -294,11 +294,11 @@ export default function EditProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Jersey Number</label>
+                <label className="block text-sm font-medium text-card-foreground">Jersey Number</label>
                 <input
                   type="text"
                   maxLength={3}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-input rounded-md shadow-sm bg-background text-foreground focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="99"
                   value={profile.jersey_number || ''}
                   onChange={e => setProfile({...profile, jersey_number: e.target.value})}
@@ -308,11 +308,11 @@ export default function EditProfilePage() {
           </div>
 
             {/* Bio */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">About You</h2>
+          <div className="bg-card text-card-foreground shadow rounded-lg p-6 border border-border">
+            <h2 className="text-lg font-semibold mb-4">About You</h2>
             <textarea
               rows={4}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full border-input rounded-md shadow-sm bg-background text-foreground focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Tell us about your hockey experience, favorite teams, or anything else..."
               value={profile.bio || ''}
               onChange={e => setProfile({...profile, bio: e.target.value})}
@@ -324,7 +324,7 @@ export default function EditProfilePage() {
             <button
               type="button"
               onClick={() => router.push(withLocale('/profile'))}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium bg-card hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-card-foreground"
             >
               Cancel
             </button>

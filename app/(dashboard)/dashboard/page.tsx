@@ -59,16 +59,16 @@ export default function DashboardPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Open Game Invitations</div>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
+          <div className="text-sm text-muted-foreground">Open Game Invitations</div>
           <div className="text-3xl font-bold">{metrics.gamesOpen}</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Upcoming Bookings</div>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
+          <div className="text-sm text-muted-foreground">Upcoming Bookings</div>
           <div className="text-3xl font-bold">{metrics.bookingsUpcoming}</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600">Total Rinks</div>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
+          <div className="text-sm text-muted-foreground">Total Rinks</div>
           <div className="text-3xl font-bold">{metrics.rinksTotal}</div>
         </div>
       </div>

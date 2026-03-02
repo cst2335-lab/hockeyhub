@@ -79,8 +79,8 @@ export default function BookingsPage() {
       </div>
 
       {bookings.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 mb-4">No bookings yet.</p>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-8 text-center border border-border">
+          <p className="text-muted-foreground mb-4">No bookings yet.</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -88,18 +88,18 @@ export default function BookingsPage() {
             <Link
               key={b.id}
               href={withLocale(`/bookings/${b.id}`)}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
+              className="bg-card text-card-foreground rounded-lg shadow p-6 hover:shadow-md transition border border-border"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xl font-semibold">{b.rinks?.name ?? 'Rink'}</h3>
-                  <p className="text-gray-600 mt-1">
+                  <p className="text-muted-foreground mt-1">
                     📅 {formatDate(b.booking_date)} — {b.start_time} ~ {b.end_time}
                   </p>
-                  <p className="text-gray-600">{b.rinks?.address}</p>
+                  <p className="text-muted-foreground">{b.rinks?.address}</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-600 mb-1">Total</div>
+                  <div className="text-sm text-muted-foreground mb-1">Total</div>
                   <div className="font-bold">{formatCurrency(b.total)}</div>
                 </div>
               </div>

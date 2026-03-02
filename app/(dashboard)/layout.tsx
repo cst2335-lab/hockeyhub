@@ -202,7 +202,7 @@ export default function DashboardLayout({
                   className={`block px-3 py-2 rounded-md text-base font-medium ${
                     isActive
                       ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <Icon className="inline h-4 w-4 mr-2" />

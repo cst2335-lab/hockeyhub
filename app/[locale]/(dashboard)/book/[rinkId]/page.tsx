@@ -221,19 +221,19 @@ export default function BookRinkPage() {
     <div className="container mx-auto p-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">{t('title', { name: rink.name })}</h1>
 
-      <div className="bg-surface rounded-lg shadow p-6 mb-6">
+      <div className="bg-card text-card-foreground rounded-lg shadow p-6 mb-6 border border-border">
         <h2 className="text-xl font-semibold mb-4">{t('rinkDetails')}</h2>
         <p className="text-muted-foreground">{rink.address}</p>
         {rink.phone && <p className="text-muted-foreground">{rink.phone}</p>}
         <p className="text-lg font-medium mt-2">${hourlyRate}/hour</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-surface rounded-lg shadow p-6">
+      <form onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
         <h2 className="text-xl font-semibold mb-4">{t('bookingInfo')}</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-card-foreground mb-1">
               {t('date')}
             </label>
             <input
@@ -247,7 +247,7 @@ export default function BookRinkPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-card-foreground mb-1">
               {t('startTime')}
               {loadingSlots && bookingDate && (
                 <span className="ml-2 text-xs text-muted-foreground">({t('checkingAvailability')})</span>
@@ -279,7 +279,7 @@ export default function BookRinkPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-card-foreground mb-1">
               {t('duration')}
             </label>
             <select
@@ -295,9 +295,9 @@ export default function BookRinkPage() {
             </select>
           </div>
 
-          <div className="pt-4 border-t">
-            <h3 className="font-medium mb-2">{t('priceSummary')}</h3>
-            <div className="space-y-1 text-sm">
+          <div className="pt-4 border-t border-border">
+            <h3 className="font-medium mb-2 text-card-foreground">{t('priceSummary')}</h3>
+            <div className="space-y-1 text-sm text-card-foreground">
               <div className="flex justify-between">
                 <span>{t('iceTime', { hours, rate: hourlyRate })}</span>
                 <span>${subtotal.toFixed(2)}</span>
@@ -306,7 +306,7 @@ export default function BookRinkPage() {
                 <span>{t('platformFee')}</span>
                 <span>${platformFee.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-bold text-lg pt-2 border-t">
+              <div className="flex justify-between font-bold text-lg pt-2 border-t border-border text-card-foreground">
                 <span>{t('total')}</span>
                 <span>${total.toFixed(2)}</span>
               </div>

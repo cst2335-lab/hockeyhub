@@ -215,7 +215,7 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={tHero('searchPlaceholder')}
                   aria-label={tActions('search')}
-                  className="block w-full rounded-md border border-gogo-secondary bg-white py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-gogo-secondary focus:outline-none focus:ring-1 focus:ring-gogo-secondary"
+                  className="block w-full rounded-md border border-gogo-secondary bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-gogo-secondary focus:outline-none focus:ring-1 focus:ring-gogo-secondary"
                 />
               </div>
             </form>

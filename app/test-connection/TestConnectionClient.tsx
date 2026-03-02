@@ -47,17 +47,17 @@ export default function TestConnectionClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">GoGoHockey - Supabase Connection Test</h1>
+        <div className="bg-card text-card-foreground rounded-lg shadow-xl p-8 border border-border">
+          <h1 className="text-3xl font-bold mb-6 text-foreground">GoGoHockey - Supabase Connection Test</h1>
           <div className="mb-6">
             <div className="text-2xl font-semibold mb-4">{status}</div>
           </div>
           <div className="space-y-3">
-            <h2 className="text-xl font-semibold text-gray-700">Details:</h2>
+            <h2 className="text-xl font-semibold text-foreground">Details:</h2>
             {Object.entries(details).map(([key, value]) => (
               <div key={key} className="flex items-start">
-                <span className="font-medium text-gray-600 min-w-[100px]">{key}:</span>
-                <span className="text-gray-800 ml-2">{value}</span>
+                <span className="font-medium text-muted-foreground min-w-[100px]">{key}:</span>
+                <span className="text-foreground ml-2">{value}</span>
               </div>
             ))}
           </div>

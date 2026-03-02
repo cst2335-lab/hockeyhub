@@ -37,6 +37,7 @@
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
+    --surface: 222.2 84% 4.9%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
@@ -115,21 +116,21 @@
     @apply border-t border-border;
   }
   
-  /* 徽章变体 */
+  /* 徽章变体（含暗色模式） */
   .badge-success {
-    @apply bg-green-100 text-green-800 border-green-200;
+    @apply bg-green-100 text-green-800 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800;
   }
   
   .badge-warning {
-    @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+    @apply bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/40 dark:text-yellow-300 dark:border-yellow-800;
   }
   
   .badge-error {
-    @apply bg-red-100 text-red-800 border-red-200;
+    @apply bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800;
   }
   
   .badge-info {
-    @apply bg-blue-100 text-blue-800 border-blue-200;
+    @apply bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800;
   }
   
   /* 输入框焦点效果 - GoGo spec #64BEF0 */
@@ -322,7 +323,7 @@ html {
 /* 焦点可见性 - GoGo spec ring-2 ring-[#64BEF0]，便于无障碍 */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #64BEF0;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px #64BEF0;
 }
 
 /* 选中文本样式 - GoGo spec */

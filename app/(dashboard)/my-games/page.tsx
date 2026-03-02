@@ -215,9 +215,9 @@ export default function MyGamesPage() {
       case 'matched':
         return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Matched</span>;
       case 'cancelled':
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Cancelled</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">Cancelled</span>;
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{status}</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">{status}</span>;
     }
   }
 
@@ -239,8 +239,8 @@ export default function MyGamesPage() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Games</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-3xl font-bold">My Games</h1>
+            <p className="mt-2 text-muted-foreground">
               {activeTab === 'posted' ? 'Manage your posted games' : 'Games you\'re interested in'}
             </p>
           </div>
@@ -254,13 +254,13 @@ export default function MyGamesPage() {
         </div>
 
         {/* Main Tabs */}
-        <div className="mb-6 flex space-x-1 bg-gray-100 p-1 rounded-lg">
+        <div className="mb-6 flex space-x-1 bg-muted p-1 rounded-lg">
           <button
             onClick={() => setActiveTab('posted')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'posted'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-card text-blue-600 dark:text-blue-400 shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             My Posted Games ({games.length})
@@ -269,8 +269,8 @@ export default function MyGamesPage() {
             onClick={() => setActiveTab('interested')}
             className={`flex-1 py-2 px-4 rounded-md transition ${
               activeTab === 'interested'
-                ? 'bg-white text-blue-600 shadow-sm font-medium'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-card text-blue-600 dark:text-blue-400 shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Games I'm Interested In ({interestedGames.length})
@@ -281,29 +281,29 @@ export default function MyGamesPage() {
           <>
             {/* Stats Cards - Only for posted games */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-                <div className="text-sm text-gray-500">Total Games</div>
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <div className="text-sm text-muted-foreground">Total Games</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
                 <div className="text-2xl font-bold text-green-600">{stats.open}</div>
-                <div className="text-sm text-gray-500">Open</div>
+                <div className="text-sm text-muted-foreground">Open</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
                 <div className="text-2xl font-bold text-blue-600">{stats.matched}</div>
-                <div className="text-sm text-gray-500">Matched</div>
+                <div className="text-sm text-muted-foreground">Matched</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-2xl font-bold text-gray-600">{stats.cancelled}</div>
-                <div className="text-sm text-gray-500">Cancelled</div>
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
+                <div className="text-2xl font-bold text-muted-foreground">{stats.cancelled}</div>
+                <div className="text-sm text-muted-foreground">Cancelled</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
                 <div className="text-2xl font-bold text-purple-600">{stats.totalViews}</div>
-                <div className="text-sm text-gray-500">Total Views</div>
+                <div className="text-sm text-muted-foreground">Total Views</div>
               </div>
-              <div className="bg-white rounded-lg shadow p-4">
+              <div className="bg-card text-card-foreground rounded-lg shadow p-4 border border-border">
                 <div className="text-2xl font-bold text-red-600">{stats.totalInterested}</div>
-                <div className="text-sm text-gray-500">Total Interested</div>
+                <div className="text-sm text-muted-foreground">Total Interested</div>
               </div>
             </div>
 
@@ -313,8 +313,8 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('all')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'all' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-medium' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 All ({games.length})
@@ -323,8 +323,8 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('open')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'open' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-medium' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Open ({stats.open})
@@ -333,8 +333,8 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('matched')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'matched' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-medium' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Matched ({stats.matched})
@@ -343,8 +343,8 @@ export default function MyGamesPage() {
                 onClick={() => setFilter('cancelled')}
                 className={`pb-2 px-1 border-b-2 transition ${
                   filter === 'cancelled' 
-                    ? 'border-blue-600 text-blue-600 font-medium' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 font-medium' 
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Cancelled ({stats.cancelled})
@@ -355,18 +355,18 @@ export default function MyGamesPage() {
             {filteredGames.length > 0 ? (
               <div className="space-y-4">
                 {filteredGames.map((game) => (
-                  <div key={game.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                  <div key={game.id} className="bg-card text-card-foreground rounded-lg shadow hover:shadow-md transition-shadow border border-border">
                     <div className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold">
                               {game.title}
                             </h3>
                             {getStatusBadge(game.status)}
                           </div>
 
-                          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                             <div className="space-y-1">
                               <div className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-2" />
@@ -399,16 +399,16 @@ export default function MyGamesPage() {
                           </div>
 
                           {game.description && (
-                            <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
                               {game.description}
                             </p>
                           )}
 
                           {/* Interest Alert */}
                           {game.interested_count > 0 && game.status === 'open' && (
-                            <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                            <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm">
                               <AlertCircle className="inline h-4 w-4 text-blue-600 mr-1" />
-                              <span className="text-blue-800">
+                              <span className="text-blue-800 dark:text-blue-300">
                                 {game.interested_count} team{game.interested_count > 1 ? 's are' : ' is'} interested! 
                                 <Link href="/notifications" className="ml-2 underline font-medium">
                                   View in notifications
@@ -473,12 +473,12 @@ export default function MyGamesPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Trophy className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <div className="text-center py-12 bg-card text-card-foreground rounded-lg shadow border border-border">
+                <Trophy className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">
                   {filter === 'all' ? 'No games posted yet' : `No ${filter} games`}
                 </h3>
-                <p className="text-gray-500 mb-6">Start by posting your first game invitation</p>
+                <p className="text-muted-foreground mb-6">Start by posting your first game invitation</p>
                 <Link
                   href="/games/new"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -494,18 +494,18 @@ export default function MyGamesPage() {
           <div className="space-y-4">
             {interestedGames.length > 0 ? (
               interestedGames.map((interest) => (
-                <div key={interest.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                <div key={interest.id} className="bg-card text-card-foreground rounded-lg shadow hover:shadow-md transition-shadow border border-border">
                   <div className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-lg font-semibold">
                             {interest.game_invitations?.title}
                           </h3>
                           {getStatusBadge(interest.game_invitations?.status)}
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                        <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                           <div className="space-y-1">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-2" />
@@ -534,7 +534,7 @@ export default function MyGamesPage() {
                         </div>
 
                         {interest.game_invitations?.description && (
-                          <p className="mt-3 text-sm text-gray-500 line-clamp-2">
+                          <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
                             {interest.game_invitations.description}
                           </p>
                         )}
@@ -561,10 +561,10 @@ export default function MyGamesPage() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <Heart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No games interested yet</h3>
-                <p className="text-gray-500 mb-6">Browse available games and show your interest</p>
+              <div className="text-center py-12 bg-card text-card-foreground rounded-lg shadow border border-border">
+                <Heart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No games interested yet</h3>
+                <p className="text-muted-foreground mb-6">Browse available games and show your interest</p>
                 <Link
                   href="/games"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

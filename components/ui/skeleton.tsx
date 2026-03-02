@@ -73,7 +73,7 @@ function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-white rounded-lg shadow p-6">
+        <div key={i} className="bg-card rounded-lg shadow p-6 border border-border">
           <Skeleton className="h-4 w-32 mb-4" />
           <Skeleton className="h-9 w-16" />
         </div>
@@ -87,7 +87,7 @@ function CardListSkeleton({ count = 6 }: { count?: number }) {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white rounded-xl shadow p-6 space-y-4">
+        <div key={i} className="bg-card rounded-xl shadow p-6 space-y-4 border border-border">
           <div className="flex justify-between">
             <Skeleton className="h-6 w-3/4" />
             <Skeleton className="h-5 w-16 rounded-full" />
@@ -107,7 +107,7 @@ function CardListSkeleton({ count = 6 }: { count?: number }) {
 /** 表单骨架 */
 function FormSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4 max-w-2xl">
+    <div className="bg-card rounded-lg shadow p-6 space-y-4 max-w-2xl border border-border">
       <Skeleton className="h-6 w-48" />
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-6 w-32" />

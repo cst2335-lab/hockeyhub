@@ -109,19 +109,19 @@ export default function BookRinkPage() {
     <div className="container mx-auto p-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">Book {rink.name}</h1>
       
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-card text-card-foreground rounded-lg shadow p-6 mb-6 border border-border">
         <h2 className="text-xl font-semibold mb-4">Rink Details</h2>
-        <p className="text-gray-600">{rink.address}</p>
-        {rink.phone && <p className="text-gray-600">{rink.phone}</p>}
+        <p className="text-muted-foreground">{rink.address}</p>
+        {rink.phone && <p className="text-muted-foreground">{rink.phone}</p>}
         <p className="text-lg font-medium mt-2">${hourlyRate}/hour</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
+      <form onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-lg shadow p-6 border border-border">
         <h2 className="text-xl font-semibold mb-4">Booking Information</h2>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Date
             </label>
             <input
@@ -135,7 +135,7 @@ export default function BookRinkPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Start Time
             </label>
             <select
@@ -154,7 +154,7 @@ export default function BookRinkPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Duration (hours)
             </label>
             <select

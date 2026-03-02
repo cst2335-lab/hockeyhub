@@ -56,8 +56,8 @@ export default function CheckDatabaseClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">GoGoHockey - Database Status Check</h1>
+        <div className="bg-card text-card-foreground rounded-lg shadow-xl p-8 border border-border">
+          <h1 className="text-3xl font-bold mb-6 text-foreground">GoGoHockey - Database Status Check</h1>
 
           <div className="space-y-2">
             {Object.entries(tables).map(([table, info]) => (

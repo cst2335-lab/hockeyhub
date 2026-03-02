@@ -270,7 +270,7 @@ export default function RinksPage() {
                       <span className={`text-[11px] px-2 py-0.5 rounded-full ${sourceBadgeClass(imageMeta.source)}`}>
                         {sourceLabel}
                       </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/85 text-slate-700">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-card/90 dark:bg-card/80 text-card-foreground border border-border">
                         {imageLayerLabel}
                       </span>
                     </div>

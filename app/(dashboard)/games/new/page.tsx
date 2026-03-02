@@ -102,20 +102,20 @@ export default function CreateGamePage() {
         <div className="mb-8">
           <Link
             href={withLocale('/games')}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Games
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Post a Game</h1>
-          <p className="mt-2 text-gray-600">Create a game invitation for other teams</p>
+          <h1 className="text-3xl font-bold">Post a Game</h1>
+          <p className="mt-2 text-muted-foreground">Create a game invitation for other teams</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-lg shadow p-6 space-y-6 border border-border">
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
               Game Title *
             </label>
             <input
@@ -133,7 +133,7 @@ export default function CreateGamePage() {
           {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="game_date" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_date" className="block text-sm font-medium text-foreground mb-2">
                 <Calendar className="inline h-4 w-4 mr-1" />
                 Game Date *
               </label>
@@ -149,7 +149,7 @@ export default function CreateGamePage() {
               />
             </div>
             <div>
-              <label htmlFor="game_time" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="game_time" className="block text-sm font-medium text-foreground mb-2">
                 <Clock className="inline h-4 w-4 mr-1" />
                 Game Time *
               </label>
@@ -167,7 +167,7 @@ export default function CreateGamePage() {
 
           {/* Location */}
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-foreground mb-2">
               <MapPin className="inline h-4 w-4 mr-1" />
               Location *
             </label>
@@ -186,7 +186,7 @@ export default function CreateGamePage() {
           {/* Age Group and Skill Level */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="age_group" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="age_group" className="block text-sm font-medium text-foreground mb-2">
                 <Users className="inline h-4 w-4 mr-1" />
                 Age Group *
               </label>
@@ -206,7 +206,7 @@ export default function CreateGamePage() {
               </select>
             </div>
             <div>
-              <label htmlFor="skill_level" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="skill_level" className="block text-sm font-medium text-foreground mb-2">
                 <Trophy className="inline h-4 w-4 mr-1" />
                 Skill Level *
               </label>
@@ -229,7 +229,7 @@ export default function CreateGamePage() {
 
           {/* Max Players */}
           <div>
-            <label htmlFor="max_players" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="max_players" className="block text-sm font-medium text-foreground mb-2">
               Max Players (Optional)
             </label>
             <input
@@ -247,7 +247,7 @@ export default function CreateGamePage() {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
               Description
             </label>
             <textarea
@@ -263,7 +263,7 @@ export default function CreateGamePage() {
 
           {/* Contact Info */}
           <div>
-            <label htmlFor="contact_info" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="contact_info" className="block text-sm font-medium text-foreground mb-2">
               Contact Information (Optional)
             </label>
             <input
@@ -275,7 +275,7 @@ export default function CreateGamePage() {
               placeholder="e.g., Coach John - 613-555-0123"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="mt-1 text-sm text-gray-500">This will be shared only with interested teams</p>
+            <p className="mt-1 text-sm text-muted-foreground">This will be shared only with interested teams</p>
           </div>
 
           {/* Submit Buttons */}
@@ -289,7 +289,7 @@ export default function CreateGamePage() {
             </button>
             <Link
               href={withLocale('/games')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 text-center transition"
+              className="flex-1 bg-muted text-foreground py-2 px-4 rounded-md hover:bg-muted/80 text-center transition"
             >
               Cancel
             </Link>

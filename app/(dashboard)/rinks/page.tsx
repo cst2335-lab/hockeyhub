@@ -132,10 +132,10 @@ export default function RinksPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-extrabold mb-2">Ice Rinks in Ottawa</h1>
-      <p className="text-gray-600 mb-6">{filtered.length} rinks available</p>
+      <p className="text-muted-foreground mb-6">{filtered.length} rinks available</p>
 
       {/* Toolbar */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6 grid gap-4 md:grid-cols-4">
+      <div className="bg-card text-card-foreground rounded-xl shadow p-4 mb-6 grid gap-4 md:grid-cols-4 border border-border">
         <div className="md:col-span-2">
           <div className="relative">
             <input
@@ -144,14 +144,14 @@ export default function RinksPage() {
               placeholder="Search rinks..."
               className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md"
             />
-            <span className="absolute right-3 top-2.5 text-gray-400">⌕</span>
+            <span className="absolute right-3 top-2.5 text-muted-foreground">⌕</span>
           </div>
         </div>
 
         <select
           value={price}
           onChange={(e) => setPrice(e.target.value as PriceBand)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
         >
           <option value="all">All Prices</option>
           <option value="budget">Budget (&lt; $170)</option>
@@ -162,7 +162,7 @@ export default function RinksPage() {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as 'name' | 'price')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
         >
           <option value="name">Sort by Name</option>
           <option value="price">Price: Low → High</option>
@@ -171,7 +171,7 @@ export default function RinksPage() {
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md md:col-span-1"
+          className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground md:col-span-1"
         >
           {cities.map((c) => (
             <option key={c} value={c}>
@@ -195,8 +195,8 @@ export default function RinksPage() {
 
       {/* Cards */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">No rinks match your filters.</p>
+        <div className="bg-card text-card-foreground rounded-lg shadow p-8 text-center border border-border">
+          <p className="text-muted-foreground">No rinks match your filters.</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -204,17 +204,17 @@ export default function RinksPage() {
             const rateNum = toNum(r.hourly_rate)
             const tag = band(rateNum)
             return (
-              <div key={r.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-3">
+              <div key={r.id} className="bg-card text-card-foreground rounded-xl shadow p-6 flex flex-col gap-3 border border-border">
                 <div className="flex items-start justify-between">
                   <h3 className="text-xl font-semibold">{r.name}</h3>
                   {tag && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
                       {tag}
                     </span>
                   )}
                 </div>
 
-                <div className="text-gray-600 space-y-1">
+                <div className="text-muted-foreground space-y-1">
                   <div>📍 {r.address}</div>
                   {r.phone && <div>📞 {r.phone}</div>}
                   <div>💲 {Number.isNaN(rateNum) ? 'N/A' : `${formatCurrency(rateNum)}/hour`}</div>
@@ -223,7 +223,7 @@ export default function RinksPage() {
                       {r.amenities.slice(0, 6).map((a) => (
                         <span
                           key={a}
-                          className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700"
+                          className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground"
                         >
                           {a}
                         </span>
