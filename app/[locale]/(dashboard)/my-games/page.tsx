@@ -116,14 +116,19 @@ export default function MyGamesPage() {
 
   async function updateGameStatus(gameId: string, newStatus: string) {
     try {
-      const { error } = await supabase
-        .from('game_invitations')
-        .update({ status: newStatus })
-        .eq('id', gameId);
+      const res = await fetch('/api/games/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          gameId,
+          status: newStatus,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to update game status');
 
-      if (error) throw error;
-
-      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-games', user?.id] });
       
       if (newStatus === 'cancelled') {
         toast.success('Game cancelled successfully');
@@ -142,14 +147,16 @@ export default function MyGamesPage() {
     }
 
     try {
-      const { error } = await supabase
-        .from('game_invitations')
-        .delete()
-        .eq('id', gameId);
+      const res = await fetch('/api/games/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ gameId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to delete game');
 
-      if (error) throw error;
-
-      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-games', user?.id] });
       toast.success('Game deleted successfully');
     } catch (error) {
       console.error('Error deleting game:', error);
@@ -163,14 +170,16 @@ export default function MyGamesPage() {
     }
 
     try {
-      const { error } = await supabase
-        .from('game_interests')
-        .delete()
-        .eq('id', interestId);
+      const res = await fetch('/api/games/interest/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ interestId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? 'Failed to remove interest');
 
-      if (error) throw error;
-
-      await queryClient.invalidateQueries({ queryKey: ['my-games'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-games', user?.id] });
     } catch (error) {
       console.error('Error removing interest:', error);
       toast.error('Failed to remove interest');
