@@ -138,6 +138,26 @@ All `errorCode` values are uppercase snake case and are intended for frontend br
 
 ---
 
+## Profile & Club APIs
+
+### `POST /api/profile/update`
+
+| errorCode | HTTP | Meaning |
+|---|---:|---|
+| `INVALID_JSON` | 400 | Invalid JSON payload |
+| `INVALID_PROFILE_UPDATE_PAYLOAD` | 400 | Failed Zod validation for profile payload |
+| `PROFILE_UPDATE_FAILED` | 500 | Database write failed while upserting profile |
+
+### `POST /api/clubs/create`
+
+| errorCode | HTTP | Meaning |
+|---|---:|---|
+| `INVALID_JSON` | 400 | Invalid JSON payload |
+| `INVALID_CLUB_CREATE_PAYLOAD` | 400 | Failed Zod validation for create-club payload |
+| `CLUB_CREATE_FAILED` | 500 | Database write failed while creating club |
+
+---
+
 ## Notification APIs
 
 ### `POST /api/notifications/manage`

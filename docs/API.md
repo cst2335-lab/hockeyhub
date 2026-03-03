@@ -40,6 +40,15 @@
 
 ---
 
+## 用户与俱乐部
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| POST | `/api/profile/update` | 更新当前用户资料（服务端 Zod 校验 + sanitize，按 `id` upsert） | 需要 |
+| POST | `/api/clubs/create` | 创建俱乐部申请（服务端 Zod 校验 + sanitize，`manager_id` 绑定当前用户） | 需要 |
+
+---
+
 ## 通知
 
 | 方法 | 路径 | 说明 | 认证 |

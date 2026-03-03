@@ -4,7 +4,6 @@ import { useState, useMemo, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
 export default function NewClubPage() {
   const t = useTranslations('clubs')
@@ -43,31 +42,16 @@ export default function NewClubPage() {
     setMessage('')
 
     try {
-      const supabase = createClient()
-      
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        setMessage('Please login to create a club')
-        setLoading(false)
-        return
-      }
+      const res = await fetch('/api/clubs/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json().catch(() => ({}))
 
-      // Create club
-      const { data, error } = await supabase
-        .from('clubs')
-        .insert({
-          ...formData,
-          manager_id: user.id,
-          verified: false,
-          age_groups: formData.age_groups.join(',')
-        })
-        .select()
-        .single()
-
-      if (error) {
-        setMessage('Error creating club: ' + error.message)
+      if (!res.ok) {
+        setMessage(data.error ? `Error creating club: ${data.error}` : 'Error creating club')
       } else {
         setMessage('Club created successfully!')
         setTimeout(() => {

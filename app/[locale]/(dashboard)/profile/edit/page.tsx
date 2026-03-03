@@ -79,9 +79,11 @@ export default function EditProfilePage() {
     setMessage(null);
 
     try {
-      const {error} = await supabase
-        .from('profiles')
-        .update({
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
           full_name: profile.full_name,
           age_group: profile.age_group,
           skill_level: profile.skill_level,
@@ -91,11 +93,13 @@ export default function EditProfilePage() {
           phone: profile.phone,
           jersey_number: profile.jersey_number,
           preferred_shot: profile.preferred_shot,
-          bio: profile.bio
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
+          bio: profile.bio,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || t('updateError'));
+      }
 
       setMessage({type: 'success', text: t('updateSuccess')});
       // Localized redirect after successful save
