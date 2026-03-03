@@ -148,6 +148,14 @@ All `errorCode` values are uppercase snake case and are intended for frontend br
 | `INVALID_PROFILE_UPDATE_PAYLOAD` | 400 | Failed Zod validation for profile payload |
 | `PROFILE_UPDATE_FAILED` | 500 | Database write failed while upserting profile |
 
+### `POST /api/profile/ensure`
+
+| errorCode | HTTP | Meaning |
+|---|---:|---|
+| `INVALID_JSON` | 400 | Invalid JSON payload |
+| `INVALID_PROFILE_ENSURE_PAYLOAD` | 400 | Failed Zod validation for ensure-profile payload |
+| `PROFILE_ENSURE_FAILED` | 500 | Database write failed while initializing profile row |
+
 ### `POST /api/clubs/create`
 
 | errorCode | HTTP | Meaning |

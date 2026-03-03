@@ -75,32 +75,24 @@ export default function ProfilePage() {
         .eq('id', user.id)
         .single();
 
-      // Create a profile row if not found
+      // Create profile row via validated API if not found
       if (profileError && (profileError as any).code === 'PGRST116') {
         const fallbackName =
           user.user_metadata?.full_name ||
           user.email?.split('@')[0] ||
           'Hockey Player';
 
-        const {data: newProfile, error: insertError} = await supabase
-          .from('profiles')
-          .insert([{id: user.id, full_name: fallbackName, email: user.email}])
-          .select()
-          .single();
-
-        if (insertError) {
-          // Fallback to upsert
-          const {data: upsertProfile, error: upsertError} = await supabase
-            .from('profiles')
-            .upsert({id: user.id, full_name: fallbackName, email: user.email})
-            .select()
-            .single();
-
-          if (upsertError) throw upsertError;
-          setProfile(upsertProfile);
-        } else {
-          setProfile(newProfile);
+        const ensureRes = await fetch('/api/profile/ensure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ full_name: fallbackName }),
+        });
+        const ensureData = await ensureRes.json().catch(() => ({}));
+        if (!ensureRes.ok || !ensureData.profile) {
+          throw new Error(ensureData.error || 'Failed to initialize profile');
         }
+        setProfile(ensureData.profile);
       } else if (profileError) {
         throw profileError;
       } else {

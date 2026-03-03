@@ -44,3 +44,9 @@ export const updateProfileSchema = z.object({
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const ensureProfileSchema = z.object({
+  full_name: z.string().trim().max(120).optional().or(z.literal('')),
+});
+
+export type EnsureProfileInput = z.infer<typeof ensureProfileSchema>;

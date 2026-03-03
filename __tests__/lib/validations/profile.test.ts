@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { updateProfileSchema } from '@/lib/validations/profile';
+import { ensureProfileSchema, updateProfileSchema } from '@/lib/validations/profile';
 
 describe('updateProfileSchema', () => {
   it('accepts valid payload', () => {
@@ -37,6 +37,20 @@ describe('updateProfileSchema', () => {
       skill_level: 'B',
       position: 'Forward',
       area: 'Toronto',
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('ensureProfileSchema', () => {
+  it('accepts empty payload', () => {
+    const result = ensureProfileSchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects too long full name', () => {
+    const result = ensureProfileSchema.safeParse({
+      full_name: 'a'.repeat(121),
     });
     expect(result.success).toBe(false);
   });
