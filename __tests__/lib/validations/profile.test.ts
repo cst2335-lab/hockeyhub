@@ -40,6 +40,21 @@ describe('updateProfileSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts nullable optional fields', () => {
+    const result = updateProfileSchema.safeParse({
+      full_name: 'Alex Chen',
+      age_group: 'Adult',
+      skill_level: 'B',
+      position: 'Forward',
+      area: 'Kanata',
+      phone: null,
+      jersey_number: null,
+      preferred_shot: null,
+      bio: null,
+    });
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('ensureProfileSchema', () => {

@@ -16,8 +16,8 @@ const AREAS = [
   'Stittsville',
 ] as const;
 
-const OPTIONAL_TEXT_40 = z.string().max(40).optional().or(z.literal(''));
-const OPTIONAL_TEXT_1000 = z.string().max(1000).optional().or(z.literal(''));
+const OPTIONAL_TEXT_40 = z.string().max(40).optional().nullable().or(z.literal(''));
+const OPTIONAL_TEXT_1000 = z.string().max(1000).optional().nullable().or(z.literal(''));
 
 export const updateProfileSchema = z.object({
   full_name: z.string().trim().min(1, 'Full name is required').max(120, 'Full name is too long'),
@@ -37,9 +37,13 @@ export const updateProfileSchema = z.object({
     .string()
     .max(3, 'Jersey number must be 3 digits or less')
     .optional()
+    .nullable()
     .or(z.literal(''))
-    .refine((value) => value === '' || /^\d{1,3}$/.test(value), 'Jersey number must be numeric'),
-  preferred_shot: z.enum(['Left', 'Right']).optional().or(z.literal('')),
+    .refine(
+      (value) => value == null || value === '' || /^\d{1,3}$/.test(value),
+      'Jersey number must be numeric'
+    ),
+  preferred_shot: z.enum(['Left', 'Right']).optional().nullable().or(z.literal('')),
   bio: OPTIONAL_TEXT_1000,
 });
 
