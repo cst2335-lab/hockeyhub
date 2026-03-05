@@ -55,9 +55,11 @@ export default function RegisterClient() {
       if (authError) throw authError;
 
       if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
+        const profileRes = await fetch('/api/profile/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({
             full_name: fullName,
             age_group: profile.age_group,
             skill_level: profile.skill_level,
@@ -66,11 +68,14 @@ export default function RegisterClient() {
             years_playing: profile.years_playing,
             phone: profile.phone,
             jersey_number: profile.jersey_number,
-            preferred_shot: profile.preferred_shot
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) throw profileError;
+            preferred_shot: profile.preferred_shot,
+            bio: '',
+          }),
+        });
+        const profileData = await profileRes.json().catch(() => ({}));
+        if (!profileRes.ok) {
+          throw new Error(profileData.error || 'Failed to complete profile setup');
+        }
 
         router.push(`/${locale}/dashboard`);
       }

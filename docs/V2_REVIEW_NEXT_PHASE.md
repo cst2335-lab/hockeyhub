@@ -4,11 +4,11 @@
 **用途**：Beta 上线前必须完成项与后续迭代  
 **优先级**：P0 阻塞商业化，P1 高 ROI，P2 后续迭代  
 
-## 状态更新（2026-02-28）
+## 状态更新（2026-03-04）
 
 - ✅ P0：已完成
 - ✅ P1：已完成（包含 Top 20 `image_verified=true` 数据落地；`image_url` 为空时按名称前 20 回退标记）
-- 🔜 下一阶段：P2（XSS、语言包精简、SEO JSON-LD、Zod 兜底）
+- 🟡 P2：进行中（已完成本地化主路径写操作服务端化与 Zod 兜底；剩余 legacy 旧路由收敛 + XSS/SEO 全量复核）
 
 ---
 
@@ -136,12 +136,13 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 
 ---
 
-## 三、P2（后续迭代）
+## 三、P2（进行中）
 
-- **XSS 防护**：Server Actions 中强制 sanitize（`lib/utils/sanitize.ts` 已预留，需全面执行）
-- **zh/hi 语言**：不完整语言包会造成混合语言体验，建议仅保留 en/fr
-- **SEO JSON-LD**：`/rinks/[id]` 注入 LocalBusiness，`/games/[id]` 注入 SportsEvent（WebSite/Organization 已实现）
-- **Zod 校验服务端兜底**：非法负载（负数金额、非法时间）返回 i18n 错误码
+- ✅ **zh/hi 语言精简**：当前仅保留 `en/fr`
+- ✅ **Zod 服务端兜底（主路径）**：`/en|fr` 主路径下的核心写操作已迁移到服务端 API + 校验
+- 🔜 **XSS 防护复核**：继续对剩余 legacy 入口执行 sanitize 全量巡检
+- 🔜 **SEO JSON-LD 全量复核**：补齐/复核所有详情页结构化数据与转义策略
+- 🔜 **legacy 旧路由收敛**：`app/(dashboard)`、`app/(auth)` 历史页直写路径迁移或下线
 
 ---
 
