@@ -3,7 +3,7 @@
 基于 [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理。
 
 **下阶段优先**：V2 三方分析综合评审结论，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。
-**状态更新（2026-03-04）**：V2 P0 / P1 已完成；P2 进入中后期（主路径服务端兜底已完成，剩余 legacy 收敛与 XSS/SEO 复核）。
+**状态更新（2026-03-04）**：V2 P0 / P1 已完成；P2 进入收尾（主路径服务端兜底与 legacy 直写收敛已完成，剩余 XSS/SEO 复核）。
 
 ---
 
@@ -12,7 +12,7 @@
 | 状态 | 数量 | 说明 |
 |------|------|------|
 | **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、P0–P2 增强 |
-| **进行中** | §三 | P2 收尾（legacy 旧路由收敛、XSS/SEO 全量复核） |
+| **进行中** | §三 | P2 收尾（XSS/SEO 全量复核） |
 | **下阶段** | §四 | V2 评审 P2（XSS、语言包精简、SEO JSON-LD、Zod 兜底） |
 
 ---
@@ -56,7 +56,7 @@
 
 ## 三、进行中任务
 
-当前进行中：P2 收尾（legacy 旧路由收敛、XSS/SEO 全量复核）。
+当前进行中：P2 收尾（XSS/SEO 全量复核）。
 
 ---
 
