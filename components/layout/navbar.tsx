@@ -35,6 +35,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Logo } from '@/components/ui/logo';
 import { Container } from '@/components/ui/container';
 import { UserAvatar } from '@/components/ui/user-avatar';
+import { normalizeImageSrc } from '@/lib/utils/sanitize';
 
 function cx(...cls: (string | false | null | undefined)[]) {
   return cls.filter(Boolean).join(' ');
@@ -124,6 +125,9 @@ export default function Navbar() {
     (user?.user_metadata as Record<string, unknown>)?.name ||
     user?.email ||
     '';
+  const safeAvatarSrc = normalizeImageSrc(
+    profile?.avatar_url ?? ((user?.user_metadata as Record<string, unknown>)?.avatar_url as string | undefined)
+  );
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -246,7 +250,7 @@ export default function Navbar() {
                   <MenuButton className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gogo-primary-hover transition focus:outline-2 focus:outline-offset-2 focus:outline-white min-w-0 max-w-[200px] sm:max-w-none">
                     <span className="sr-only">Open user menu</span>
                     <UserAvatar
-                      src={profile?.avatar_url ?? ((user?.user_metadata as Record<string, unknown>)?.avatar_url as string | undefined)}
+                      src={safeAvatarSrc}
                       name={profile?.full_name ?? ((user?.user_metadata as Record<string, unknown>)?.full_name as string | undefined)}
                       email={user?.email ?? undefined}
                       size="sm"
@@ -375,7 +379,7 @@ export default function Navbar() {
           <div className="border-t border-gogo-secondary px-4 py-3">
             <div className="flex items-center gap-3">
               <UserAvatar
-                src={profile?.avatar_url ?? ((user?.user_metadata as Record<string, unknown>)?.avatar_url as string | undefined)}
+                src={safeAvatarSrc}
                 name={profile?.full_name ?? ((user?.user_metadata as Record<string, unknown>)?.full_name as string | undefined)}
                 email={user?.email ?? undefined}
                 size="md"

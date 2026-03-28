@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { serializeJsonLd } from '@/lib/utils/json-ld';
+import { sanitizeMetadataDescription, serializeJsonLd } from '@/lib/utils/json-ld';
+import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
 
 type Params = { locale: string; id: string };
 type GameSeoRow = {
@@ -32,14 +33,19 @@ function buildSportsEventJsonLd(game: GameSeoRow) {
     game.game_date && game.game_time
       ? `${game.game_date}T${String(game.game_time).slice(0, 5)}:00`
       : undefined;
+  const title = sanitizePlainText(game.title ?? '').slice(0, 120) || 'Hockey Game';
+  const location = sanitizeOptionalText(game.location, 200);
+  const ageGroup = sanitizeOptionalText(game.age_group, 40);
+  const skillLevel = sanitizeOptionalText(game.skill_level, 40);
+  const safeDescription = sanitizeMetadataDescription(game.description, 300);
   const description =
-    game.description?.slice(0, 300) ||
-    `${game.game_date ?? ''} ${game.game_time ?? ''} – ${game.age_group ?? ''} ${game.skill_level ?? ''}`.trim();
+    safeDescription ||
+    `${game.game_date ?? ''} ${game.game_time ?? ''} – ${ageGroup ?? ''} ${skillLevel ?? ''}`.trim();
 
   return {
     '@context': 'https://schema.org',
     '@type': 'SportsEvent',
-    name: game.title || 'Hockey Game',
+    name: title,
     description,
     ...(startDate ? { startDate } : {}),
     sport: 'Ice Hockey',
@@ -53,12 +59,12 @@ function buildSportsEventJsonLd(game: GameSeoRow) {
       '@type': 'Organization',
       name: 'GoGoHockey',
     },
-    ...(game.location
+    ...(location
       ? {
           location: {
             '@type': 'Place',
-            name: game.location,
-            address: game.location,
+            name: location,
+            address: location,
           },
         }
       : {}),
@@ -77,9 +83,14 @@ export async function generateMetadata({
     return { title: 'Game Not Found | GoGoHockey' };
   }
 
-  const title = game.title || 'Hockey Game';
-  const desc = game.description?.slice(0, 160) ||
-    `${game.game_date} ${game.game_time} – ${game.age_group} ${game.skill_level}${game.location ? ` at ${game.location}` : ''}. Find and join hockey games on GoGoHockey.`;
+  const title = sanitizePlainText(game.title ?? '').slice(0, 120) || 'Hockey Game';
+  const safeDescription = sanitizeMetadataDescription(game.description, 160);
+  const safeLocation = sanitizeOptionalText(game.location, 200);
+  const safeAgeGroup = sanitizeOptionalText(game.age_group, 40);
+  const safeSkillLevel = sanitizeOptionalText(game.skill_level, 40);
+  const desc =
+    safeDescription ||
+    `${game.game_date} ${game.game_time} – ${safeAgeGroup ?? ''} ${safeSkillLevel ?? ''}${safeLocation ? ` at ${safeLocation}` : ''}. Find and join hockey games on GoGoHockey.`;
 
   return {
     title: `${title} | GoGoHockey`,

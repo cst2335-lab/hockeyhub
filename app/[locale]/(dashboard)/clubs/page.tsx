@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { normalizeExternalHref } from '@/lib/utils/sanitize'
 
 export default function ClubsPage() {
   const t = useTranslations('clubs')
@@ -75,58 +76,65 @@ export default function ClubsPage() {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {clubs.map((club: Record<string, unknown>) => (
-            <div key={String(club.id)} className="bg-card text-card-foreground rounded-xl shadow-md border border-border dark:border-slate-700 p-6 hover:border-gogo-secondary transition-colors">
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-semibold text-foreground">{String(club.name ?? '')}</h2>
-                {club.verified && (
-                  <span className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs dark:bg-gogo-secondary/30">
-                    {t('verified')}
-                  </span>
+          {clubs.map((club: Record<string, unknown>) => {
+            // Never trust website values from DB rows.
+            const websiteHref = normalizeExternalHref(
+              typeof club.website === 'string' ? club.website : null
+            )
+
+            return (
+              <div key={String(club.id)} className="bg-card text-card-foreground rounded-xl shadow-md border border-border dark:border-slate-700 p-6 hover:border-gogo-secondary transition-colors">
+                <div className="flex justify-between items-start mb-2">
+                  <h2 className="text-xl font-semibold text-foreground">{String(club.name ?? '')}</h2>
+                  {club.verified && (
+                    <span className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs dark:bg-gogo-secondary/30">
+                      {t('verified')}
+                    </span>
+                  )}
+                </div>
+
+                {club.description && (
+                  <p className="text-muted-foreground mb-3 text-sm">{String(club.description)}</p>
+                )}
+
+                {club.contact_email && (
+                  <p className="text-muted-foreground text-sm mb-1">📧 {String(club.contact_email)}</p>
+                )}
+
+                {club.contact_phone && (
+                  <p className="text-muted-foreground text-sm mb-1">📞 {String(club.contact_phone)}</p>
+                )}
+
+                {club.home_rink && (
+                  <p className="text-muted-foreground text-sm mb-1">🏒 Home: {String(club.home_rink)}</p>
+                )}
+
+                {club.age_groups && typeof club.age_groups === 'string' && (
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {club.age_groups.split(',').map((ageGroup: string) => (
+                      <span
+                        key={ageGroup}
+                        className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs"
+                      >
+                        {ageGroup.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {websiteHref && (
+                  <a
+                    href={websiteHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-3 text-gogo-primary hover:text-gogo-dark text-sm"
+                  >
+                    {t('visitWebsite')} →
+                  </a>
                 )}
               </div>
-
-              {club.description && (
-                <p className="text-muted-foreground mb-3 text-sm">{String(club.description)}</p>
-              )}
-
-              {club.contact_email && (
-                <p className="text-muted-foreground text-sm mb-1">📧 {String(club.contact_email)}</p>
-              )}
-
-              {club.contact_phone && (
-                <p className="text-muted-foreground text-sm mb-1">📞 {String(club.contact_phone)}</p>
-              )}
-
-              {club.home_rink && (
-                <p className="text-muted-foreground text-sm mb-1">🏒 Home: {String(club.home_rink)}</p>
-              )}
-
-              {club.age_groups && typeof club.age_groups === 'string' && (
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {club.age_groups.split(',').map((ageGroup: string) => (
-                    <span
-                      key={ageGroup}
-                      className="bg-gogo-secondary/20 text-gogo-primary px-2 py-1 rounded text-xs"
-                    >
-                      {ageGroup.trim()}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {club.website && (
-                <a
-                  href={String(club.website)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-gogo-primary hover:text-gogo-dark text-sm"
-                >
-                  {t('visitWebsite')} →
-                </a>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
       </div>

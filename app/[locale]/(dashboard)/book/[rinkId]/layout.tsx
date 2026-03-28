@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { serializeJsonLd } from '@/lib/utils/json-ld';
+import { normalizeHttpUrl, sanitizePlainText } from '@/lib/utils/sanitize';
 
 type Params = { locale: string; rinkId: string };
 type RinkSeoRow = {
@@ -25,15 +26,19 @@ async function getRinkSeoRow(rinkId: string): Promise<RinkSeoRow | null> {
 }
 
 function buildRinkJsonLd(rink: RinkSeoRow) {
-  const name = rink.name || 'Ice Rink';
+  const name = sanitizePlainText(rink.name ?? '') || 'Ice Rink';
+  const address = sanitizePlainText(rink.address ?? '');
+  const phone = sanitizePlainText(rink.phone ?? '');
+  const bookingUrl = normalizeHttpUrl(rink.booking_url, 2000);
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     additionalType: 'https://schema.org/SportsActivityLocation',
     name,
-    ...(rink.address ? { address: rink.address } : {}),
-    ...(rink.phone ? { telephone: rink.phone } : {}),
-    ...(rink.booking_url ? { url: rink.booking_url } : {}),
+    ...(address ? { address } : {}),
+    ...(phone ? { telephone: phone } : {}),
+    ...(bookingUrl ? { url: bookingUrl } : {}),
     ...(typeof rink.hourly_rate === 'number' ? { priceRange: `$${rink.hourly_rate}/hour` } : {}),
   };
 }
@@ -50,12 +55,13 @@ export async function generateMetadata({
     return { title: 'Rink Not Found | GoGoHockey' };
   }
 
-  const title = `${rink.name || 'Ice Rink'} | Book Ice Time | GoGoHockey`;
+  const safeName = sanitizePlainText(rink.name ?? '').slice(0, 120) || 'Ice Rink';
+  const safeAddress = sanitizePlainText(rink.address ?? '').slice(0, 200);
+  const title = `${safeName} | Book Ice Time | GoGoHockey`;
   const description =
-    rink.address
-      ? `Book ice time at ${rink.name || 'this rink'} in Ottawa. Location: ${rink.address}.`
-      : `Book ice time at ${rink.name || 'this rink'} in Ottawa.`;
-
+    safeAddress
+      ? `Book ice time at ${safeName} in Ottawa. Location: ${safeAddress}.`
+      : `Book ice time at ${safeName} in Ottawa.`;
   return {
     title,
     description,

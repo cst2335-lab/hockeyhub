@@ -60,3 +60,39 @@ export function normalizeHttpUrl(
     return null;
   }
 }
+
+/**
+ * Normalize external href values for anchors.
+ * Allows http(s), mailto:, and tel: schemes.
+ */
+export function normalizeExternalHref(
+  input: string | null | undefined,
+  maxLength = 2000
+): string | null {
+  const raw = sanitizeOptionalText(input, maxLength);
+  if (!raw) return null;
+
+  if (/^(mailto:|tel:)/i.test(raw)) {
+    return raw;
+  }
+
+  return normalizeHttpUrl(raw, maxLength);
+}
+
+/**
+ * Normalize image src values.
+ * Allows same-origin absolute paths (/foo.png) and http(s) URLs.
+ */
+export function normalizeImageSrc(
+  input: string | null | undefined,
+  maxLength = 2000
+): string | null {
+  const raw = sanitizeOptionalText(input, maxLength);
+  if (!raw) return null;
+
+  if (raw.startsWith('/') && !raw.startsWith('//')) {
+    return raw;
+  }
+
+  return normalizeHttpUrl(raw, maxLength);
+}

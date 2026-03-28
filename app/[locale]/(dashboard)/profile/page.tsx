@@ -6,6 +6,7 @@ import {createClient} from '@/lib/supabase/client';
 import {User} from '@supabase/supabase-js';
 import {useRouter, useParams} from 'next/navigation';
 import {UserAvatar} from '@/components/ui/user-avatar';
+import {normalizeImageSrc} from '@/lib/utils/sanitize';
 import {
   Mail,
   Phone,
@@ -180,6 +181,8 @@ export default function ProfilePage() {
   const isIncomplete =
     !profile.age_group || !profile.skill_level || !profile.position || !profile.area;
 
+  const safeAvatarSrc = normalizeImageSrc(profile.avatar_url);
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -214,7 +217,7 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="absolute -top-12 left-6">
               <UserAvatar
-                src={profile.avatar_url}
+                src={safeAvatarSrc}
                 name={profile.full_name}
                 email={user?.email ?? profile.email}
                 size="lg"
