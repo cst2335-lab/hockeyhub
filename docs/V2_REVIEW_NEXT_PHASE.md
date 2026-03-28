@@ -8,7 +8,7 @@
 
 - ✅ P0：已完成
 - ✅ P1：已完成（包含 Top 20 `image_verified=true` 数据落地；`image_url` 为空时按名称前 20 回退标记）
-- 🟡 P2：进行中（已完成本地化主路径写操作服务端化与 Zod 兜底；剩余 legacy 旧路由收敛 + XSS/SEO 全量复核）
+- 🟡 P2：进行中（已完成本地化主路径写操作服务端化与 Zod 兜底、legacy 旧路由直写收敛；剩余 XSS/SEO 全量复核）
 
 ---
 
@@ -142,7 +142,7 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 - ✅ **Zod 服务端兜底（主路径）**：`/en|fr` 主路径下的核心写操作已迁移到服务端 API + 校验
 - 🔜 **XSS 防护复核**：继续对剩余 legacy 入口执行 sanitize 全量巡检
 - 🔜 **SEO JSON-LD 全量复核**：补齐/复核所有详情页结构化数据与转义策略
-- 🔜 **legacy 旧路由收敛**：`app/(dashboard)`、`app/(auth)` 历史页直写路径迁移或下线
+- ✅ **legacy 旧路由收敛（直写）**：`app/(dashboard)`、`app/(auth)` 历史页直写路径已迁移/下线到 `/{locale}` 主路径
 
 ---
 
