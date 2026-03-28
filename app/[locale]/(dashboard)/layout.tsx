@@ -13,6 +13,7 @@ import {Container} from '@/components/ui/container';
 import BottomNav from '@/components/layout/bottom-nav';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { normalizeImageSrc } from '@/lib/utils/sanitize';
 
 /**
  * Dashboard shell (top nav + children)
@@ -155,6 +156,7 @@ export default function DashboardLayout({
   const isPlayActive = playItems.some((i) => pathname === withLocale(i.path) || pathname?.startsWith(withLocale(i.path) + '/'));
   const isCommunityActive = communityItems.some((i) => pathname === withLocale(i.path) || pathname?.startsWith(withLocale(i.path) + '/'));
   const isDashboardActive = pathname === withLocale('/dashboard');
+  const safeAvatarSrc = normalizeImageSrc(avatarUrl);
 
   const navLinkClass = (active: boolean) =>
     `inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
@@ -279,7 +281,7 @@ export default function DashboardLayout({
             <Menu as="div" className="relative shrink-0">
               <MenuButton className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gogo-primary-hover transition min-w-0 max-w-[200px] sm:max-w-none">
                 <UserAvatar
-                  src={avatarUrl}
+                  src={safeAvatarSrc}
                   name={userName}
                   email={userEmail}
                   size="sm"

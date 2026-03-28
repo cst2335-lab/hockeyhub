@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   escapeHtml,
+  normalizeExternalHref,
   normalizeHttpUrl,
+  normalizeImageSrc,
   sanitizeOptionalText,
   sanitizePlainText,
 } from '@/lib/utils/sanitize';
@@ -51,5 +53,32 @@ describe('normalizeHttpUrl', () => {
 
   it('rejects non-http protocols', () => {
     expect(normalizeHttpUrl('javascript:alert(1)')).toBeNull();
+  });
+});
+
+describe('normalizeExternalHref', () => {
+  it('allows safe http(s) links', () => {
+    expect(normalizeExternalHref('https://example.com')).toBe('https://example.com/');
+  });
+
+  it('allows mailto and tel links', () => {
+    expect(normalizeExternalHref('mailto:test@example.com')).toBe('mailto:test@example.com');
+    expect(normalizeExternalHref('tel:+16135550100')).toBe('tel:+16135550100');
+  });
+
+  it('rejects javascript links', () => {
+    expect(normalizeExternalHref('javascript:alert(1)')).toBeNull();
+  });
+});
+
+describe('normalizeImageSrc', () => {
+  it('allows same-origin absolute paths', () => {
+    expect(normalizeImageSrc('/img/avatar.png')).toBe('/img/avatar.png');
+  });
+
+  it('allows http(s) urls and rejects protocol-relative/javascript values', () => {
+    expect(normalizeImageSrc('https://cdn.example.com/a.png')).toBe('https://cdn.example.com/a.png');
+    expect(normalizeImageSrc('//cdn.example.com/a.png')).toBeNull();
+    expect(normalizeImageSrc('javascript:alert(1)')).toBeNull();
   });
 });

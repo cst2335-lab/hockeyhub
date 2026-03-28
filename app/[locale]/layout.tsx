@@ -9,7 +9,8 @@ import { locales } from '../../i18n';
 import { QueryProvider } from '@/app/providers/query-provider';
 import { ThemeProvider } from '@/app/providers/theme-provider';
 import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/conditional-nav';
-import { serializeJsonLd } from '@/lib/utils/json-ld';
+import { sanitizeMetadataDescription, serializeJsonLd } from '@/lib/utils/json-ld';
+import { normalizeHttpUrl, sanitizePlainText } from '@/lib/utils/sanitize';
 
 import type { Viewport } from 'next';
 import type { Metadata } from 'next';
@@ -92,16 +93,19 @@ export default async function LocaleLayout({
     }
   }
 
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://gogohockey.ca').replace(/\/$/, '');
+  const configuredBaseUrl = normalizeHttpUrl(process.env.NEXT_PUBLIC_APP_URL ?? null);
+  const baseUrl = (configuredBaseUrl ?? 'https://gogohockey.ca').replace(/\/$/, '');
   const siteUrl = `${baseUrl}/${locale}`;
+  const siteDescription = sanitizeMetadataDescription(descriptions[locale] ?? descriptions.en, 300);
+  const orgDescription = sanitizeMetadataDescription(descriptions.en, 300);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
       {
         '@type': 'WebSite',
-        name: 'GoGoHockey',
+        name: sanitizePlainText('GoGoHockey'),
         url: siteUrl,
-        description: descriptions[locale] ?? descriptions.en,
+        ...(siteDescription ? { description: siteDescription } : {}),
         inLanguage: locale === 'fr' ? 'fr-CA' : 'en-CA',
         potentialAction: {
           '@type': 'SearchAction',
@@ -111,10 +115,10 @@ export default async function LocaleLayout({
       },
       {
         '@type': 'Organization',
-        name: 'GoGoHockey',
+        name: sanitizePlainText('GoGoHockey'),
         url: baseUrl,
         logo: `${baseUrl}/img/logo/icon.svg`,
-        description: descriptions.en,
+        ...(orgDescription ? { description: orgDescription } : {}),
       },
     ],
   };
