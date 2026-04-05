@@ -119,7 +119,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 ## 六、请重点审查的方向
 
-> **当前待办**（V2 评审结论）见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)：P0（DB 约束、Webhook 幂等、调试路由、RBAC）、P1（HydrationBoundary、图片、Cron、数据可信度）、P2（XSS、SEO、Zod）。
+> **当前待办**（V2 评审结论）见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §四及 [附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)：P0（DB 约束、Webhook 幂等、调试路由、RBAC）、P1（HydrationBoundary、图片、Cron、数据可信度）、P2（XSS、SEO、Zod）。
 
 ### 6.1 功能完善
 
@@ -177,7 +177,6 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 - [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（已完成 / 进行中 / 下阶段）  
 - [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)：功能增强路线图（比赛匹配、预订管理、支付、移动端、RBAC、SEO 等与 P0–P3 优先级）  
-- [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)：完整修改方案（含 UI 视觉优化）  
 - [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（含阶段二完成记录）  
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：详细修改记录  
 - [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)：Supabase RLS 策略（含 payments、rink_updates_log）  

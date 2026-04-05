@@ -29,14 +29,13 @@
 
 | 文档 | 说明 |
 |------|------|
-| [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) | **任务与阶段规划**：已完成 / 进行中 / 下阶段任务一览 |
-| [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md) | **V2 评审下阶段**：P0/P1 已完成，P2 进行中（主路径服务端兜底 + legacy 直写收敛已落地） |
+| [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) | **任务与阶段规划**：含 V2 评审摘要（§四）与完整实施细节（[§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)）；P0/P1 已完成，P2 收尾中 |
 | [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) | **修改日志**：历史改动汇总 |
 | [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md) | **功能增强路线图**：比赛匹配、预订管理、支付、RBAC、SEO 等 |
-| [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md) | **修改方案**：功能、体验、架构、UI 视觉（早期规划） |
 | [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md) | **项目综述**：供 AI/人工全局审查与提建议 |
 | [UI_VISUAL_SPEC_FOR_REUSE.md](./UI_VISUAL_SPEC_FOR_REUSE.md) | **UI 视觉规范**：可供其他项目复用 |
 | [SUPABASE_RLS.sql](./SUPABASE_RLS.sql) | Supabase 行级安全策略 SQL |
+| [SQL_RINKS_IMAGES.sql](./SQL_RINKS_IMAGES.sql) | 冰场图片列 + Top20 验证（合并脚本，分节执行） |
 | [STRIPE_BOOKING_SETUP.md](./STRIPE_BOOKING_SETUP.md) | Stripe 支付与预订流程配置 |
 | [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md) | 权限与路由保护说明 |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | 部署指南（Vercel + 环境变量 + Supabase） |
@@ -47,8 +46,7 @@
 
 ## 文档说明
 
-- **NEXT_PHASE_TASKS.md**：任务总览及分支实施计划；下阶段以 V2 评审为优先。
-- **V2_REVIEW_NEXT_PHASE.md**：V2 三方分析综合评审结论，P0/P1 已完成；P2 进行中（XSS、SEO 复核收尾）。
+- **NEXT_PHASE_TASKS.md**：任务总览、分支实施计划，以及 V2 评审附录（SQL、验收标准）；下阶段以 V2 评审为优先。
 - **CHANGELOG_IMPROVEMENTS.md**：按修改周期记录的优化内容，历史汇总。
 - **ENHANCEMENT_ROADMAP.md**：核心业务增强、体验优化、架构改进、实施优先级。
 - **PROJECT_REVIEW_REPORT.md**：项目定位、技术栈、功能模块、审查要点。

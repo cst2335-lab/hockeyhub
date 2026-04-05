@@ -49,3 +49,4 @@ UPDATE rinks SET search_vector = setweight(to_tsvector('english', coalesce(name,
 
 - [API.md](./API.md) — `/api/sync-ottawa-rinks`
 - [SUPABASE_RLS.sql](./SUPABASE_RLS.sql) — RLS policies
+- [SQL_RINKS_IMAGES.sql](./SQL_RINKS_IMAGES.sql) — 冰场 `image_url` / `image_verified` 等列与 Top 20 标记（与 `npm run db:mark-top20-images` 配套）

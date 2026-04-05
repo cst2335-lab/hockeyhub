@@ -313,7 +313,7 @@ export const useGames = (filters) => {
 
 ## 七、实施优先级建议
 
-> **当前下阶段以 V2 评审为准**，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。下表为长期路线图，与 V2 评审 P0/P1/P2 有重叠，执行时以 V2 为准。
+> **当前下阶段以 V2 评审为准**，见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)（§四摘要、[§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix) 含 SQL 与验收标准）。下表为长期路线图，与 V2 评审 P0/P1/P2 有重叠，执行时以 V2 为准。
 
 | 优先级 | 项 | 说明 |
 |--------|----|------|
@@ -328,7 +328,6 @@ export const useGames = (filters) => {
 
 ## 八、相关文档
 
-- [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)：**当前下阶段实施任务**（P0/P1/P2，含 SQL、验收标准）
-- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划
+- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：**任务与阶段规划**；V2 评审完整内容见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)（P0/P1/P2，含 SQL、验收标准）
 - [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：已完成的修改记录

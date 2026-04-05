@@ -482,9 +482,9 @@
 
 ### 后续（2026-02 文档整合）
 
-- **NEXT_PHASE_TASKS** §四：精简为摘要表，完整内容指向 V2_REVIEW_NEXT_PHASE，避免交叉重复。
-- **ENHANCEMENT_ROADMAP** §七：增加「当前下阶段以 V2 评审为准」，§八 增加 V2_REVIEW_NEXT_PHASE 链接。
-- **MODIFICATION_PLAN**：增加早期方案说明，下阶段指向 V2_REVIEW_NEXT_PHASE、NEXT_PHASE_TASKS。
+- **NEXT_PHASE_TASKS** §四：精简为摘要表；完整 SQL/验收标准后并入同文档 §六附录（2026-04，见 §二十）。
+- **ENHANCEMENT_ROADMAP** §七：增加「当前下阶段以 V2 评审为准」，§八 指向 NEXT_PHASE_TASKS。
+- **MODIFICATION_PLAN**：增加早期方案说明，下阶段指向 NEXT_PHASE_TASKS。
 - **PROJECT_REVIEW_REPORT** §6：精简为指向 V2 评审，避免重复清单。
 
 ---
@@ -534,6 +534,44 @@
 ### 注意
 
 若 Cursor / 规则中曾写死 `AGENTS.md`，请改为 `★★★AGENTS.md`。
+
+---
+
+---
+
+## 十九、`docs/` 目录清理（合并 SQL、删除过时方案）
+
+**日期**：2026-04  
+**优先级**：中（可维护性）
+
+### 删除
+
+| 文件 | 原因 |
+|------|------|
+| `MODIFICATION_PLAN.md` | 早期（2025-02）方案，已由 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)（含 V2 附录）替代；内容要点已分散在 CHANGELOG 历史条目中 |
+| `SQL_RINK_IMAGE_COLUMNS.sql` | 并入 `SQL_RINKS_IMAGES.sql` 第一节 |
+| `SQL_TOP20_IMAGE_VERIFIED.sql` | 并入 `SQL_RINKS_IMAGES.sql` 第二节 |
+
+### 新增
+
+- **`SQL_RINKS_IMAGES.sql`**：单文件分节（列迁移 + Top20 验证），替代上述两个 SQL 文件。
+
+### 引用更新
+
+- `scripts/mark-top20-image-verified.mjs`、`★★★README.md`、`★★★RENEW_RINKS.md`、`NEXT_PHASE_TASKS.md`、`PROJECT_REVIEW_REPORT.md` 已更新。
+
+---
+
+## 二十、V2 评审独立文档并入 NEXT_PHASE_TASKS
+
+**日期**：2026-04  
+**优先级**：低（文档去重）
+
+### 修改内容
+
+1. **删除** `docs/V2_REVIEW_NEXT_PHASE.md`：全文迁入 [NEXT_PHASE_TASKS.md §六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)（锚点 `v2-review-appendix`）。
+2. **更新** `docs/NEXT_PHASE_TASKS.md`：§一–§五 不变；新增 §六 附录（P0–P2 原文、SQL、验收、评分表）。
+3. **更新引用**：`★★★README.md`、`PROJECT_REVIEW_REPORT.md`、`ENHANCEMENT_ROADMAP.md`、§十六「后续」条目、§十九 MODIFICATION_PLAN 说明。
 
 ---
 

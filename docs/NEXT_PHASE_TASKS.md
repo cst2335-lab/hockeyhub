@@ -1,8 +1,8 @@
 # GoGoHockey 任务与阶段规划
 
-基于 [MODIFICATION_PLAN.md](./MODIFICATION_PLAN.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理。
+基于 [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理（早期独立修改方案文档已归档删除，历史见 CHANGELOG）。
 
-**下阶段优先**：V2 三方分析综合评审结论，见 [V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。
+**下阶段优先**：V2 三方分析综合评审结论，摘要见 §四，**完整 SQL、验收标准与评分**见 [§六（附录）](#v2-review-appendix)。
 **状态更新（2026-03-04）**：V2 P0 / P1 已完成；P2 进入收尾（主路径服务端兜底与 legacy 直写收敛已完成，剩余 XSS/SEO 复核）。
 
 ---
@@ -13,7 +13,7 @@
 |------|------|------|
 | **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、P0–P2 增强 |
 | **进行中** | §三 | P2 收尾（XSS/SEO 全量复核） |
-| **下阶段** | §四 | V2 评审 P2（XSS、语言包精简、SEO JSON-LD、Zod 兜底） |
+| **下阶段** | §四、[§六 附录](#v2-review-appendix) | P2 收尾（XSS/SEO 全量复核；语言与主路径 Zod 已完成） |
 
 ---
 
@@ -62,13 +62,13 @@
 
 ## 四、下阶段任务
 
-> **完整任务与实施说明**（含 SQL、验收标准、评分预期）：[V2_REVIEW_NEXT_PHASE.md](./V2_REVIEW_NEXT_PHASE.md)。本节仅列摘要，避免重复。
+> **完整任务与实施说明**（含 SQL、验收标准、评分预期）：见 [§六 附录](#v2-review-appendix)。本节仅列摘要。
 
 | 优先级 | 任务摘要 |
 |--------|----------|
 | **已完成** | P0（预订冲突 DB 约束、Webhook 幂等、调试路由保护、RBAC 确认） |
 | **已完成** | P1（HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化） |
-| **P2（进行中）** | XSS、语言包精简、SEO JSON-LD、Zod 兜底 |
+| **P2（进行中）** | XSS、SEO JSON-LD 全量复核（语言与主路径 Zod 已完成） |
 | **其他** | E2E、PWA、i18n 收尾（按需） |
 
 **实施顺序**：已完成 P0 → P1；下一阶段 P2 → 其他。
@@ -90,6 +90,175 @@ git checkout main
 git pull origin main
 git checkout -b feat/v2-p0-safety
 ```
+
+---
+
+<a id="v2-review-appendix"></a>
+
+## 六、附录：V2 三方分析综合评审（原文与实施细节）
+
+**来源**：V2 三方分析综合评审（2026-02）  
+**用途**：Beta 上线前必须完成项与后续迭代  
+**优先级**：P0 阻塞商业化，P1 高 ROI，P2 后续迭代  
+
+### 状态更新（2026-03-04）
+
+- ✅ P0：已完成
+- ✅ P1：已完成（包含 Top 20 `image_verified=true` 数据落地；`image_url` 为空时按名称前 20 回退标记）
+- 🟡 P2：进行中（已完成本地化主路径写操作服务端化与 Zod 兜底、legacy 旧路由直写收敛；剩余 XSS/SEO 全量复核）
+
+---
+
+### 6.1 P0（本周，阻塞商业化）
+
+#### 1. 预订冲突 — 数据库排他约束
+
+**现状**：应用层 `hasSlotConflict` 在并发下必然失效，存在超卖风险。
+
+**实施**：在 Supabase SQL Editor 中执行：
+
+```sql
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+ALTER TABLE bookings
+ADD CONSTRAINT no_overlapping_bookings
+EXCLUDE USING GIST (
+  rink_id WITH =,
+  tsrange(start_time, end_time, '[)') WITH &&
+)
+WHERE (status NOT IN ('cancelled'));
+```
+
+> 需确认 `bookings` 表使用 `timestamp` 或可转换为 `tsrange` 的列；若当前为 `time` 类型，需与 `booking_date` 组合构建 tsrange。
+
+**验收**：两个并发请求抢同一时段，数据库拒绝其一，前端展示 "This slot is no longer available"。
+
+---
+
+#### 2. Stripe Webhook 幂等
+
+**现状**：Webhook 已签名校验、后端计算金额，但无 `stripe_event_id` 去重，Stripe 重试可能重复更新 booking。
+
+**实施**：
+
+1. 新建表 `stripe_webhook_events`：
+   ```sql
+   CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+     stripe_event_id text UNIQUE NOT NULL,
+     processed_at timestamptz DEFAULT now()
+   );
+   CREATE UNIQUE INDEX IF NOT EXISTS idx_stripe_webhook_events_event_id
+     ON stripe_webhook_events(stripe_event_id);
+   ```
+
+2. 在 `app/api/webhooks/stripe/route.ts` 中：处理前插入 `stripe_event_id`，若唯一冲突则直接返回 200（已处理）。
+
+**验收**：同一 webhook 重复投递，仅第一次更新 booking，后续返回 200 无副作用。
+
+---
+
+#### 3. 生产环境调试路由保护
+
+**现状**：`/check-database`、`/test-connection`、`/test-notifications` 在 middleware 中被排除，生产环境仍可访问。
+
+**实施**：在 `middleware.ts` 顶部增加：
+
+```ts
+const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notifications'];
+// 若 NODE_ENV === 'production' 且 pathname 匹配，redirect 到 '/'
+```
+
+**验收**：生产环境下访问上述路径时 redirect 到首页。
+
+---
+
+#### 4. RBAC 落地确认
+
+**现状**：`profiles.role` 在 SUPABASE_RLS.sql 中为注释；manage-rink 依赖 `rink_managers` 可工作，但与 RLS 设计不一致。
+
+**实施**：
+
+1. 确认 `profiles.role` 是否已执行：`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';`
+2. 确认 middleware 或 layout 对越权路由的实际拦截行为
+3. 统一 RLS 与代码逻辑
+
+---
+
+### 6.2 P1（已完成）
+
+#### 5. React Query + HydrationBoundary（V2 特有问题）
+
+**现状**：`/rinks`、`/games` 为 `'use client'` + `useQuery`，无服务端预取与注水，SEO 数据与首屏可能不一致。
+
+**实施**：公开列表页使用服务端 `prefetchQuery` + `HydrationBoundary` + `dehydrate` 包裹，客户端复用预取数据。
+
+**验收**：首屏 HTML 已含数据，无二次请求闪烁，SEO 与首屏一致。
+
+---
+
+#### 6. 图片三层策略
+
+| 层级   | 方案                         | 成本   |
+|--------|------------------------------|--------|
+| 兜底层 | 统一默认占位图（SVG）        | 极低   |
+| 自动层 | 导入时匹配图片源 + confidence 阈值 | 已有 findBestMatch 可扩展 |
+| 人工层 | Admin 一键替换 + `image_verified=true` | 低     |
+
+**验收**：冰场卡片 0 破图，Top 20 冰场达到 `image_verified=true`（可使用 [SQL_RINKS_IMAGES.sql](./SQL_RINKS_IMAGES.sql) **第二节**批量标记后人工复核）。
+
+---
+
+#### 7. Cron 接口安全三件套
+
+- `Authorization: Bearer ${CRON_SECRET}` 验证
+- diff 更新（不全量覆盖）
+- 失败日志 + 可定位错误
+- 生产环境禁用「测试模式绕过」
+
+---
+
+#### 8. 数据可信度标签
+
+- `rinks` 表增加 `data_source`（official/imported/community）、`last_synced_at`
+- 冰场卡片展示徽章
+- 详情页增加「纠错入口」
+
+---
+
+#### 9. 预订规则 UI 化
+
+- 取消弹窗显示「将退款金额」
+- 确认邮件重复一遍退款规则
+
+---
+
+### 6.3 P2（进行中）
+
+- ✅ **zh/hi 语言精简**：当前仅保留 `en/fr`
+- ✅ **Zod 服务端兜底（主路径）**：`/en|fr` 主路径下的核心写操作已迁移到服务端 API + 校验
+- 🔜 **XSS 防护复核**：继续对剩余 legacy 入口执行 sanitize 全量巡检
+- 🔜 **SEO JSON-LD 全量复核**：补齐/复核所有详情页结构化数据与转义策略
+- ✅ **legacy 旧路由收敛（直写）**：`app/(dashboard)`、`app/(auth)` 历史页直写路径已迁移/下线到 `/{locale}` 主路径
+
+---
+
+### 6.4 V2 评分（修复后预期）
+
+| 维度       | 当前 | 修复 P0 后 | 修复 P1 后 |
+|------------|------|------------|------------|
+| 支付安全   | 6/10 | 9/10       | 9/10       |
+| 权限安全   | 6.5/10 | 8.5/10   | 9/10       |
+| 预订可靠性 | 5/10 | 9.5/10     | 9.5/10     |
+| 数据可信度 | 6/10 | 6/10       | 8.5/10     |
+| UI/UX 完整度 | 9/10 | 9/10     | 9/10       |
+| SEO 就绪度 | 9/10 | 9/10       | 9.5/10     |
+
+---
+
+### 6.5 一句话总结
+
+> V2 已完成 P0 与 P1 的核心闭环，已具备 Beta 上线骨架；下一阶段聚焦 P2 的安全细化与回归验证。
 
 ---
 
