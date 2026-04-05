@@ -1,4 +1,4 @@
-# GoGoHockey
+# ★★★ GoGoHockey
 
 渥太华青少年冰球社区平台 —— 发布比赛、预订冰场、管理俱乐部。
 
@@ -36,7 +36,10 @@ bun dev
 
 | 文档 | 说明 |
 |------|------|
-| [docs/README.md](./docs/README.md) | 文档索引 |
+| [★★★AGENTS.md](./★★★AGENTS.md) | Cursor / 本地开发：环境变量、命令、注意事项 |
+| [docs/★★★README.md](./docs/★★★README.md) | 文档索引（★★★ 为核心文档标记） |
+| [docs/★★★THEMING.md](./docs/★★★THEMING.md) | 暗色模式与主题 CSS 变量约定 |
+| [docs/★★★RENEW_RINKS.md](./docs/★★★RENEW_RINKS.md) | 刷新冰场数据（CSV / SQL） |
 | [docs/NEXT_PHASE_TASKS.md](./docs/NEXT_PHASE_TASKS.md) | 任务与阶段规划（已完成 / 进行中 / 下阶段） |
 | [docs/PROJECT_REVIEW_REPORT.md](./docs/PROJECT_REVIEW_REPORT.md) | 项目综述报告（供审查与建议） |
 | [docs/CHANGELOG_IMPROVEMENTS.md](./docs/CHANGELOG_IMPROVEMENTS.md) | 优化修改日志 |

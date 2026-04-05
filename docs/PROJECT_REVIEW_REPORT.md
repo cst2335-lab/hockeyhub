@@ -183,7 +183,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 - [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)：Supabase RLS 策略（含 payments、rink_updates_log）  
 - [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md)：部署与 API 说明  
 - [README.md](../README.md)：项目根目录说明与运行方式  
-- [docs/README.md](./README.md)：文档索引  
+- [docs/★★★README.md](./★★★README.md)：文档索引  
 
 ---
 

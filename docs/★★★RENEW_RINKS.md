@@ -1,4 +1,4 @@
-# Renew Rinks List
+# ★★★ Renew Rinks List
 
 How to refresh the `rinks` table. Prefer **CSV import** (avoids SQL escaping and timeout issues).
 
@@ -18,6 +18,9 @@ node scripts/import-rinks-from-csv.mjs
 
 # 执行 upsert（需 SUPABASE_SERVICE_KEY）
 node scripts/import-rinks-from-csv.mjs --apply
+
+# 等价 npm 脚本
+npm run db:import-rinks -- --apply
 ```
 
 3. 若需清空后导入，先在 Supabase SQL Editor 执行：

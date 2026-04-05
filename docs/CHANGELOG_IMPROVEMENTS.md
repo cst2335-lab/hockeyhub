@@ -470,7 +470,7 @@
 
 1. **新建** `docs/V2_REVIEW_NEXT_PHASE.md`：V2 三方分析综合评审结论，P0（DB 约束、Webhook 幂等、调试路由保护、RBAC 确认）、P1（HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化）、P2（XSS、SEO、Zod 兜底）。
 2. **更新** `docs/NEXT_PHASE_TASKS.md`：下阶段以 V2 评审优先；§四 替换为 P0/P1/P2 任务；分支建议 `feat/v2-p0-safety`、`feat/v2-p1-roi`。
-3. **更新** `docs/README.md`：增加 V2_REVIEW_NEXT_PHASE 索引，精简文档说明。
+3. **更新** `docs/★★★README.md`（原 `docs/README.md`）：增加 V2_REVIEW_NEXT_PHASE 索引，精简文档说明。
 4. **删除** `docs/UI_OPTIMIZATION_AUDIT.md`：已完成项，内容已汇总至 CHANGELOG。
 5. **删除** `docs/PHASE2_NAV_AND_BUTTON_TASKS.md`：阶段二已完成，内容已汇总至 NEXT_PHASE_TASKS §2.2。
 6. **修正引用**：NEXT_PHASE_TASKS、PROJECT_REVIEW_REPORT、CHANGELOG_IMPROVEMENTS、MODIFICATION_PLAN 中指向已删除文档的链接。
@@ -489,4 +489,52 @@
 
 ---
 
-*文档生成时间：2025-02 | 更新：2026-02*
+## 十七、暗色模式与主题 token（Surface / 卡片）
+
+**日期**：2026-04  
+**优先级**：高（可读性）
+
+### 背景
+
+- 暗色模式下若 `--surface` 未在 `.dark` 中定义，会沿用浅色近白（`0 0% 98%`），与 `text-card-foreground`（浅色字）叠加会导致**白底上的字几乎看不见**（典型：预订页「Booking Information」、价格汇总）。
+- 多处 `bg-white` + `text-gray-*` 在暗色下也存在对比度问题。
+
+### 修改内容（摘要）
+
+1. **`app/globals.css`**：在 `.dark` 中增加 `--surface: 222.2 84% 4.9%`（与 `--card` 一致）。
+2. **`app/[locale]/(dashboard)/book/[rinkId]/page.tsx`**：预订表单容器使用 `bg-card text-card-foreground border border-border`，不再单独使用 `bg-surface` 承载浅色字。
+3. **全站多页**：将卡片/表单上的 `bg-white`、`text-gray-*` 逐步替换为 `bg-card`、`text-foreground` / `text-muted-foreground` / `text-card-foreground`；徽章类增加 `dark:` 变体；导航搜索框等改为 `bg-card`。
+4. **文档**：新增 `docs/★★★THEMING.md`；更新 `★★★AGENTS.md`、`docs/★★★README.md`、`README.md`、`docs/★★★RENEW_RINKS.md`（npm 脚本说明）。
+
+### 解决的问题
+
+- 暗色模式下白底区块与浅色文字对比度不足。
+- 开发者对 `surface` / `card` 在暗色下的行为有统一说明。
+
+---
+
+## 十八、核心 Markdown 文件名 `★★★` 前缀
+
+**日期**：2026-04  
+**优先级**：中（可发现性）
+
+### 修改内容
+
+为便于在资源管理器中排序与查找，下列文档重命名并在标题中标注 **★★★**：
+
+| 原路径 | 新路径 |
+|--------|--------|
+| `AGENTS.md` | `★★★AGENTS.md` |
+| `docs/README.md` | `docs/★★★README.md` |
+| `docs/RENEW_RINKS.md` | `docs/★★★RENEW_RINKS.md` |
+| `docs/THEMING.md` | `docs/★★★THEMING.md` |
+
+根目录 `README.md` 保留标准文件名（Git 托管首页），仅在首行标题使用 `# ★★★ GoGoHockey`。
+
+### 注意
+
+若 Cursor / 规则中曾写死 `AGENTS.md`，请改为 `★★★AGENTS.md`。
+
+---
+
+*文档生成时间：2025-02 | 更新：2026-04*

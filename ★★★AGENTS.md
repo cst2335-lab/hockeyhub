@@ -1,4 +1,4 @@
-# GoGoHockey
+# ★★★ AGENTS — GoGoHockey
 
 Ottawa youth ice hockey community platform built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and Supabase.
 
@@ -43,6 +43,7 @@ See `package.json` scripts. Key commands:
 | Lint | `npm run lint` |
 | Tests | `npm run test` (vitest, 14 tests in 3 files) |
 | Build | `npm run build` |
+| Import rinks from CSV | `npm run db:import-rinks -- --apply` (needs `SUPABASE_SERVICE_KEY`; see `docs/★★★RENEW_RINKS.md`) |
 
 ### Gotchas
 
@@ -52,3 +53,4 @@ See `package.json` scripts. Key commands:
 - **Package manager**: Uses npm (lockfile: `package-lock.json`).
 - **First compile is slow**: The initial page load after `npm run dev` takes ~15s due to webpack compilation of ~5000 modules. Subsequent navigations are fast.
 - **Supabase `profiles` table**: May return 400 errors if the table schema doesn't match the query. This is a database-side issue, not a code problem.
+- **Dark mode / theming**: Cards and forms should use theme tokens (`bg-card`, `text-card-foreground`, `border-border`) rather than fixed `bg-white` or `text-gray-*` on themed surfaces. In `.dark`, `--surface` matches `--card` so `bg-surface` stays readable. See `docs/★★★THEMING.md`.

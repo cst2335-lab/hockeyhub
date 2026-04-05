@@ -24,7 +24,7 @@
 | 任务 | 说明 |
 |------|------|
 | §一 2 测试 | `npm run test` 已通过（Vitest，14 个用例） |
-| §二 6 文档 | [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md) 已建；docs/README 已更新索引 |
+| §二 6 文档 | [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md) 已建；docs/★★★README 已更新索引 |
 | §二 7 PWA | `public/sw.js` 对 `/login`、`/register`、`/dashboard`、`/bookings`、`/manage-rink`、`/notifications` 不再使用缓存 |
 | §二 8 i18n | Manage Rink 页文案全部迁入 messages（en/fr）；manageRink、nav 命名空间 |
 | §二 5 监控 | 集成 `@sentry/nextjs`；设置 `NEXT_PUBLIC_SENTRY_DSN` 后启用上报 |
