@@ -2,7 +2,7 @@
 
 **来源**：审查反馈与产品规划整理  
 **用途**：供开发排期、AI 协作及评审参考  
-**更新**：2026-02
+**更新**：2026-04-05
 
 ---
 
@@ -36,26 +36,15 @@
 | **类型** | 功能增强 + 用户体验 |
 | **优先级** | 高 |
 
-**缺失功能**：
+**可增强功能**：
 
 1. **预订提醒**
-   - 比赛前 24 小时 / 2 小时自动提醒（邮件 + 站内通知）
-   - 预订即将到期提醒（周期性预订）
-   - 实现：Supabase Edge Functions 或 cron job
+   - **已有**：Dashboard 对 **24h 内** 下一笔 confirmed 冰场预订展示提醒横幅 + 链至预订详情（站内）
+   - **仍待**：邮件/赛前 2h 推送、与周期性预订联动的到期提醒；实现可选 Supabase Edge Functions 或 cron
 
-2. **取消政策与退款**
-   - 明确取消时限（如提前 24 小时可退款）
-   - 部分退款（根据取消时间递减）
-   - 天气等不可抗力特殊流程
-
-   ```ts
-   // lib/booking/policies.ts 示例
-   export const CANCELLATION_POLICY = {
-     full_refund: 24,    // 24 小时前全额
-     partial_refund: 12, // 12 小时前 50%
-     no_refund: 0
-   };
-   ```
+2. **取消政策与退款**（**已落地**：`lib/booking/policies.ts`；取消 API 与 UI 已接入，详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+   - 已支持：分档退款（如 24h / 12h 规则）、预订取消流程
+   - 仍可增强：天气等不可抗力特殊流程、与 Stripe 退款自动化深度打通
 
 3. **周期性预订**
    - 每周固定时段重复预订
@@ -71,29 +60,17 @@
 | **类型** | 功能完善 |
 | **优先级** | 高 |
 
-**当前状态**：Stripe 已集成，流程不完整。
+**当前状态（2026-04）**：Stripe 已接入冰场预订 **Checkout** 与 **Webhook**（`app/api/webhooks/stripe/route.ts`：签名校验、`checkout.session.completed` 更新预订、`payment_intent.payment_failed` 等；幂等与 DB 约束见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §六 附录）。需配置 `STRIPE_*` 与 Webhook 密钥，见 `STRIPE_BOOKING_SETUP.md`。
 
-**必须补充**：
+**仍可增强（非 V2 P2 阻塞；与路线图排期）**：
 
-1. **Webhook**
-   - 监听 `checkout.session.completed`
-   - 监听 `payment_intent.failed`
-   - 验证签名防伪造
+1. **退款自动化**：与取消政策联动的 Stripe Refund API、人工兜底与管理视图  
+2. **财务报表**：冰场收入、用户消费历史、税务相关记录  
+3. **管理后台**（可选）：`app/[locale]/(dashboard)/admin/revenue/` 等
 
-2. **退款**
-   - 自动退款（符合政策）
-   - 手动退款（管理员）
-   - 退款记录追踪
-
-3. **财务报表**
-   - 冰场收入统计
-   - 用户消费历史
-   - 税务相关记录
-
-**实现位置**：
-- `app/api/webhooks/stripe/route.ts`（新建）
-- `lib/stripe/refund.ts`（新建）
-- `app/[locale]/(dashboard)/admin/revenue/`（管理后台，可选）
+**已有实现位置**：
+- `app/api/webhooks/stripe/route.ts`
+- `lib/booking/policies.ts`（取消与退款金额计算）
 
 ---
 
@@ -107,9 +84,9 @@
 | **类型** | 用户体验 |
 | **优先级** | 中 |
 
-- **统一骨架屏**：可复用 Skeleton（如 `GameCardSkeleton`、`RinkCardSkeleton`）
-- **错误边界**：页面级 `error.tsx`、组件级 `<ErrorBoundary>`，友好提示
-- **乐观更新**：React Query 乐观更新，「点赞」「感兴趣」即时反馈
+- **统一骨架屏**：可复用 Skeleton（如 `GameCardSkeleton`、`RinkCardSkeleton`）— **已用于 Games/Rinks 列表加载态**（见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+- **错误边界**：页面级 `error.tsx` 等 — **已落地**；组件级 `<ErrorBoundary>` 仍可按需扩展
+- **乐观更新**：React Query 乐观更新，「点赞」「感兴趣」即时反馈（按需迭代）
 
 ---
 
@@ -137,7 +114,7 @@
 | **类型** | 用户体验 + PWA |
 | **优先级** | 高 |
 
-- **底部导航**：Play / Community / Bookings / Profile，固定底部
+- **底部导航**：**已实现**（`components/layout/bottom-nav.tsx`：Play、Community、Dashboard、Profile；与 §七 已完成的「移动端底部导航」一致）；后续可微调图标或增加入口
 - **手势**：左右滑动切换 Dashboard 标签，下拉刷新
 - **离线**：缓存已查看比赛/冰场，离线可浏览并标注「可能过时」
 - **推送**：请求通知权限，比赛邀请、预订确认等实时推送
@@ -154,8 +131,7 @@
 | **类型** | 技术架构 |
 | **优先级** | 中 |
 
-- **全面采用 React Query**：缓存、重新验证、乐观更新、请求去重
-- 逐步迁移现有 `useEffect` 数据请求
+- **React Query**：已在 Games、Rinks、Dashboard、Clubs、Bookings、Notifications 等页使用；继续将剩余 `useEffect` 拉数迁移为 `useQuery`（缓存、去重、统一错误态）
 
 ```ts
 // lib/queries/games.ts 示例
@@ -193,9 +169,9 @@ export const useGames = (filters) => {
 | **类型** | SEO + 增长 |
 | **优先级** | 低–中 |
 
-- **动态 Metadata**：`generateMetadata` 为比赛/冰场页生成 title、description、openGraph
-- **结构化数据**：Schema.org（SportsEvent、SportsOrganization）
-- **Sitemap / robots.txt**：动态生成公开比赛、冰场
+- **现状**：`generateMetadata`（如 games 详情）、`sitemap.ts`、`robots.ts`、站点级 JSON-LD（WebSite + Organization）已落地（见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+- **进行中（V2 P2）**：各详情页 **JSON-LD 与转义策略全量复核**（与路线图「结构化数据」目标一致）
+- **仍可增强**：更多 Schema.org 类型（SportsEvent 等）、冰场详情页 metadata 深化
 
 ---
 
@@ -219,6 +195,8 @@ export const useGames = (filters) => {
 | Club Admin  | ✅       | ✅         | ❌       | 俱乐部成员   |
 | Rink Manager| ❌       | ❌         | ✅       | 所管理冰场   |
 | Super Admin | ✅       | ✅         | ✅       | ✅           |
+
+> **说明（2026-04）**：冰场管理权限与 `rink_managers`、RLS 已落地；上表为产品化目标矩阵。实施细节以 [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §六 附录（RBAC）为准。
 
 ---
 
@@ -275,7 +253,7 @@ export const useGames = (filters) => {
 | **类型** | 国际化 |
 | **优先级** | 中 |
 
-- **语言**：优先完善 en、fr（渥太华双语）；zh、hi 不完整可暂停或移除
+- **语言**：产品仅 **en、fr**（渥太华双语）；zh、hi 已移除
 - **日期**：date-fns + `enCA` / `frCA` 等 locale
 - **货币**：CAD 符号与地区习惯
 
@@ -313,21 +291,22 @@ export const useGames = (filters) => {
 
 ## 七、实施优先级建议
 
-> **当前下阶段以 V2 评审为准**，见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)（§四摘要、[§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix) 含 SQL 与验收标准）。下表为长期路线图，与 V2 评审 P0/P1/P2 有重叠，执行时以 V2 为准。
+> **当前「未完成」以 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §三、§四 为准**。下表为**长期路线图**，与 V2 已完成的 P0/P1 及进行中的 P2 对照使用；细节与验收见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)。
 
-| 优先级 | 项 | 说明 |
-|--------|----|------|
-| **P0** | Stripe Webhook、DB 预订约束、调试路由保护、RBAC | 支付安全、预订可靠性、权限（V2 评审优先） |
-| **P0** | 预订取消政策、移动端底部导航 | 用户信任、主要群体（已完成） |
-| **P1** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1 |
-| **P1** | 比赛智能匹配、预订提醒系统 | 提升匹配效率、体验与留存 |
-| **P2** | PWA 推送、数据分析、SEO、性能 | 增长与性能 |
-| **P3** | 社区论坛、成就、高级匹配 | 长期社区建设 |
+| 状态 | 优先级 | 项 | 说明 |
+|------|--------|----|------|
+| ✅ 已完成 | V2 P0 | Stripe Webhook（含幂等）、DB 预订约束、调试路由保护、RBAC/RLS 对齐 | 见 NEXT_PHASE §二、§六 |
+| ✅ 已完成 | V2 P1 | HydrationBoundary、图片策略、Cron 安全、数据可信度、预订规则 UI | 同上 |
+| 🟡 进行中 | V2 P2 | XSS 全量复核、SEO JSON-LD 全量复核 | **当前工程收尾**，见 NEXT_PHASE §三 |
+| ✅ 已完成 | — | 预订取消政策、移动端底部导航 | 见 CHANGELOG、NEXT_PHASE §二 |
+| 📋 长期 | **P1** | 比赛智能匹配增强、预订提醒（邮件/推送）深化 | 与 V2 P2 无冲突，按需排期 |
+| 📋 长期 | **P2** | PWA 推送、数据分析、性能 | 增长与性能 |
+| 📋 长期 | **P3** | 社区论坛、成就、高级匹配 | 长期社区建设 |
 
 ---
 
 ## 八、相关文档
 
 - [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：**任务与阶段规划**；V2 评审完整内容见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)（P0/P1/P2，含 SQL、验收标准）
-- [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向
-- [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：已完成的修改记录
+- [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向（§6.0 与 NEXT_PHASE 对齐）
+- [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：修改记录；**§二十一** 为任务状态文档全库对齐说明

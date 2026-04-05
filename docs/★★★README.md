@@ -8,6 +8,7 @@
 
 | 项 | 说明 |
 |----|------|
+| **待办权威** | [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四**（勿仅凭旧版 CHANGELOG「未完成」判断） |
 | 主分支 | `main`（与 `origin/main` 同步时请本地 `git pull`） |
 | 框架 | Next.js 15（App Router）、TypeScript、Tailwind、Supabase、next-intl（en/fr） |
 | 主题 | `next-themes` + `class="dark"`；暗色变量见 `app/globals.css`、`docs/★★★THEMING.md` |
@@ -46,10 +47,10 @@
 
 ## 文档说明
 
-- **NEXT_PHASE_TASKS.md**：任务总览、分支实施计划，以及 V2 评审附录（SQL、验收标准）；下阶段以 V2 评审为优先。
+- **NEXT_PHASE_TASKS.md**：任务总览、分支实施计划，以及 V2 评审附录（SQL、验收标准）；**当前未完成**以 §三、§四 为准（与 `PROJECT_REVIEW_REPORT` §6.0、`CHANGELOG` §二十一 一致）。
 - **CHANGELOG_IMPROVEMENTS.md**：按修改周期记录的优化内容，历史汇总。
 - **ENHANCEMENT_ROADMAP.md**：核心业务增强、体验优化、架构改进、实施优先级。
-- **PROJECT_REVIEW_REPORT.md**：项目定位、技术栈、功能模块、审查要点。
+- **PROJECT_REVIEW_REPORT.md**：项目定位、技术栈、功能模块；§六 与 NEXT_PHASE §三–§四 一致（待办权威见上表）。
 - **UI_VISUAL_SPEC_FOR_REUSE.md**：颜色、字体、组件等设计规范，便于跨项目复用。
 - **SUPABASE_RLS.sql**：RLS 策略覆盖 game_invitations、bookings、notifications、profiles、rinks、payments、rink_updates_log 等表。
 - **★★★THEMING.md**：与 `next-themes` 配合的暗色 token；预订页等表单须避免浅色字叠在浅色底上。

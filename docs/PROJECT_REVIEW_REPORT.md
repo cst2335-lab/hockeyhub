@@ -1,8 +1,8 @@
 # GoGoHockey 项目综述报告
 
 **用途**：供其他 AI 及人员进行全局审查，对网站优化提升、尤其是功能完善提出意见建议。  
-**版本**：2.1.0  
-**更新日期**：2026-02-13
+**版本**：2.2.0  
+**更新日期**：2026-04-05
 
 ---
 
@@ -35,15 +35,15 @@
 | 语言 | TypeScript | - |
 | 样式 | Tailwind CSS | - |
 | 数据库/后端 | Supabase | 认证、PostgreSQL、实时订阅 |
-| 国际化 | next-intl | 支持 en、fr 等 |
+| 国际化 | next-intl | 仅 **en、fr**（路由与 messages） |
 | 表单 | react-hook-form + zod | - |
 | UI 组件 | Radix UI、shadcn/ui 风格 | - |
 | Toast | Sonner | - |
 | 日期 | date-fns | - |
 | 图表 | Recharts、Tremor | - |
-| 支付（依赖已安装） | Stripe | 尚未接入业务流程 |
+| 支付 | Stripe | 已接入冰场预订 Checkout 与 Webhook（需配置 `STRIPE_*` 与 Webhook 密钥）；见 `STRIPE_BOOKING_SETUP.md` |
 | 邮件 | Resend | 依赖已安装 |
-| 数据请求 | @tanstack/react-query | 已安装，部分页面未使用 |
+| 数据请求 | @tanstack/react-query | Games、Rinks、Dashboard、Clubs 等已用；少数页面仍可能用 `useEffect` 拉数 |
 
 ---
 
@@ -73,7 +73,7 @@ lib/
 ├── hooks/                    # useAuth、useBookings、useNotifications、useDebounce
 ├── validations/              # zod 校验（game、booking）
 └── api/                      # API 辅助（如 auth requireAuth）
-messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
+messages/                     # i18n 文案（仅 en.json、fr.json；zh/hi 已从产品移除）
 ```
 
 ---
@@ -119,37 +119,44 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 ## 六、请重点审查的方向
 
-> **当前待办**（V2 评审结论）见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §四及 [附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)：P0（DB 约束、Webhook 幂等、调试路由、RBAC）、P1（HydrationBoundary、图片、Cron、数据可信度）、P2（XSS、SEO、Zod）。
+### 6.0 状态权威（必读）
 
-### 6.1 功能完善
+**「当前未完成 / 进行中」任务**以 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四** 为唯一权威；本节的勾选仅辅助审查，**不得**与 §三、§四 矛盾。V2 评审的原始 SQL、验收标准见同文档 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)。
 
-- [ ] **支付/预订**：Webhook 幂等、DB 排他约束、确认邮件、取消规则（见 V2 评审）  
-- [ ] **权限与角色**：RBAC 落地确认、profiles.role、越权路由拦截  
-- [ ] **比赛匹配**：当前「感兴趣」+ 推荐排序；是否需自动匹配、候补名单？  
+**V2 结论摘要（截至 2026-04）**：
 
-### 6.2 用户体验
+- **已完成**：V2 **P0**（预订 DB 排他约束、Stripe Webhook 幂等、生产环境调试路由保护、RBAC/RLS 与代码对齐）、**P1**（HydrationBoundary、图片三层策略、Cron 安全、数据可信度标签、预订规则 UI 化等）。  
+- **主路径写操作**：`/[locale]` 核心写接口已 **服务端化**，配合 **Zod** 与 **sanitize**（错误码见 [API_ERROR_CODES.md](./API_ERROR_CODES.md)）。  
+- **进行中（V2 P2 收尾）**：**XSS**（legacy 等入口 sanitize 全量复核）、**SEO JSON-LD**（各详情页结构化数据与转义策略全量复核）。
 
-- [ ] **加载与错误**：骨架屏、错误边界已实现；HydrationBoundary 待补充（V2 P1）  
-- [ ] **表单/移动端/无障碍**：按需迭代  
+### 6.1 已完成能力（审查时勿当作未开工单）
 
-### 6.3 技术架构
+- [x] **支付 / 预订**：Stripe Checkout、Webhook（签名校验与幂等）、取消政策与退款金额（`lib/booking/policies.ts`）、预订确认邮件（Resend，需配置 `RESEND_API_KEY`）、DB 排他约束防超卖  
+- [x] **权限与路由**：RLS、`rink_managers`、manage-rink 可见性；middleware / layout 与业务一致（细节见 `ROLES_AND_ROUTE_GUARDS.md`）  
+- [x] **列表与 SEO 基线**：HydrationBoundary、meta、sitemap、站点级 JSON-LD；Games 推荐排序、Dashboard 预订提醒横幅  
+- [x] **加载与错误**：骨架屏（Games/Rinks 等）、页面级 `error.tsx`  
+- [x] **国际化**：上线语言仅 **en / fr**（zh、hi 已移除）
 
-- [ ] **数据请求**：是否全面采用 React Query 替代手写 `useEffect`？  
-- [ ] **组件复用**：是否存在重复逻辑可抽离为 hooks 或共享组件？  
-- [ ] **性能**：图片、长列表、懒加载等是否需要优化？  
-- [ ] **SEO**：meta、sitemap、结构化数据是否需加强？  
+### 6.2 进行中（与 NEXT_PHASE_TASKS §三 一致）
 
-### 6.4 国际化
+- [ ] **XSS 防护**：剩余 legacy 等入口的输出与 sanitize 巡检  
+- [ ] **SEO JSON-LD**：详情页结构化数据与转义策略全量复核  
 
-- [ ] **覆盖范围**：Games、Clubs、Bookings、Notifications 等是否仍需补充 i18n？  
-- [ ] **语言支持**：zh、hi 已存在但可能不完整，是否需要补齐或简化？  
-- [ ] **日期/数字**：是否需要按地区格式化日期和货币？  
+### 6.3 长期产品与技术问题（非 V2 P2 阻塞；见路线图排期）
 
-### 6.5 安全与合规
+- [ ] **比赛匹配**：自动匹配、候补名单、更强通知（见 [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)）  
+- [ ] **数据请求模式**：是否全面统一为 React Query，减少零散 `useEffect`  
+- [ ] **组件复用**：重复逻辑是否抽 hooks / 共享组件  
+- [ ] **性能**：长列表、懒加载、图片等持续优化  
+- [ ] **i18n 边角**：en/fr 文案持续补全  
+- [ ] **日期与货币**：locale 格式化是否需进一步深化（已有 `formatDateByLocale` 等）  
+- [ ] **隐私合规**：Cookie 同意、GDPR 等是否需专门流程  
 
-- [x] **RLS 策略**：game_invitations、game_interests、bookings、notifications、profiles、rinks、**payments**、**rink_updates_log** 已启用 RLS 并配置策略，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)；执行后需在 Dashboard 确认无 UNRESTRICTED。  
-- [ ] **输入过滤**：XSS、注入等防护是否到位？  
-- [ ] **隐私合规**：Cookie、GDPR 等是否需要专门处理？  
+### 6.4 安全与合规
+
+- [x] **RLS 策略**：game_invitations、game_interests、bookings、notifications、profiles、rinks、**payments**、**rink_updates_log** 已启用 RLS，见 [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)；执行后需在 Dashboard 确认无 UNRESTRICTED。  
+- [ ] **输入过滤**：与 §6.2 XSS 收尾一致  
+- [ ] **隐私合规**：与 §6.3 长期项一致  
 
 ---
 
@@ -166,7 +173,7 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 ```
 【模块】冰场预订
 【类型】功能增强
-【建议】在预订成功后可增加邮件确认
+【建议】可增加赛前短信提醒（除现有邮件与 Dashboard 横幅外）
 【优先级】中
 【位置】app/[locale]/(dashboard)/book/[rinkId]/page.tsx
 ```
@@ -175,9 +182,8 @@ messages/                     # i18n 文案 (en.json, fr.json；zh/hi 未启用)
 
 ## 八、相关文档
 
-- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（已完成 / 进行中 / 下阶段）  
-- [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)：功能增强路线图（比赛匹配、预订管理、支付、移动端、RBAC、SEO 等与 P0–P3 优先级）  
-- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划（含阶段二完成记录）  
+- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：任务与阶段规划；**当前未完成**以 §三、§四 为准  
+- [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)：功能增强路线图（比赛匹配、预订管理、支付增强、PWA、SEO 等与 P0–P3）  
 - [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：详细修改记录  
 - [SUPABASE_RLS.sql](./SUPABASE_RLS.sql)：Supabase RLS 策略（含 payments、rink_updates_log）  
 - [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md)：部署与 API 说明  

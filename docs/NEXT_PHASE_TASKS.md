@@ -2,8 +2,10 @@
 
 基于 [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) 整理（早期独立修改方案文档已归档删除，历史见 CHANGELOG）。
 
+**任务状态唯一权威**：**§三**（进行中）、**§四**（下阶段摘要）表示当前未完成与优先级；**§二** 为历史完成记录；**§六** 附录保留 V2 原始验收与 SQL，用于对照，**不等同**于「当前待办清单」（避免与 §三、§四 混淆）。
+
 **下阶段优先**：V2 三方分析综合评审结论，摘要见 §四，**完整 SQL、验收标准与评分**见 [§六（附录）](#v2-review-appendix)。
-**状态更新（2026-03-04）**：V2 P0 / P1 已完成；P2 进入收尾（主路径服务端兜底与 legacy 直写收敛已完成，剩余 XSS/SEO 复核）。
+**状态更新（2026-04-05）**：V2 P0 / P1 已完成；P2 进入收尾（主路径服务端兜底与 legacy 直写收敛已完成，剩余 XSS/SEO 复核）。全库说明类文档已与此处对齐（见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §二十一）。
 
 ---
 

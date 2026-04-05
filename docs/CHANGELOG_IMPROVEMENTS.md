@@ -355,11 +355,15 @@
 - **新建**：`__tests__/lib/validations/booking.test.ts` — bookingFormSchema
 - **修改**：`package.json` — 新增 test、test:watch 脚本，devDependencies 添加 vitest、vite-tsconfig-paths
 
-### 未完成（后续迭代）
-- **支付流程**：Stripe checkout、Webhook（需配置 Stripe）
-- **测试**：执行 `npm install` 后运行 `npm run test`
-- **监控**：Sentry、Vercel Analytics
-- **文档**：API 文档、部署指南、贡献指南
+### 未完成（历史快照 · 2026-02）
+
+> **2026-04 说明**：下列条目在后续迭代中已大量推进；**当前「未完成 / 进行中」的唯一权威**为 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四**（全库文档已对齐，见 §二十一）。请勿仅依据本小节判断待办。
+
+- ~~**支付流程**~~：Stripe Checkout + Webhook 已接入（见第九至十一章、V2 P0）；需配置 Stripe 与 Webhook 密钥
+- **测试**：`npm run test`（Vitest，14 用例）
+- **监控**：Sentry（已集成，需 `NEXT_PUBLIC_SENTRY_DSN`）、Analytics 等按需
+- **文档**：`docs/API.md`、`docs/DEPLOYMENT.md` 等已建；持续维护
+- **工程收尾**：V2 P2（XSS、SEO JSON-LD 全量复核）、E2E 等见 NEXT_PHASE_TASKS
 
 ---
 
@@ -485,7 +489,7 @@
 - **NEXT_PHASE_TASKS** §四：精简为摘要表；完整 SQL/验收标准后并入同文档 §六附录（2026-04，见 §二十）。
 - **ENHANCEMENT_ROADMAP** §七：增加「当前下阶段以 V2 评审为准」，§八 指向 NEXT_PHASE_TASKS。
 - **MODIFICATION_PLAN**：增加早期方案说明，下阶段指向 NEXT_PHASE_TASKS。
-- **PROJECT_REVIEW_REPORT** §6：精简为指向 V2 评审，避免重复清单。
+- **PROJECT_REVIEW_REPORT** §6：精简为指向 V2 评审，避免重复清单。（**2026-04**：§6 已重写为与 NEXT_PHASE §三–§四 一致，见 §二十一。）
 
 ---
 
@@ -575,4 +579,29 @@
 
 ---
 
-*文档生成时间：2025-02 | 更新：2026-04*
+## 二十一、任务状态文档全库对齐（2026-04）
+
+**日期**：2026-04-05  
+**优先级**：中（避免开发误判待办）
+
+### 背景
+
+部分文档（如 `PROJECT_REVIEW_REPORT` §六、`CHANGELOG` §十二「未完成」、`ENHANCEMENT_ROADMAP` §七）仍保留早期表述，易与 **V2 P0/P1 已完成、P2 收尾** 的真实进度冲突。
+
+### 修改内容（权威约定）
+
+1. **唯一权威**：[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三（进行中）、§四（下阶段摘要）** 表示当前未完成与优先级；§二、§六 附录为历史与验收依据。
+2. **更新**：[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md) — 重写 §六（6.0–6.4），修正技术栈中 Stripe/React Query/messages 表述；§八 去重。  
+3. **更新**：[ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md) — §1.2 取消政策、§1.3 支付、§5.3 语言、§七 优先级表与 V2 状态一致。  
+4. **更新**：[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) — §十二「未完成」改为历史快照并指向 NEXT_PHASE。  
+5. **更新**：[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) — 文首增加「任务状态唯一权威」说明；状态日期 2026-04-05。  
+6. **更新**：[README.md](../README.md)、[docs/★★★README.md](./★★★README.md)、[★★★AGENTS.md](../★★★AGENTS.md) — 增加指向 NEXT_PHASE 的约定说明。
+
+### 解决的问题
+
+- 审查清单与 CHANGELOG「未完成」误导为「Stripe/Webhook/Hydration 未做」。  
+- 路线图优先级表未区分 V2 已完成项与长期项。
+
+---
+
+*文档生成时间：2025-02 | 更新：2026-04-05*
