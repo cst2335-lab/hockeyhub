@@ -8,7 +8,7 @@ import Link from 'next/link';
 import RatingStars from '@/components/rating/RatingStars';
 import {toast} from 'sonner';
 import { ArrowLeft } from 'lucide-react';
-import { sanitizeOptionalText } from '@/lib/utils/sanitize';
+import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -300,7 +300,7 @@ export default function GameDetailsPage() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-card border border-border rounded-xl shadow-lg p-6 mb-6">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold mb-2 text-foreground">{game.title}</h1>
+              <h1 className="text-3xl font-bold mb-2 text-foreground">{sanitizePlainText(game.title)}</h1>
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <span>📅 {gameDateFormatted}</span>
                 <span>⏰ {game.game_time}</span>
@@ -313,8 +313,8 @@ export default function GameDetailsPage() {
               <div>
                 <h3 className="font-semibold mb-2">Game Details</h3>
                 <div className="space-y-2 text-foreground">
-                  <p><strong>Age Group:</strong> {game.age_group}</p>
-                  <p><strong>Skill Level:</strong> {game.skill_level}</p>
+                  <p><strong>Age Group:</strong> {sanitizePlainText(game.age_group)}</p>
+                  <p><strong>Skill Level:</strong> {sanitizePlainText(game.skill_level)}</p>
                   <p>
                     <strong>Status:</strong>
                     <span className={`ml-2 px-2 py-1 rounded text-sm ${statusBadge[game.status]}`}>
@@ -329,9 +329,9 @@ export default function GameDetailsPage() {
                 <div className="space-y-2 text-foreground">
                   {game.rink && (
                     <>
-                      <p><strong>{game.rink.name}</strong></p>
-                      <p>{game.rink.address}</p>
-                      {game.rink.phone && <p>📞 {game.rink.phone}</p>}
+                      <p><strong>{sanitizePlainText(game.rink.name)}</strong></p>
+                      <p>{sanitizePlainText(game.rink.address)}</p>
+                      {game.rink.phone && <p>📞 {sanitizePlainText(game.rink.phone)}</p>}
                     </>
                   )}
                 </div>
@@ -341,7 +341,7 @@ export default function GameDetailsPage() {
             {game.description && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-foreground whitespace-pre-wrap">{game.description}</p>
+                <p className="text-foreground whitespace-pre-wrap">{sanitizePlainText(game.description)}</p>
               </div>
             )}
 
@@ -349,11 +349,15 @@ export default function GameDetailsPage() {
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Host Club</h3>
                 <div className="bg-muted dark:bg-slate-800 p-4 rounded-lg border border-border">
-                  <p className="font-medium text-foreground">{game.host_club.name}</p>
+                  <p className="font-medium text-foreground">{sanitizePlainText(game.host_club.name)}</p>
                   {(showContactInfo || isCreator) && (
                     <div className="mt-2 text-sm text-muted-foreground">
-                      {game.host_club.contact_email && <p>📧 {game.host_club.contact_email}</p>}
-                      {game.host_club.contact_phone && <p>📞 {game.host_club.contact_phone}</p>}
+                      {game.host_club.contact_email && (
+                        <p>📧 {sanitizePlainText(game.host_club.contact_email)}</p>
+                      )}
+                      {game.host_club.contact_phone && (
+                        <p>📞 {sanitizePlainText(game.host_club.contact_phone)}</p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -364,9 +368,11 @@ export default function GameDetailsPage() {
               <div className="mb-6">
                 <h3 className="font-semibold mb-2">Contact Person</h3>
                 <div className="bg-gogo-secondary/10 p-4 rounded">
-                  <p className="font-medium">{game.creator.full_name}</p>
-                  <p className="text-sm text-muted-foreground">📧 {game.creator.email}</p>
-                  {game.creator.phone && <p className="text-sm text-muted-foreground">📞 {game.creator.phone}</p>}
+                  <p className="font-medium">{sanitizePlainText(game.creator.full_name)}</p>
+                  <p className="text-sm text-muted-foreground">📧 {sanitizePlainText(game.creator.email)}</p>
+                  {game.creator.phone && (
+                    <p className="text-sm text-muted-foreground">📞 {sanitizePlainText(game.creator.phone)}</p>
+                  )}
                 </div>
               </div>
             )}

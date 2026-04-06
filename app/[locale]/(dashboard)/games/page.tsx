@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { GameCardSkeleton } from '@/components/ui/skeleton';
 import { sortGamesByMatch } from '@/lib/matching/score';
+import { sanitizePlainText } from '@/lib/utils/sanitize';
 import { fetchGamesListQuery } from '@/lib/queries/games';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
@@ -404,7 +405,7 @@ export default function GamesPage() {
 
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-4 pr-16">
-                      {game.title || 'Untitled Game'}
+                      {sanitizePlainText(game.title) || 'Untitled Game'}
                     </h3>
 
                     <div className="space-y-2 text-sm text-muted-foreground">
@@ -419,20 +420,22 @@ export default function GamesPage() {
                       {game.location && (
                         <div className="flex items-center">
                           <MapPin className="h-4 w-4 mr-2" />
-                          <span>{game.location}</span>
+                          <span>{sanitizePlainText(game.location)}</span>
                         </div>
                       )}
 
                       <div className="flex items-center">
                         <Users className="h-4 w-4 mr-2" />
                         <span>
-                          {game.age_group} - {game.skill_level}
+                          {sanitizePlainText(game.age_group)} - {sanitizePlainText(game.skill_level)}
                         </span>
                       </div>
                     </div>
 
                     {game.description && (
-                      <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{game.description}</p>
+                      <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
+                        {sanitizePlainText(game.description)}
+                      </p>
                     )}
 
                     <div className="mt-4 flex items-center space-x-4 text-xs text-muted-foreground">

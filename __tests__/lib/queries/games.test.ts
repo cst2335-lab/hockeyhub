@@ -31,9 +31,8 @@ describe('fetchGamesListQuery', () => {
   });
 
   it('drops games older than seven days', async () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 8);
-    const oldDateStr = oldDate.toISOString().slice(0, 10);
+    // Fixed calendar date avoids local/UTC drift from toISOString() vs fetchGamesListQuery's local midnight
+    const oldDateStr = '2000-01-01';
 
     const supabase = buildSupabaseMock([
       {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Calendar, Clock, MapPin, Trophy, Users, Heart, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { sanitizePlainText } from '@/lib/utils/sanitize';
 
 interface GameCardProps {
   game: {
@@ -65,7 +66,7 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
       <div className="p-6">
         {/* Title */}
         <h3 className="text-xl font-bold text-foreground mb-3 pr-20">
-          {game.title}
+          {sanitizePlainText(game.title)}
         </h3>
         
         {/* Date and Time */}
@@ -83,18 +84,18 @@ export default function GameCard({ game, index = 0 }: GameCardProps) {
         {/* Location */}
         <div className="flex items-center gap-2 mb-4">
           <MapPin className="w-4 h-4 text-gogo-primary" />
-          <span className="text-sm font-medium text-foreground">{game.location}</span>
+          <span className="text-sm font-medium text-foreground">{sanitizePlainText(game.location)}</span>
         </div>
         
         {/* Age group and skill level */}
         <div className="flex gap-2 mb-4">
           <span className="px-3 py-1 text-xs font-medium bg-gogo-primary/10 text-gogo-primary rounded-full inline-flex items-center dark:bg-gogo-primary/20">
             <Users className="w-3 h-3 mr-1" />
-            {game.age_group}
+            {sanitizePlainText(game.age_group)}
           </span>
           <span className="px-3 py-1 text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 rounded-full inline-flex items-center">
             <Trophy className="w-3 h-3 mr-1" />
-            {game.skill_level}
+            {sanitizePlainText(game.skill_level)}
           </span>
         </div>
         
