@@ -8,7 +8,7 @@
 
 | 项 | 说明 |
 |----|------|
-| **待办权威** | [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四**（勿仅凭旧版 CHANGELOG「未完成」判断） |
+| **待办权威** | [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四**（V2 评审 **P0–P2 已完成**；见 [CHANGELOG §二十二](./CHANGELOG_IMPROVEMENTS.md)） |
 | 主分支 | `main`（与 `origin/main` 同步时请本地 `git pull`） |
 | 框架 | Next.js 15（App Router）、TypeScript、Tailwind、Supabase、next-intl（en/fr） |
 | 主题 | `next-themes` + `class="dark"`；暗色变量见 `app/globals.css`、`docs/★★★THEMING.md` |
@@ -30,7 +30,7 @@
 
 | 文档 | 说明 |
 |------|------|
-| [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) | **任务与阶段规划**：含 V2 评审摘要（§四）与完整实施细节（[§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)）；P0/P1 已完成，P2 收尾中 |
+| [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) | **任务与阶段规划**：V2 **P0–P2 已完成**；附录与分支记录见 §二、§六 |
 | [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) | **修改日志**：历史改动汇总 |
 | [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md) | **功能增强路线图**：比赛匹配、预订管理、支付、RBAC、SEO 等 |
 | [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md) | **项目综述**：供 AI/人工全局审查与提建议 |

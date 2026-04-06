@@ -2,7 +2,7 @@
 
 **来源**：审查反馈与产品规划整理  
 **用途**：供开发排期、AI 协作及评审参考  
-**更新**：2026-04-05
+**更新**：2026-04-06
 
 ---
 
@@ -170,7 +170,7 @@ export const useGames = (filters) => {
 | **优先级** | 低–中 |
 
 - **现状**：`generateMetadata`（如 games 详情）、`sitemap.ts`、`robots.ts`、站点级 JSON-LD（WebSite + Organization）已落地（见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
-- **进行中（V2 P2）**：各详情页 **JSON-LD 与转义策略全量复核**（与路线图「结构化数据」目标一致）
+- **已完成（V2 P2 · 2026-04）**：详情页与列表 JSON-LD/metadata 已补强（预订 `Reservation` + `noindex`、俱乐部列表等）；`serializeJsonLd` 递归清洗字符串
 - **仍可增强**：更多 Schema.org 类型（SportsEvent 等）、冰场详情页 metadata 深化
 
 ---
@@ -291,13 +291,13 @@ export const useGames = (filters) => {
 
 ## 七、实施优先级建议
 
-> **当前「未完成」以 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §三、§四 为准**。下表为**长期路线图**，与 V2 已完成的 P0/P1 及进行中的 P2 对照使用；细节与验收见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)。
+> **当前「未完成」以 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §三、§四 为准**（V2 P0–P2 已闭环）。下表为**长期路线图**；细节与验收见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)。
 
 | 状态 | 优先级 | 项 | 说明 |
 |------|--------|----|------|
 | ✅ 已完成 | V2 P0 | Stripe Webhook（含幂等）、DB 预订约束、调试路由保护、RBAC/RLS 对齐 | 见 NEXT_PHASE §二、§六 |
 | ✅ 已完成 | V2 P1 | HydrationBoundary、图片策略、Cron 安全、数据可信度、预订规则 UI | 同上 |
-| 🟡 进行中 | V2 P2 | XSS 全量复核、SEO JSON-LD 全量复核 | **当前工程收尾**，见 NEXT_PHASE §三 |
+| ✅ 已完成 | V2 P2 | XSS 与 JSON-LD/SEO 收口 | 见 NEXT_PHASE §二、CHANGELOG §二十二 |
 | ✅ 已完成 | — | 预订取消政策、移动端底部导航 | 见 CHANGELOG、NEXT_PHASE §二 |
 | 📋 长期 | **P1** | 比赛智能匹配增强、预订提醒（邮件/推送）深化 | 与 V2 P2 无冲突，按需排期 |
 | 📋 长期 | **P2** | PWA 推送、数据分析、性能 | 增长与性能 |
@@ -309,4 +309,4 @@ export const useGames = (filters) => {
 
 - [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：**任务与阶段规划**；V2 评审完整内容见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)（P0/P1/P2，含 SQL、验收标准）
 - [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向（§6.0 与 NEXT_PHASE 对齐）
-- [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：修改记录；**§二十一** 为任务状态文档全库对齐说明
+- [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：修改记录；**§二十一** 任务状态对齐、**§二十二** V2 P2 收口

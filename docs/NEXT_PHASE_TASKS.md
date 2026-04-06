@@ -5,7 +5,7 @@
 **任务状态唯一权威**：**§三**（进行中）、**§四**（下阶段摘要）表示当前未完成与优先级；**§二** 为历史完成记录；**§六** 附录保留 V2 原始验收与 SQL，用于对照，**不等同**于「当前待办清单」（避免与 §三、§四 混淆）。
 
 **下阶段优先**：V2 三方分析综合评审结论，摘要见 §四，**完整 SQL、验收标准与评分**见 [§六（附录）](#v2-review-appendix)。
-**状态更新（2026-04-05）**：V2 P0 / P1 已完成；P2 进入收尾（主路径服务端兜底与 legacy 直写收敛已完成，剩余 XSS/SEO 复核）。全库说明类文档已与此处对齐（见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §二十一）。
+**状态更新（2026-04-06）**：V2 **P0 / P1 / P2 已全部落地**（P2：`feat/v2-p2-xss-jsonld-sanitize`、`feat/v2-p2-seo-booking-clubs-metadata`）。全库说明类文档已对齐（见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) §二十一、§二十二）。
 
 ---
 
@@ -13,9 +13,9 @@
 
 | 状态 | 数量 | 说明 |
 |------|------|------|
-| **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、P0–P2 增强 |
-| **进行中** | §三 | P2 收尾（XSS/SEO 全量复核） |
-| **下阶段** | §四、[§六 附录](#v2-review-appendix) | P2 收尾（XSS/SEO 全量复核；语言与主路径 Zod 已完成） |
+| **已完成** | §二 | 测试、文档、PWA、i18n、监控、UI 视觉、无障碍、表单与错误、导航优化、**V2 P0–P2** |
+| **进行中** | §三 | 按需（E2E、产品增强等；无 V2 阻塞项） |
+| **参考** | §四、[§六 附录](#v2-review-appendix) | 历史摘要与 V2 原文（SQL、验收） |
 
 ---
 
@@ -25,7 +25,7 @@
 
 | 任务 | 说明 |
 |------|------|
-| §一 2 测试 | `npm run test` 已通过（Vitest，14 个用例） |
+| §一 2 测试 | `npm run test` 已通过（Vitest，**90** 个用例，含 `json-ld`、sanitize 等） |
 | §二 6 文档 | [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md) 已建；docs/★★★README 已更新索引 |
 | §二 7 PWA | `public/sw.js` 对 `/login`、`/register`、`/dashboard`、`/bookings`、`/manage-rink`、`/notifications` 不再使用缓存 |
 | §二 8 i18n | Manage Rink 页文案全部迁入 messages（en/fr）；manageRink、nav 命名空间 |
@@ -43,6 +43,7 @@
 | **P2 SEO、推荐与性能（2026-02）** | SEO：games/[id]/layout.tsx 中 generateMetadata 拉取比赛并设置 title/description/openGraph；app/sitemap.ts 异步 sitemap，拉取 game_invitations 生成 /[locale]/games/[id] 条目；app/[locale]/layout.tsx 增加 JSON-LD（WebSite + Organization，含 SearchAction）。推荐：lib/matching/score.ts 实现 scoreGameMatch、sortGamesByMatch（age_group、skill_level、location）；Games 页增加「recommended」排序，有用户偏好时按匹配度排序。预订提醒：Dashboard 页 upcomingReminder（24h 内首笔 confirmed 预订）展示横幅 +「View booking」链接。性能：components/ui/logo.tsx 使用 next/image 替代 img；首页 HeroSection、GameCard 使用 next/dynamic 代码分割（ssr: true） |
 | **V2 P1 ROI 收口（2026-02-28）** | 已完成 HydrationBoundary、图片三层策略、Cron 安全、数据可信度标签、预订规则 UI 化；Top 20 `image_verified=true` 已批量落地（`npm run db:mark-top20-images -- --apply`），脚本支持 `image_url` 为空时回退按名称前 20 标记 |
 | **P2 主路径服务端兜底（2026-03）** | 已完成 `/[locale]` 主路径下 my-games/profile/clubs/register 写操作迁移至服务端 API（统一 `requireAuth` + Zod + sanitize），并新增 profile/club API 与错误码文档 |
+| **V2 P2 XSS + SEO 收口（2026-04）** | **XSS**：`serializeJsonLd` 递归清洗字符串；比赛列表/详情、legacy `app/(dashboard)/games`、game-card 对用户可见字段 `sanitizePlainText`。**SEO/JSON-LD**：预订详情 `bookings/[id]/layout.tsx`（`generateMetadata` + `Reservation` JSON-LD，`noindex`）；`clubs/layout.tsx` 列表页 metadata；既有 `games/[id]`、`book/[rinkId]`、根 layout JSON-LD 经统一序列化 |
 
 ### 2.2 阶段二（feat/nav-dashboard-and-cta）已完成
 
@@ -58,7 +59,7 @@
 
 ## 三、进行中任务
 
-当前进行中：P2 收尾（XSS/SEO 全量复核）。
+当前 **无 V2 评审阻塞项**。可选跟进：E2E、路线图中的比赛匹配/推送、i18n 边角（见 [ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)）。
 
 ---
 
@@ -70,10 +71,10 @@
 |--------|----------|
 | **已完成** | P0（预订冲突 DB 约束、Webhook 幂等、调试路由保护、RBAC 确认） |
 | **已完成** | P1（HydrationBoundary、图片三层策略、Cron 安全、数据可信度、预订规则 UI 化） |
-| **P2（进行中）** | XSS、SEO JSON-LD 全量复核（语言与主路径 Zod 已完成） |
-| **其他** | E2E、PWA、i18n 收尾（按需） |
+| **已完成** | P2（XSS 防护与 JSON-LD/SEO 复核收口；语言与主路径 Zod 已完成） |
+| **其他** | E2E、PWA、i18n 与产品增强（按需） |
 
-**实施顺序**：已完成 P0 → P1；下一阶段 P2 → 其他。
+**实施顺序**：V2 P0 → P1 → P2 **已闭环**；后续按产品与路线图排期「其他」项。
 
 ---
 
@@ -84,6 +85,8 @@
 | **`feat/v2-p0-safety`** | DB 约束、Webhook 幂等、调试路由保护、RBAC 确认 | V2 评审 P0（已完成） |
 | **`feat/v2-p1-roi`** | HydrationBoundary、图片策略、Cron 安全、数据可信度 | V2 评审 P1（已完成） |
 | **`chore/next-phase-ops-and-polish`** | 测试、监控、文档、PWA、i18n、UI/无障碍、导航/主题 | 已完成 |
+| **`feat/v2-p2-xss-jsonld-sanitize`** | JSON-LD 字符串递归清洗；比赛 UI `sanitizePlainText`；Vitest `json-ld` | V2 P2（已完成） |
+| **`feat/v2-p2-seo-booking-clubs-metadata`** | `bookings/[id]`、`clubs` 布局级 metadata / JSON-LD | V2 P2（已完成） |
 
 ### 创建分支示例
 
@@ -103,11 +106,11 @@ git checkout -b feat/v2-p0-safety
 **用途**：Beta 上线前必须完成项与后续迭代  
 **优先级**：P0 阻塞商业化，P1 高 ROI，P2 后续迭代  
 
-### 状态更新（2026-03-04）
+### 状态更新（2026-04-06）
 
 - ✅ P0：已完成
 - ✅ P1：已完成（包含 Top 20 `image_verified=true` 数据落地；`image_url` 为空时按名称前 20 回退标记）
-- 🟡 P2：进行中（已完成本地化主路径写操作服务端化与 Zod 兜底、legacy 旧路由直写收敛；剩余 XSS/SEO 全量复核）
+- ✅ P2：已完成（主路径服务端化、legacy 收敛、**XSS/JSON-LD 收口** — 见 §二「V2 P2 XSS + SEO 收口」）
 
 ---
 
@@ -235,12 +238,12 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 
 ---
 
-### 6.3 P2（进行中）
+### 6.3 P2（已完成 · 2026-04-06）
 
 - ✅ **zh/hi 语言精简**：当前仅保留 `en/fr`
 - ✅ **Zod 服务端兜底（主路径）**：`/en|fr` 主路径下的核心写操作已迁移到服务端 API + 校验
-- 🔜 **XSS 防护复核**：继续对剩余 legacy 入口执行 sanitize 全量巡检
-- 🔜 **SEO JSON-LD 全量复核**：补齐/复核所有详情页结构化数据与转义策略
+- ✅ **XSS 防护复核**：`lib/utils/json-ld.ts` 递归清洗 JSON-LD 字符串；比赛相关页与 legacy `app/(dashboard)/games` 对用户可见字段 `sanitizePlainText`
+- ✅ **SEO JSON-LD 全量复核**：站点/比赛/订场 JSON-LD 经 `serializeJsonLd`；新增预订详情 `Reservation` + `noindex`；俱乐部列表 `generateMetadata`
 - ✅ **legacy 旧路由收敛（直写）**：`app/(dashboard)`、`app/(auth)` 历史页直写路径已迁移/下线到 `/{locale}` 主路径
 
 ---
@@ -260,7 +263,7 @@ const DEBUG_ROUTES = ['/check-database', '/test-connection', '/test-notification
 
 ### 6.5 一句话总结
 
-> V2 已完成 P0 与 P1 的核心闭环，已具备 Beta 上线骨架；下一阶段聚焦 P2 的安全细化与回归验证。
+> V2 已完成 P0、P1 与 P2 的核心闭环（含安全与 SEO 收口），已具备 Beta 上线骨架；后续以产品与路线图迭代为主。
 
 ---
 

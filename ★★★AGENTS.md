@@ -41,7 +41,7 @@ See `package.json` scripts. Key commands:
 |------|---------|
 | Dev server | `npm run dev` |
 | Lint | `npm run lint` |
-| Tests | `npm run test` (vitest, 14 tests in 3 files) |
+| Tests | `npm run test` (vitest, 90 tests in 18 files) |
 | Build | `npm run build` |
 | Import rinks from CSV | `npm run db:import-rinks -- --apply` (needs `SUPABASE_SERVICE_KEY`; see `docs/★★★RENEW_RINKS.md`) |
 

@@ -40,7 +40,7 @@ bun dev
 | [docs/★★★README.md](./docs/★★★README.md) | 文档索引（★★★ 为核心文档标记） |
 | [docs/★★★THEMING.md](./docs/★★★THEMING.md) | 暗色模式与主题 CSS 变量约定 |
 | [docs/★★★RENEW_RINKS.md](./docs/★★★RENEW_RINKS.md) | 刷新冰场数据（CSV / SQL） |
-| [docs/NEXT_PHASE_TASKS.md](./docs/NEXT_PHASE_TASKS.md) | 任务与阶段规划；**当前未完成**以 §三、§四 为唯一权威（2026-04 全库文档已对齐） |
+| [docs/NEXT_PHASE_TASKS.md](./docs/NEXT_PHASE_TASKS.md) | 任务与阶段规划；V2 P0–P2 已闭环，**后续**以 §三、§四 为准（见 CHANGELOG §二十二） |
 | [docs/PROJECT_REVIEW_REPORT.md](./docs/PROJECT_REVIEW_REPORT.md) | 项目综述；审查清单与 `NEXT_PHASE_TASKS` §三–§四 对齐 |
 | [docs/CHANGELOG_IMPROVEMENTS.md](./docs/CHANGELOG_IMPROVEMENTS.md) | 优化修改日志 |
 | [docs/UI_VISUAL_SPEC_FOR_REUSE.md](./docs/UI_VISUAL_SPEC_FOR_REUSE.md) | UI 视觉规范 |

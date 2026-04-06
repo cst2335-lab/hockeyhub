@@ -602,6 +602,26 @@
 - 审查清单与 CHANGELOG「未完成」误导为「Stripe/Webhook/Hydration 未做」。  
 - 路线图优先级表未区分 V2 已完成项与长期项。
 
+**后续（2026-04-06）**：V2 P2 代码与文档收口见 **§二十二**。
+
 ---
 
-*文档生成时间：2025-02 | 更新：2026-04-05*
+## 二十二、V2 P2 工程收口（XSS + SEO/JSON-LD）
+
+**日期**：2026-04-06  
+**分支**：`feat/v2-p2-xss-jsonld-sanitize`（已合并 `main`）、`feat/v2-p2-seo-booking-clubs-metadata`（已合并 `main`）
+
+### 代码与测试
+
+1. **`lib/utils/json-ld.ts`**：新增 `sanitizeJsonLdStrings`，在 `serializeJsonLd` 内对 JSON-LD 对象内**所有字符串**递归执行 `sanitizePlainText`，再输出 `<script type="application/ld+json">` 安全序列。
+2. **比赛 UI**：`app/[locale]/(dashboard)/games/page.tsx`、`games/[id]/page.tsx`、`app/(dashboard)/games/page.tsx`、`components/features/game-card-working.tsx` — 对用户可见字段使用 `sanitizePlainText`。
+3. **预订与俱乐部 SEO**：新建 `app/[locale]/(dashboard)/bookings/[id]/layout.tsx`（`generateMetadata`、`robots: noindex`、登录用户可见时输出 `Reservation` JSON-LD）；新建 `app/[locale]/(dashboard)/clubs/layout.tsx`（`generateMetadata`）。
+4. **测试**：`__tests__/lib/utils/json-ld.test.ts`；`__tests__/lib/queries/games.test.ts` 旧日期用例改为固定日期，避免本地/UTC 漂移。`npm run test` 现为 **90** 个用例。
+
+### 文档
+
+- 更新 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)、[★★★README.md](./★★★README.md)、[README.md](../README.md)、[★★★AGENTS.md](../★★★AGENTS.md)（测试数量）。
+
+---
+
+*文档生成时间：2025-02 | 更新：2026-04-06*
