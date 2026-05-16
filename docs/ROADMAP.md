@@ -42,7 +42,7 @@
    - **已有**：Dashboard 对 **24h 内** 下一笔 confirmed 冰场预订展示提醒横幅 + 链至预订详情（站内）
    - **仍待**：邮件/赛前 2h 推送、与周期性预订联动的到期提醒；实现可选 Supabase Edge Functions 或 cron
 
-2. **取消政策与退款**（**已落地**：`lib/booking/policies.ts`；取消 API 与 UI 已接入，详见 [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+2. **取消政策与退款**（**已落地**：`lib/booking/policies.ts`；取消 API 与 UI 已接入，详见 [CHANGELOG.md](./CHANGELOG.md)、[TASKS.md](./TASKS.md) §二）
    - 已支持：分档退款（如 24h / 12h 规则）、预订取消流程
    - 仍可增强：天气等不可抗力特殊流程、与 Stripe 退款自动化深度打通
 
@@ -60,7 +60,7 @@
 | **类型** | 功能完善 |
 | **优先级** | 高 |
 
-**当前状态（2026-04）**：Stripe 已接入冰场预订 **Checkout** 与 **Webhook**（`app/api/webhooks/stripe/route.ts`：签名校验、`checkout.session.completed` 更新预订、`payment_intent.payment_failed` 等；幂等与 DB 约束见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §六 附录）。需配置 `STRIPE_*` 与 Webhook 密钥，见 `STRIPE_BOOKING_SETUP.md`。
+**当前状态（2026-04）**：Stripe 已接入冰场预订 **Checkout** 与 **Webhook**（`app/api/webhooks/stripe/route.ts`：签名校验、`checkout.session.completed` 更新预订、`payment_intent.payment_failed` 等；幂等与 DB 约束见 [TASKS.md](./TASKS.md) §六 附录）。需配置 `STRIPE_*` 与 Webhook 密钥，见 `STRIPE_BOOKING_SETUP.md`。
 
 **仍可增强（非 V2 P2 阻塞；与路线图排期）**：
 
@@ -84,7 +84,7 @@
 | **类型** | 用户体验 |
 | **优先级** | 中 |
 
-- **统一骨架屏**：可复用 Skeleton（如 `GameCardSkeleton`、`RinkCardSkeleton`）— **已用于 Games/Rinks 列表加载态**（见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+- **统一骨架屏**：可复用 Skeleton（如 `GameCardSkeleton`、`RinkCardSkeleton`）— **已用于 Games/Rinks 列表加载态**（见 [TASKS.md](./TASKS.md) §二）
 - **错误边界**：页面级 `error.tsx` 等 — **已落地**；组件级 `<ErrorBoundary>` 仍可按需扩展
 - **乐观更新**：React Query 乐观更新，「点赞」「感兴趣」即时反馈（按需迭代）
 
@@ -169,7 +169,7 @@ export const useGames = (filters) => {
 | **类型** | SEO + 增长 |
 | **优先级** | 低–中 |
 
-- **现状**：`generateMetadata`（如 games 详情）、`sitemap.ts`、`robots.ts`、站点级 JSON-LD（WebSite + Organization）已落地（见 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §二）
+- **现状**：`generateMetadata`（如 games 详情）、`sitemap.ts`、`robots.ts`、站点级 JSON-LD（WebSite + Organization）已落地（见 [TASKS.md](./TASKS.md) §二）
 - **已完成（V2 P2 · 2026-04）**：详情页与列表 JSON-LD/metadata 已补强（预订 `Reservation` + `noindex`、俱乐部列表等）；`serializeJsonLd` 递归清洗字符串
 - **仍可增强**：更多 Schema.org 类型（SportsEvent 等）、冰场详情页 metadata 深化
 
@@ -196,7 +196,7 @@ export const useGames = (filters) => {
 | Rink Manager| ❌       | ❌         | ✅       | 所管理冰场   |
 | Super Admin | ✅       | ✅         | ✅       | ✅           |
 
-> **说明（2026-04）**：冰场管理权限与 `rink_managers`、RLS 已落地；上表为产品化目标矩阵。实施细节以 [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md)、[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §六 附录（RBAC）为准。
+> **说明（2026-04）**：冰场管理权限与 `rink_managers`、RLS 已落地；上表为产品化目标矩阵。实施细节以 [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md)、[TASKS.md](./TASKS.md) §六 附录（RBAC）为准。
 
 ---
 
@@ -291,14 +291,14 @@ export const useGames = (filters) => {
 
 ## 七、实施优先级建议
 
-> **当前「未完成」以 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) §三、§四 为准**（V2 P0–P2 已闭环）。下表为**长期路线图**；细节与验收见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)。
+> **当前「未完成」以 [TASKS.md](./TASKS.md) §三、§四 为准**（V2 P0–P2 已闭环）。下表为**长期路线图**；细节与验收见 [archive/V2_APPENDIX.md](./archive/V2_APPENDIX.md)。
 
 | 状态 | 优先级 | 项 | 说明 |
 |------|--------|----|------|
-| ✅ 已完成 | V2 P0 | Stripe Webhook（含幂等）、DB 预订约束、调试路由保护、RBAC/RLS 对齐 | 见 NEXT_PHASE §二、§六 |
+| ✅ 已完成 | V2 P0 | Stripe Webhook（含幂等）、DB 预订约束、调试路由保护、RBAC/RLS 对齐 | 见 TASKS §二、archive/V2_APPENDIX |
 | ✅ 已完成 | V2 P1 | HydrationBoundary、图片策略、Cron 安全、数据可信度、预订规则 UI | 同上 |
-| ✅ 已完成 | V2 P2 | XSS 与 JSON-LD/SEO 收口 | 见 NEXT_PHASE §二、CHANGELOG §二十二 |
-| ✅ 已完成 | — | 预订取消政策、移动端底部导航 | 见 CHANGELOG、NEXT_PHASE §二 |
+| ✅ 已完成 | V2 P2 | XSS 与 JSON-LD/SEO 收口 | 见 TASKS §二、CHANGELOG §二十二 |
+| ✅ 已完成 | — | 预订取消政策、移动端底部导航 | 见 CHANGELOG、TASKS §二 |
 | 📋 长期 | **P1** | 比赛智能匹配增强、预订提醒（邮件/推送）深化 | 与 V2 P2 无冲突，按需排期 |
 | 📋 长期 | **P2** | PWA 推送、数据分析、性能 | 增长与性能 |
 | 📋 长期 | **P3** | 社区论坛、成就、高级匹配 | 长期社区建设 |
@@ -307,6 +307,6 @@ export const useGames = (filters) => {
 
 ## 八、相关文档
 
-- [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)：**任务与阶段规划**；V2 评审完整内容见 [§六 附录](./NEXT_PHASE_TASKS.md#v2-review-appendix)（P0/P1/P2，含 SQL、验收标准）
-- [PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)：项目综述与审查方向（§6.0 与 NEXT_PHASE 对齐）
-- [CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md)：修改记录；**§二十一** 任务状态对齐、**§二十二** V2 P2 收口
+- [TASKS.md](./TASKS.md)：任务与阶段规划；V2 原文见 [archive/V2_APPENDIX.md](./archive/V2_APPENDIX.md)
+- [ARCHITECTURE.md](./ARCHITECTURE.md)：架构与审查要点
+- [CHANGELOG.md](./CHANGELOG.md)：修改记录；§二十一–§二十二 为任务与 V2 收口说明

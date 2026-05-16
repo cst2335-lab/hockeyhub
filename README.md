@@ -1,4 +1,4 @@
-# ★★★ GoGoHockey
+# GoGoHockey
 
 渥太华青少年冰球社区平台 —— 发布比赛、预订冰场、管理俱乐部。
 
@@ -7,16 +7,13 @@
 ## 快速开始
 
 ```bash
+npm install
 npm run dev
-# 或
-yarn dev
-# 或
-pnpm dev
-# 或
-bun dev
 ```
 
-访问 [http://localhost:3000](http://localhost:3000)。默认会重定向到 `/en`（英语）。
+访问 [http://localhost:3000](http://localhost:3000)（默认重定向到 `/en`）。
+
+环境变量与命令见 [AGENTS.md](./AGENTS.md)。
 
 ---
 
@@ -24,41 +21,50 @@ bun dev
 
 - **框架**：Next.js 15（App Router）
 - **语言**：TypeScript
-- **样式**：Tailwind CSS
-- **数据库/认证**：Supabase
+- **样式**：Tailwind CSS · `next-themes`
+- **数据库 / 认证**：Supabase
 - **国际化**：next-intl（en、fr）
+- **支付**：Stripe（冰场预订）
 
 ---
 
-## 项目文档
+## 项目结构
 
-详细文档位于 `docs/` 目录：
+```
+app/[locale]/     # 主应用（多语言）
+app/api/          # API 路由
+app/(dev)/        # 开发调试页（生产不可访问）
+components/       # UI 与业务组件
+lib/              # Supabase、校验、业务逻辑
+scripts/sql/      # 数据库 SQL 脚本
+docs/             # 文档索引 → docs/README.md
+messages/         # i18n 文案
+```
+
+详见 [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)。
+
+---
+
+## 文档
 
 | 文档 | 说明 |
 |------|------|
-| [★★★AGENTS.md](./★★★AGENTS.md) | Cursor / 本地开发：环境变量、命令、注意事项 |
-| [docs/★★★README.md](./docs/★★★README.md) | 文档索引（★★★ 为核心文档标记） |
-| [docs/★★★THEMING.md](./docs/★★★THEMING.md) | 暗色模式与主题 CSS 变量约定 |
-| [docs/★★★RENEW_RINKS.md](./docs/★★★RENEW_RINKS.md) | 刷新冰场数据（CSV / SQL） |
-| [docs/NEXT_PHASE_TASKS.md](./docs/NEXT_PHASE_TASKS.md) | 任务与阶段规划；V2 P0–P2 已闭环，**后续**以 §三、§四 为准（见 CHANGELOG §二十二） |
-| [docs/PROJECT_REVIEW_REPORT.md](./docs/PROJECT_REVIEW_REPORT.md) | 项目综述；审查清单与 `NEXT_PHASE_TASKS` §三–§四 对齐 |
-| [docs/CHANGELOG_IMPROVEMENTS.md](./docs/CHANGELOG_IMPROVEMENTS.md) | 优化修改日志 |
-| [docs/UI_VISUAL_SPEC_FOR_REUSE.md](./docs/UI_VISUAL_SPEC_FOR_REUSE.md) | UI 视觉规范 |
+| [docs/README.md](./docs/README.md) | 文档索引 |
+| [AGENTS.md](./AGENTS.md) | 环境变量、命令、开发约定 |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构与模块说明 |
+| [docs/TASKS.md](./docs/TASKS.md) | 当前任务与阶段 |
+| [docs/THEMING.md](./docs/THEMING.md) | 主题与品牌色 |
+| [docs/RENEW_RINKS.md](./docs/RENEW_RINKS.md) | 冰场数据导入 |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | 部署指南 |
 
 ---
 
 ## 部署
 
-推荐使用 [Vercel](https://vercel.com) 部署。需配置环境变量：
+推荐使用 [Vercel](https://vercel.com)。必填环境变量：
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_KEY`（服务端操作用）
+- `SUPABASE_SERVICE_KEY`（服务端）
 
----
-
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [next-intl](https://next-intl-docs.vercel.app/)
+完整清单见 [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)。

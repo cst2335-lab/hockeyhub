@@ -58,4 +58,4 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role text DEFAULT 'player';
 
 - `app/[locale]/(dashboard)/layout.tsx` — 解析 role / rink_managers，保护 manage-rink 路由
 - `app/[locale]/(dashboard)/manage-rink/page.tsx` — 页面级重定向（无 rink 时）
-- `docs/SUPABASE_RLS.sql` — 含 profiles.role 的迁移说明（可选）
+- `scripts/sql/supabase-rls.sql` — 含 profiles.role 的迁移说明（可选）

@@ -1,4 +1,4 @@
-# ★★★ AGENTS — GoGoHockey
+# AGENTS — GoGoHockey
 
 Ottawa youth ice hockey community platform built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and Supabase.
 
@@ -41,17 +41,28 @@ See `package.json` scripts. Key commands:
 |------|---------|
 | Dev server | `npm run dev` |
 | Lint | `npm run lint` |
-| Tests | `npm run test` (vitest, 90 tests in 18 files) |
+| Tests | `npm run test` (vitest) |
 | Build | `npm run build` |
-| Import rinks from CSV | `npm run db:import-rinks -- --apply` (needs `SUPABASE_SERVICE_KEY`; see `docs/★★★RENEW_RINKS.md`) |
+| Import rinks from CSV | `npm run db:import-rinks -- --apply` (needs `SUPABASE_SERVICE_KEY`; see `docs/RENEW_RINKS.md`) |
+
+### Project layout
+
+| Path | Purpose |
+|------|---------|
+| `app/[locale]/` | Canonical UI routes (en/fr) |
+| `app/api/` | Route Handlers |
+| `app/(dev)/` | Debug pages (blocked in production) |
+| `scripts/sql/` | Supabase SQL (RLS, rinks) |
+| `docs/` | Index: `docs/README.md` |
 
 ### Gotchas
 
-- **Task status / 待办**：以 `docs/NEXT_PHASE_TASKS.md` **§三（进行中）、§四（下阶段）** 为唯一权威。较旧的 `CHANGELOG_IMPROVEMENTS` §十二「未完成」等为历史快照；若与 NEXT_PHASE 冲突，以 NEXT_PHASE 为准（见 CHANGELOG §二十一）。
+- **Task status / 待办**：以 `docs/TASKS.md` **§三、§四** 为唯一权威。`docs/CHANGELOG.md` 中历史「未完成」为快照；冲突时以 TASKS 为准。
 - **Sentry setup location**: Client init lives in `instrumentation-client.ts` (with `onRouterTransitionStart` export). Do not reintroduce deprecated `sentry.client.config.ts`.
-- **`next lint` deprecation**: Next.js 15.5+ deprecates `next lint` in favor of the ESLint CLI directly. The `npm run lint` script still works but exits with code 1 due to the deprecation notice.
+- **`next lint` deprecation**: Next.js 15.5+ deprecates `next lint` in favor of the ESLint CLI directly. The `npm run lint` script still works but may exit with code 1 due to the deprecation notice.
 - **Protected routes**: Pages like `/en/rinks`, `/en/games`, `/en/dashboard` require authentication and will redirect to `/en/login` without a valid Supabase session.
+- **Legacy URLs**: `/games`, `/login`, etc. redirect to `/en/...` via `next.config.mjs`.
 - **Package manager**: Uses npm (lockfile: `package-lock.json`).
 - **First compile is slow**: The initial page load after `npm run dev` takes ~15s due to webpack compilation of ~5000 modules. Subsequent navigations are fast.
 - **Supabase `profiles` table**: May return 400 errors if the table schema doesn't match the query. This is a database-side issue, not a code problem.
-- **Dark mode / theming**: Cards and forms should use theme tokens (`bg-card`, `text-card-foreground`, `border-border`) rather than fixed `bg-white` or `text-gray-*` on themed surfaces. In `.dark`, `--surface` matches `--card` so `bg-surface` stays readable. See `docs/★★★THEMING.md`.
+- **Dark mode / theming**: Use theme tokens (`bg-card`, `text-card-foreground`, `border-border`). See `docs/THEMING.md`.

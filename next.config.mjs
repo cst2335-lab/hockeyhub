@@ -12,7 +12,34 @@ const nextConfig = {
   // in deployment contexts (standalone, serverless) where chunk path resolution can fail.
   serverExternalPackages: ['@opentelemetry/api'],
   async redirects() {
+    const legacyToEn = [
+      '/login',
+      '/register',
+      '/dashboard',
+      '/games',
+      '/games/new',
+      '/rinks',
+      '/clubs',
+      '/clubs/new',
+      '/profile',
+      '/profile/edit',
+      '/manage-rink',
+      '/notifications',
+      '/my-games',
+    ];
+    const legacyRedirects = legacyToEn.map((path) => ({
+      source: path,
+      destination: `/en${path}`,
+      permanent: false,
+    }));
+
     return [
+      ...legacyRedirects,
+      { source: '/games/:id', destination: '/en/games/:id', permanent: false },
+      { source: '/games/:id/edit', destination: '/en/games/:id/edit', permanent: false },
+      { source: '/book/:rinkId', destination: '/en/book/:rinkId', permanent: false },
+      { source: '/bookings', destination: '/en/dashboard', permanent: false },
+      { source: '/bookings/:id', destination: '/en/bookings/:id', permanent: false },
       { source: '/:locale/my-games', destination: '/:locale/dashboard', permanent: true },
       { source: '/:locale/my-games/:path*', destination: '/:locale/dashboard', permanent: true },
       { source: '/:locale/bookings', destination: '/:locale/dashboard', permanent: true },

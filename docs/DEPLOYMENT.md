@@ -12,7 +12,7 @@
 
 - 创建项目，获取 Project URL 与 anon key。
 - Authentication → URL Configuration：设置 Site URL 与 Redirect URLs（含生产域名与 localhost）。
-- 在 SQL Editor 执行 `docs/SUPABASE_RLS.sql` 中的策略与迁移。
+- 在 SQL Editor 执行 `scripts/sql/supabase-rls.sql` 中的策略与迁移。
 - 使用 Stripe 时参考 `STRIPE_BOOKING_SETUP.md` 配置表与 Webhook。
 
 ## 3. Vercel 环境变量
@@ -36,4 +36,4 @@
 
 ## 6. 相关文档
 
-SUPABASE_RLS.sql、STRIPE_BOOKING_SETUP.md、API.md、[★★★README.md](./★★★README.md)
+[scripts/sql/supabase-rls.sql](../scripts/sql/supabase-rls.sql)、STRIPE_BOOKING_SETUP.md、API.md、[README.md](./README.md)

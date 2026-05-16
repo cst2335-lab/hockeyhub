@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const sqlPath = path.join(process.cwd(), 'scripts', 'rinks_rows.sql');
+const sqlPath = path.join(process.cwd(), 'scripts', 'sql', 'rinks-rows.sql');
 let sql = fs.readFileSync(sqlPath, 'utf8');
 
 // Replace search_vector values with NULL (tsvector escaping causes SQL errors).

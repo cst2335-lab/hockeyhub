@@ -92,7 +92,7 @@ async function main() {
   const hasImageVerified = Object.prototype.hasOwnProperty.call(sample, 'image_verified');
   if (!hasImageUrl || !hasImageVerified) {
     console.warn('rinks.image_url and/or rinks.image_verified is missing in current schema.');
-    console.warn('Run SECTION 1 of docs/SQL_RINKS_IMAGES.sql first, then re-run this script.');
+    console.warn('Run SECTION 1 of scripts/sql/rinks-images.sql first, then re-run this script.');
     return;
   }
 

@@ -1,5 +1,7 @@
 # GoGoHockey 网站优化修改日志
 
+> **文档索引（2026-05）**：当前待办见 [TASKS.md](./TASKS.md)；架构见 [ARCHITECTURE.md](./ARCHITECTURE.md)。下文为历史记录，链接中的旧文件名可能已更名。
+
 本文档详细记录截至目前的修改完善工作。
 
 ---
@@ -357,7 +359,7 @@
 
 ### 未完成（历史快照 · 2026-02）
 
-> **2026-04 说明**：下列条目在后续迭代中已大量推进；**当前「未完成 / 进行中」的唯一权威**为 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三、§四**（全库文档已对齐，见 §二十一）。请勿仅依据本小节判断待办。
+> **2026-04 说明**：下列条目在后续迭代中已大量推进；**当前「未完成 / 进行中」的唯一权威**为 [TASKS.md](./TASKS.md) **§三、§四**（全库文档已对齐，见 §二十一）。请勿仅依据本小节判断待办。
 
 - ~~**支付流程**~~：Stripe Checkout + Webhook 已接入（见第九至十一章、V2 P0）；需配置 Stripe 与 Webhook 密钥
 - **测试**：`npm run test`（Vitest，14 用例）
@@ -552,7 +554,7 @@
 
 | 文件 | 原因 |
 |------|------|
-| `MODIFICATION_PLAN.md` | 早期（2025-02）方案，已由 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)（含 V2 附录）替代；内容要点已分散在 CHANGELOG 历史条目中 |
+| `MODIFICATION_PLAN.md` | 早期（2025-02）方案，已由 [TASKS.md](./TASKS.md)（含 V2 附录）替代；内容要点已分散在 CHANGELOG 历史条目中 |
 | `SQL_RINK_IMAGE_COLUMNS.sql` | 并入 `SQL_RINKS_IMAGES.sql` 第一节 |
 | `SQL_TOP20_IMAGE_VERIFIED.sql` | 并入 `SQL_RINKS_IMAGES.sql` 第二节 |
 
@@ -590,11 +592,11 @@
 
 ### 修改内容（权威约定）
 
-1. **唯一权威**：[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) **§三（进行中）、§四（下阶段摘要）** 表示当前未完成与优先级；§二、§六 附录为历史与验收依据。
+1. **唯一权威**：[TASKS.md](./TASKS.md) **§三（进行中）、§四（下阶段摘要）** 表示当前未完成与优先级；§二、§六 附录为历史与验收依据。
 2. **更新**：[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md) — 重写 §六（6.0–6.4），修正技术栈中 Stripe/React Query/messages 表述；§八 去重。  
 3. **更新**：[ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md) — §1.2 取消政策、§1.3 支付、§5.3 语言、§七 优先级表与 V2 状态一致。  
 4. **更新**：[CHANGELOG_IMPROVEMENTS.md](./CHANGELOG_IMPROVEMENTS.md) — §十二「未完成」改为历史快照并指向 NEXT_PHASE。  
-5. **更新**：[NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md) — 文首增加「任务状态唯一权威」说明；状态日期 2026-04-05。  
+5. **更新**：[TASKS.md](./TASKS.md) — 文首增加「任务状态唯一权威」说明；状态日期 2026-04-05。  
 6. **更新**：[README.md](../README.md)、[docs/★★★README.md](./★★★README.md)、[★★★AGENTS.md](../★★★AGENTS.md) — 增加指向 NEXT_PHASE 的约定说明。
 
 ### 解决的问题
@@ -620,7 +622,7 @@
 
 ### 文档
 
-- 更新 [NEXT_PHASE_TASKS.md](./NEXT_PHASE_TASKS.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)、[★★★README.md](./★★★README.md)、[README.md](../README.md)、[★★★AGENTS.md](../★★★AGENTS.md)（测试数量）。
+- 更新 [TASKS.md](./TASKS.md)、[PROJECT_REVIEW_REPORT.md](./PROJECT_REVIEW_REPORT.md)、[ENHANCEMENT_ROADMAP.md](./ENHANCEMENT_ROADMAP.md)、[★★★README.md](./★★★README.md)、[README.md](../README.md)、[★★★AGENTS.md](../★★★AGENTS.md)（测试数量）。
 
 ---
 
