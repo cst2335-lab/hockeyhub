@@ -1,9 +1,9 @@
-# GoGoHockey / HockeyHub
+# GoGoHockey
 
 Ottawa youth ice hockey community platform — find and post games, browse rinks, start ice bookings, and manage a player profile.
 
 **Course:** CST8319 Software Development Project — **Assignment 3** (initial working prototype)  
-**Repository:** [github.com/cst2335-lab/hockeyhub](https://github.com/cst2335-lab/hockeyhub)  
+**GitHub:** [github.com/cst2335-lab/hockeyhub](https://github.com/cst2335-lab/hockeyhub)  
 **Package name:** `gogohockey` (v2.0.0)
 
 This README is written for instructors reviewing Assignment 3. Assignment 3 demonstrates a **runnable, evidence-backed prototype subset** of a long-running codebase. It is **not** a claim that the full product vision is complete.
@@ -12,7 +12,7 @@ This README is written for instructors reviewing Assignment 3. Assignment 3 demo
 
 ## Project overview
 
-GoGoHockey (GitHub repo name: **HockeyHub**) helps Ottawa-area players, parents, and clubs:
+GoGoHockey helps Ottawa-area players, parents, and clubs:
 
 - sign in and manage a hockey profile;
 - use a personal dashboard;
@@ -152,6 +152,8 @@ Scope split: [docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./docs/ASSIGNMENT_3_4_SCOPE
 
 | Document | Purpose |
 |----------|---------|
+| [docs/ASSIGNMENT_3_CODE_PACKAGE_NOTES.md](./docs/ASSIGNMENT_3_CODE_PACKAGE_NOTES.md) | Code package / ZIP packaging notes |
+| [docs/ASSIGNMENT_3_VERSION_CONTROL.md](./docs/ASSIGNMENT_3_VERSION_CONTROL.md) | GitHub branch / commit evidence pointer |
 | [docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md) | A3 / A4 scope analysis (source of truth) |
 | [docs/ASSIGNMENT_3_PROGRESS.md](./docs/ASSIGNMENT_3_PROGRESS.md) | Assignment 3 progress narrative |
 | [docs/DEMO_3_TESTING_CHECKLIST.md](./docs/DEMO_3_TESTING_CHECKLIST.md) | Demo 3 testing checklist with results |

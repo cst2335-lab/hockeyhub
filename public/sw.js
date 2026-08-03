@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hockeyhub-v1';
+const CACHE_NAME = 'gogohockey-v1';
 const urlsToCache = [
   '/',
   '/games',

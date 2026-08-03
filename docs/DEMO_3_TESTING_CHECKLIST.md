@@ -1,4 +1,4 @@
-# Demo 3 Testing Checklist – GoGoHockey / HockeyHub
+# Demo 3 Testing Checklist – GoGoHockey
 
 **Course:** CST8319 Assignment 3  
 **Source of truth:** [ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./ASSIGNMENT_3_4_SCOPE_ANALYSIS.md)  

@@ -1,4 +1,4 @@
-# Demo 3 Video Walkthrough – GoGoHockey / HockeyHub
+# Demo 3 Video Walkthrough – GoGoHockey
 
 **Course:** CST8319 Assignment 3  
 **Target length:** 10–15 minutes  
@@ -33,10 +33,10 @@
 
 ### 1. Project overview (~1 min)
 
-**Show:** GitHub repo page (`cst2335-lab/hockeyhub`) and/or homepage title.
+**Show:** GitHub repository page and/or homepage title (product name: GoGoHockey).
 
 **Speaker notes:**  
-“GoGoHockey, also in the GitHub repo as HockeyHub, is an Ottawa youth ice hockey community platform. Users can sign in, manage a profile, find and post games, browse rinks, and start a booking. This is Assignment 3: an initial working prototype from a long-running codebase, not a brand-new project.”
+“GoGoHockey is an Ottawa youth ice hockey community platform. Users can sign in, manage a profile, find and post games, browse rinks, and start a booking. This is Assignment 3: an initial working prototype from a long-running codebase, not a brand-new project.”
 
 ---
 

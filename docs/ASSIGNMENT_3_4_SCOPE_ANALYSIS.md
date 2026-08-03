@@ -1,10 +1,10 @@
-# Assignment 3 and 4 Scope Analysis – GoGoHockey / HockeyHub
+# Assignment 3 and 4 Scope Analysis – GoGoHockey
 
-**Repository:** `https://github.com/cst2335-lab/hockeyhub`  
+**GitHub:** https://github.com/cst2335-lab/hockeyhub  
 **Branch reviewed:** `main` @ `edd214e`  
 **Analysis date:** 2026-07-26  
 **Method:** Read-only review of code, docs, scripts, SQL, and tests. No live Supabase / Stripe / Vercel verification in this pass.  
-**Package name:** `gogohockey` (v2.0.0); remote repo name: `hockeyhub`.
+**Package name:** `gogohockey` (v2.0.0).
 
 ---
 
@@ -12,7 +12,7 @@
 
 This document supports **CST8319 Software Development Project Assignment 3 and Assignment 4** planning.
 
-The GoGoHockey / HockeyHub codebase is already a long-running product prototype (Next.js 15 App Router, Supabase, Stripe Checkout, i18n, Vitest). Assignment 3 and 4 must therefore:
+The GoGoHockey codebase is already a long-running product prototype (Next.js 15 App Router, Supabase, Stripe Checkout, i18n, Vitest). Assignment 3 and 4 must therefore:
 
 - reflect the **real current state**, not invent a greenfield prototype;
 - **not** claim that every existing advanced feature belongs to Assignment 3;
@@ -165,7 +165,7 @@ Assignment 3 = **credible initial prototype demonstration** of the **already-bui
 
 ### Features to demonstrate in Assignment 3 video
 
-1. Project overview (GoGoHockey / HockeyHub; Ottawa youth hockey).  
+1. Project overview (GoGoHockey; Ottawa youth hockey).  
 2. Local run: `npm install` → `npm run dev` → `/en`.  
 3. Register or login → redirect to Dashboard.  
 4. Profile view (and optionally edit one field).  
@@ -247,7 +247,7 @@ Assignment 4 = **finalize, verify, polish, and close gaps** for the final demo a
 
 Recommended **video order** (based on real evidence):
 
-1. **Project overview** — problem, users, tech stack; show GitHub repo `hockeyhub` / product name GoGoHockey.  
+1. **Project overview** — problem, users, tech stack; show the GoGoHockey product and GitHub repository.  
 2. **Response to Assignment 2 feedback** — cite structure cleanup (`app/[locale]`, `scripts/sql/`, docs index); Zod server APIs; legacy route redirects.  
 3. **Current prototype pages** — Home → Login → Dashboard → Games → Rinks → Book → Profile → Notifications.  
 4. **Key implemented features** — auth, profile, games + interest, rinks browse, booking form, dashboard data.  

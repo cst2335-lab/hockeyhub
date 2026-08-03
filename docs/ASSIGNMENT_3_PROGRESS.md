@@ -1,10 +1,10 @@
-# Assignment 3 Progress – GoGoHockey / HockeyHub
+# Assignment 3 Progress – GoGoHockey
 
 **Course:** CST8319 Software Development Project  
 **Stage:** Assignment 3 — initial working prototype demonstration  
 **Source of truth:** [ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./ASSIGNMENT_3_4_SCOPE_ANALYSIS.md)  
 **Related:** [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TESTING_CHECKLIST.md) · [DEMO_3_KNOWN_LIMITATIONS.md](./DEMO_3_KNOWN_LIMITATIONS.md) · [DEMO_3_VIDEO_WALKTHROUGH.md](./DEMO_3_VIDEO_WALKTHROUGH.md)  
-**Repository:** `https://github.com/cst2335-lab/hockeyhub`  
+**GitHub:** https://github.com/cst2335-lab/hockeyhub  
 **Updated:** 2026-07-26
 
 ---
@@ -25,7 +25,7 @@ Assignment 3 is **not** a claim that the full product vision is complete.
 
 ## 2. Project context
 
-GoGoHockey / HockeyHub is a **long-running prototype**, not a brand-new repository created for Demo 3.
+GoGoHockey is a **long-running prototype**, not a brand-new repository created for Demo 3.
 
 Evidence of continued development includes:
 

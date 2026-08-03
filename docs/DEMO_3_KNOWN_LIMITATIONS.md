@@ -1,4 +1,4 @@
-# Demo 3 Known Limitations – GoGoHockey / HockeyHub
+# Demo 3 Known Limitations – GoGoHockey
 
 **Course:** CST8319 Assignment 3  
 **Source of truth:** [ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./ASSIGNMENT_3_4_SCOPE_ANALYSIS.md)  
