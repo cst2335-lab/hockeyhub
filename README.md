@@ -2,11 +2,11 @@
 
 Ottawa youth ice hockey community platform — find and post games, browse rinks, start ice bookings, and manage a player profile.
 
-**Course:** CST8319 Software Development Project — **Assignment 3** (initial working prototype)  
+**Course:** CST8319 Software Development Project — **Assignment 4** (final project submission)  
 **GitHub:** [github.com/cst2335-lab/hockeyhub](https://github.com/cst2335-lab/hockeyhub)  
 **Package name:** `gogohockey` (v2.0.0)
 
-This README is written for instructors reviewing Assignment 3. Assignment 3 demonstrates a **runnable, evidence-backed prototype subset** of a long-running codebase. It is **not** a claim that the full product vision is complete.
+This README is for instructors reviewing **Assignment 4 final submission**. It describes the finalized, documented state of the GoGoHockey codebase: what is implemented, what remains partially supported, and what is explicitly not claimed.
 
 ---
 
@@ -18,7 +18,7 @@ GoGoHockey helps Ottawa-area players, parents, and clubs:
 - use a personal dashboard;
 - browse and post game invitations;
 - browse Ottawa ice rinks;
-- open a booking form (checkout route exists; **paid Stripe E2E is not claimed for Assignment 3**);
+- open a booking form with checkout route support (**Stripe end-to-end payment is not claimed as fully verified**);
 - view a notifications UI.
 
 The project uses Next.js 15 (App Router), TypeScript, Tailwind CSS, Supabase, and next-intl (English / French). Canonical UI lives under `app/[locale]/`.
@@ -34,14 +34,14 @@ The project uses Next.js 15 (App Router), TypeScript, Tailwind CSS, Supabase, an
 | Styling | Tailwind CSS · `next-themes` |
 | Auth / database | Supabase |
 | Internationalization | next-intl (`en`, `fr`) |
-| Payments (partial) | Stripe Checkout + webhook code (E2E payment **not** claimed for A3) |
+| Payments (partial) | Stripe Checkout + webhook code (E2E payment **not** claimed without recorded verification) |
 | Unit tests | Vitest |
 
 ---
 
 ## How to run locally
 
-**Prerequisites:** Node.js 18+ (Demo 3 checklist used Node `v24.6.0` / npm `11.5.1`), npm.
+**Prerequisites:** Node.js 18+, npm.
 
 ```bash
 npm install
@@ -50,60 +50,57 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) — the app redirects to `/en` by default.
 
-Without real Supabase credentials, the UI can still render, but data-dependent pages may fail or show empty/error states. See [AGENTS.md](./AGENTS.md) for developer conventions.
+Copy `.env.example` to `.env.local` and fill in values (never commit secrets). Without real Supabase credentials, the UI can still render, but data-dependent pages may fail or show empty/error states. See [AGENTS.md](./AGENTS.md).
 
 ---
 
 ## Environment variables
 
-Create a `.env.local` file in the project root (gitignored). Required for a meaningful Demo 3 walkthrough:
-
 | Variable | Required | Purpose |
 |----------|----------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase public/anon key |
-| `SUPABASE_SERVICE_KEY` | For server/admin scripts | Service role key (some docs may say `SUPABASE_SERVICE_ROLE_KEY` — map to `SUPABASE_SERVICE_KEY`) |
-| `STRIPE_SECRET_KEY` | Optional for A3 core demo | Stripe secret (booking checkout) |
-| `STRIPE_WEBHOOK_SECRET` | Optional for A3 core demo | Stripe webhook signature (`whsec_…`) |
+| `SUPABASE_SERVICE_KEY` | For server/admin scripts | Service role key (map `SUPABASE_SERVICE_ROLE_KEY` → `SUPABASE_SERVICE_KEY` if needed) |
+| `STRIPE_SECRET_KEY` | Optional for core demo | Stripe secret (booking checkout) |
+| `STRIPE_WEBHOOK_SECRET` | Optional for core demo | Stripe webhook signature (`whsec_…`) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key |
 
-Stripe, Resend, and Sentry degrade gracefully if unset. **Do not commit secrets.** Deployment variable lists: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+See [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
 ---
 
-## Assignment 3 prototype scope
+## Assignment 4 final scope
 
-### In scope for Demo 3 (implemented / safe to show)
+### Implemented (safe to demonstrate)
 
-- Project structure with locale routes (`/en`, `/fr`)
+- Locale routes (`/en`, `/fr`)
 - Login, register, logout (Supabase Auth)
-- Profile view (and update via API)
-- Dashboard (metrics / games / bookings sections when Supabase is configured)
+- Profile view / update
+- Dashboard (metrics / games / bookings when Supabase is configured)
 - Games: list, create, detail, express interest
 - Rinks: browse with search / filter / sort
-- Booking **form** and create-checkout API route (pricing UI)
-- Notifications **page UI** (list / read / delete)
-- Documented API routes with Zod validation on main write paths
-- Unit tests (Vitest) and Assignment 3 evidence docs
+- Notifications page UI (list / read / delete)
+- API routes with Zod validation on main write paths
+- Unit tests (Vitest) and Assignment 4 finalization docs
 
-### Partially supported (show carefully)
+### Partially supported (do not overclaim)
 
-- **Booking → Stripe:** form and checkout route exist; full paid confirmation depends on Stripe env + webhook. Assignment 3 does **not** claim end-to-end payment completion.
-- **Notifications:** UI works; automatic creation from business events is incomplete.
-- **Page protection:** unauthenticated users are redirected from the dashboard layout (client-side); middleware does not fully enforce auth on all pages.
+- **Booking → Stripe:** booking form and create-checkout API exist; webhook handlers exist with idempotency helpers. **Full Checkout → webhook → booking `confirmed` E2E is not claimed** unless separately verified and recorded.
+- **Notifications:** UI works; automatic creation from all business events is incomplete (some DB triggers exist; host accept loop remains incomplete).
+- **Page protection:** dashboard layout redirects unauthenticated users (client-side); middleware does not fully enforce auth on all pages.
 
-### Out of scope / not claimed for Assignment 3
+### Not claimed in Assignment 4
 
+- Full production / preview deployment URL (unless separately verified)
 - Complete Stripe payment workflow as “done”
-- User-to-user messaging
-- Game matching / `game_matches`
-- Host accept-interest / contact-reveal loop as a finished product flow
-- Formal user / stakeholder testing
-- Production or preview deployment URL (unless separately verified)
+- Direct messaging
+- Automatic game matching / `game_matches`
+- Complete host accept-interest / contact-reveal product flow
 - Full RBAC enforcement
-- Live Supabase RLS verification on the remote project
-- Browser E2E automated tests (Playwright/Cypress)
+- Live RLS verification on remote Supabase as fully confirmed
+- Browser E2E automated suite (Playwright/Cypress)
 
-Details: [docs/ASSIGNMENT_3_PROGRESS.md](./docs/ASSIGNMENT_3_PROGRESS.md) · [docs/DEMO_3_KNOWN_LIMITATIONS.md](./docs/DEMO_3_KNOWN_LIMITATIONS.md)
+Details: [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md).
 
 ---
 
@@ -113,52 +110,33 @@ Details: [docs/ASSIGNMENT_3_PROGRESS.md](./docs/ASSIGNMENT_3_PROGRESS.md) · [do
 npm run test
 ```
 
-Runs Vitest unit tests under `__tests__/`. Demo 3 checklist re-run (2026-07-26): **18 files, 90/90 passed**.
-
-Unit tests are **not** a substitute for Stripe E2E payment verification or browser E2E coverage.
-
-Manual Demo 3 path results: [docs/DEMO_3_TESTING_CHECKLIST.md](./docs/DEMO_3_TESTING_CHECKLIST.md).
+Runs Vitest under `__tests__/`. Manual paths and evidence: [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md).
 
 ---
 
 ## Known limitations
 
-Honest limitations for Assignment 3 (do not overclaim in the report or video):
-
-- Stripe Checkout E2E (Checkout → webhook → booking `confirmed`) was **not** verified for Demo 3.
-- Messaging and game matching are **not implemented**.
-- Host accept-interest and auto-created notifications are incomplete.
-- Full RBAC and live RLS on remote Supabase are **not verified** as complete.
-- No production deployment URL is claimed from this repository alone.
-- No formal user-testing artifact is claimed.
+- Stripe Checkout E2E payment confirmation is **not** claimed without recorded verification.
+- Messaging and automatic game matching are **not implemented**.
+- Host accept-interest and full auto-notification coverage remain incomplete.
+- Full RBAC and live RLS confirmation are **not** claimed as complete.
+- No production URL is claimed from this repository alone.
 - No Playwright/Cypress E2E suite in the repo.
 
-Full list and safe wording: [docs/DEMO_3_KNOWN_LIMITATIONS.md](./docs/DEMO_3_KNOWN_LIMITATIONS.md).
+Stripe webhook boundary / technical debt: [docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md](./docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md).
 
 ---
 
-## Assignment 4 next steps
-
-1. Verify Stripe test-mode payment end-to-end (or document payment as explicitly partial with justification).
-2. Complete host accept-interest + auto notifications on key events.
-3. Confirm RLS on Supabase; harden protected routes (middleware / server-side).
-4. Add minimal E2E smoke coverage; finalize deployment evidence if a live URL is available.
-
-Scope split: [docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md).
-
----
-
-## Assignment 3 evidence docs
+## Assignment 4 evidence docs
 
 | Document | Purpose |
 |----------|---------|
-| [docs/ASSIGNMENT_3_CODE_PACKAGE_NOTES.md](./docs/ASSIGNMENT_3_CODE_PACKAGE_NOTES.md) | Code package / ZIP packaging notes |
-| [docs/ASSIGNMENT_3_VERSION_CONTROL.md](./docs/ASSIGNMENT_3_VERSION_CONTROL.md) | GitHub branch / commit evidence pointer |
-| [docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md) | A3 / A4 scope analysis (source of truth) |
-| [docs/ASSIGNMENT_3_PROGRESS.md](./docs/ASSIGNMENT_3_PROGRESS.md) | Assignment 3 progress narrative |
-| [docs/DEMO_3_TESTING_CHECKLIST.md](./docs/DEMO_3_TESTING_CHECKLIST.md) | Demo 3 testing checklist with results |
-| [docs/DEMO_3_KNOWN_LIMITATIONS.md](./docs/DEMO_3_KNOWN_LIMITATIONS.md) | Known limitations / anti-overclaiming |
-| [docs/DEMO_3_VIDEO_WALKTHROUGH.md](./docs/DEMO_3_VIDEO_WALKTHROUGH.md) | Suggested Demo 3 video script |
+| [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md) | Final feature status and limitations |
+| [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md) | Local run, tests, demo paths, evidence |
+| [docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md](./docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md) | Stripe webhook boundary and debt |
+| [docs/ASSIGNMENT_4_CODE_PACKAGE_NOTES.md](./docs/ASSIGNMENT_4_CODE_PACKAGE_NOTES.md) | Final code package notes |
+| [docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./docs/ASSIGNMENT_3_4_SCOPE_ANALYSIS.md) | A3 / A4 scope analysis (historical) |
+| [docs/DEMO_3_TESTING_CHECKLIST.md](./docs/DEMO_3_TESTING_CHECKLIST.md) | Assignment 3 testing checklist (prior evidence) |
 
 ---
 
@@ -176,7 +154,7 @@ messages/         # i18n copy
 __tests__/        # Vitest unit tests
 ```
 
-Architecture details: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+Architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ---
 
@@ -198,6 +176,6 @@ Architecture details: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ## Deployment notes
 
-Vercel is the recommended host. Required env vars for a real deploy include Supabase URL, anon key, and service key. See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+Vercel is the recommended host. See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
-**Assignment 3 does not claim a live production/preview URL** unless one is separately verified and documented.
+**Assignment 4 does not claim a live production/preview URL** unless one is separately verified and documented in the report or evidence files.
