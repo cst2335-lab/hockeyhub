@@ -152,6 +152,12 @@ Past games with status=open are now displayed as past/closed and are excluded fr
 When Stripe is not configured, the booking form previously showed both an error toast and "Redirecting to payment...". Checkout now interprets the API response first (`lib/booking/checkout-client.ts`): redirect toast + `window.location` only after a successful checkout URL; failures show only the API error (including "Stripe is not configured. Set STRIPE_SECRET_KEY.") and reset submitting. **Does not claim Stripe E2E.** Evidence: [evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log](./evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log).
 
 
+
+### 7.7 Rink name text encoding
+
+Rink list showed corrupted French accents (U+FFFD) because imported/stored text had already lost the original bytes. Fixed with verified repairs (`Aréna`, `Grandmaître`, known outdoor street forms), DB SQL cleanup, UTF-8-aware import warnings, and accent-insensitive rink search. Evidence: [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log).
+
+
 ## 8. Relationship to Assignment 3
 
 Assignment 3 delivered the initial working prototype evidence (Demo 3 checklist, limitations, walkthrough). Assignment 4 keeps that evidence and adds finalization docs, `.env.example`, README reframing, Stripe boundary documentation, and recorded finalization bug fixes for submission.

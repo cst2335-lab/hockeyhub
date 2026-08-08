@@ -1,3 +1,5 @@
+import { repairRinkText } from '@/lib/rinks/text-encoding';
+
 export type Rink = {
   id: string;
   name: string;
@@ -31,6 +33,12 @@ type SupabaseRinksClient = {
   from: (table: 'rinks') => RinksQueryBuilder;
 };
 
+function sanitizeRinkRow(row: Rink): Rink {
+  const name = repairRinkText(row.name).text || row.name;
+  const address = repairRinkText(row.address).text || row.address;
+  return { ...row, name, address };
+}
+
 export async function fetchRinksListQuery(supabase: SupabaseRinksClient): Promise<Rink[]> {
   const { data, error } = await supabase
     .from('rinks')
@@ -44,10 +52,10 @@ export async function fetchRinksListQuery(supabase: SupabaseRinksClient): Promis
     const typed = row as Rink;
     const legacyLastSynced = (row.last_synced as string | null | undefined) ?? null;
     const nextLastSyncedAt = (row.last_synced_at as string | null | undefined) ?? legacyLastSynced;
-    return {
+    return sanitizeRinkRow({
       ...typed,
       last_synced: legacyLastSynced,
       last_synced_at: nextLastSyncedAt,
-    };
+    });
   });
 }

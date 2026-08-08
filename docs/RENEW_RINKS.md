@@ -4,6 +4,12 @@
 
 ---
 
+## Encoding / French accents
+
+If rink names show a replacement character (U+FFFD) instead of accents (e.g. should be `Aréna`), run `scripts/sql/fix-rink-text-encoding.sql` in the Supabase SQL Editor, or re-import CSV with `node scripts/import-rinks-from-csv.mjs --apply` (repairs known patterns; logs `[rink-encoding]` warnings to the console only).
+
+---
+
 ## CSV 导入（推荐）
 
 1. 将 CSV 放在桌面或 `scripts/data/`：

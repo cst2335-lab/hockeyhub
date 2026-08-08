@@ -47,6 +47,26 @@ describe('fetchRinksListQuery', () => {
     expect(rinks[0].last_synced_at).toBe('2026-02-20T10:00:00Z');
   });
 
+  it('repairs corrupted French rink names from stored U+FFFD', async () => {
+    const supabase = buildSupabaseMock([
+      {
+        id: 'r3',
+        name: 'Ar\uFFFDna Campeau',
+        address: 'Ar\uFFFDna Campeau',
+        city: 'Ottawa',
+        phone: null,
+        hourly_rate: 150,
+        amenities: [],
+        booking_url: null,
+      },
+    ]);
+
+    const rinks = await fetchRinksListQuery(supabase);
+    expect(rinks[0].name).toBe('Aréna Campeau');
+    expect(rinks[0].address).toBe('Aréna Campeau');
+    expect(rinks[0].name.includes('\uFFFD')).toBe(false);
+  });
+
   it('throws when supabase returns an error', async () => {
     const supabase = buildSupabaseMock([], { message: 'failed to load' });
     await expect(fetchRinksListQuery(supabase)).rejects.toThrow('failed to load');

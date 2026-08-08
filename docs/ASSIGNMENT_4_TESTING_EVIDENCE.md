@@ -65,7 +65,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (Stripe checkout error handling):** [evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log](./evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log) — `Test Files  26 passed (26)`, `Tests  148 passed (148)`. Prior past-status: [assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) (25/138). |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (rink text encoding):** [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log) — `Test Files  27 passed (27)`, `Tests  157 passed (157)`. |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -174,6 +174,21 @@ Booking payment UX no longer shows a success redirect toast when checkout creati
 | Tests | `__tests__/lib/booking/checkout-client.test.ts` |
 | Verifiable log | [evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log](./evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log) — **26 files, 148/148 passed**; lint clean |
 | Non-claims | Stripe E2E payment still **not** claimed |
+
+
+
+### Rink Text Encoding Fix
+
+French rink names/addresses stored U+FFFD (replacement) after bad import encoding (e.g. `Aréna Campeau` showed as corrupted).
+
+| Item | Detail |
+|------|--------|
+| Root cause | Corrupted bytes in Supabase `rinks` (+ `scripts/sql/rinks-rows.sql`); CSV import read UTF-8 but source already had U+FFFD |
+| Records fixed | **16** DB rows (8 Aréna names, 1 Grandmaître, 7 outdoor addresses); SQL seed file FFFD count 18→0 |
+| Fix | Verified pattern repairs in `lib/rinks/text-encoding.ts`; DB cleanup `scripts/sql/fix-rink-text-encoding.sql`; import warns+repairs; list query sanitizes; rink search accent-folds |
+| Tests | `__tests__/lib/rinks/text-encoding.test.ts`, updated `__tests__/lib/queries/rinks.test.ts` |
+| Verifiable log | [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log) |
+| Non-claims | Stripe E2E unchanged |
 
 
 ### Summary mirror (do not invent PASS)

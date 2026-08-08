@@ -11,6 +11,7 @@ import { RinkCardSkeleton } from '@/components/ui/skeleton'
 import RinkCardImage from '@/components/rinks/rink-card-image'
 import { fetchRinksListQuery, type Rink } from '@/lib/queries/rinks'
 import { resolveRinkCardImage, type RinkDataSource } from '@/lib/rinks/card-metadata'
+import { rinkTextMatchesQuery } from '@/lib/rinks/text-encoding'
 
 type PriceBand = 'all' | 'budget' | 'standard' | 'premium'
 
@@ -90,11 +91,10 @@ export default function RinksPage() {
   const filtered = useMemo(() => {
     let list = [...rinks]
 
-    // search by name/address/city/phone
+    // search by name/address/city/phone (accent-insensitive: arena ↔ aréna)
     if (query.trim()) {
-      const q = query.trim().toLowerCase()
       list = list.filter((r) =>
-        [r.name, r.address, r.city, r.phone].some((f) => (f ?? '').toLowerCase().includes(q))
+        rinkTextMatchesQuery([r.name, r.address, r.city, r.phone], query)
       )
     }
 

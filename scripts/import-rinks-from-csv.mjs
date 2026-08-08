@@ -14,6 +14,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import {
+  collectRinkEncodingWarnings,
+  repairRinkText,
+} from './lib/rink-text-encoding.mjs';
 
 function loadEnv() {
   const envPath = resolve(process.cwd(), '.env.local');
@@ -95,6 +99,10 @@ function toDbRow(row, colleagueById) {
     if (['verified', 'image_verified'].includes(k)) { out[k] = String(v).toLowerCase() === 'true'; continue; }
     out[k] = String(v).trim();
   }
+  // UTF-8 repair for known Ottawa French mojibake / U+FFFD (dev warnings only)
+  collectRinkEncodingWarnings({ id: out.id, name: out.name, address: out.address });
+  if (out.name) out.name = repairRinkText(out.name).text;
+  if (out.address) out.address = repairRinkText(out.address).text;
   return out;
 }
 
