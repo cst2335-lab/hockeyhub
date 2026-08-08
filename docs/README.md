@@ -1,6 +1,17 @@
 # GoGoHockey 文档索引
 
-**更新**：2026-05-16 · 版本 2.0.0
+**更新**：2026-08-08 · 版本 2.0.0
+
+---
+
+## Assignment 4（最终提交）
+
+| 文档 | 说明 |
+|------|------|
+| [ASSIGNMENT_4_FINALIZATION.md](./ASSIGNMENT_4_FINALIZATION.md) | 最终功能状态、限制与后续增强 |
+| [ASSIGNMENT_4_TESTING_EVIDENCE.md](./ASSIGNMENT_4_TESTING_EVIDENCE.md) | 本地运行、测试与演示证据模板 |
+| [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRIPE_BOUNDARY.md) | Stripe Webhook 边界与技术债 |
+| [ASSIGNMENT_4_CODE_PACKAGE_NOTES.md](./ASSIGNMENT_4_CODE_PACKAGE_NOTES.md) | 最终代码包说明 |
 
 ---
 
@@ -15,6 +26,7 @@
 | **冰场数据** | `npm run db:import-rinks` → [RENEW_RINKS.md](./RENEW_RINKS.md) |
 | **SQL 脚本** | `scripts/sql/`（RLS、冰场图片、批量导入） |
 | **AI / 本地开发** | 根目录 [AGENTS.md](../AGENTS.md) |
+| **环境变量示例** | 根目录 [.env.example](../.env.example) |
 
 ---
 
