@@ -1,0 +1,83 @@
+GoGoHockey — Assignment 4 automated command capture
+Captured: 2026-08-08 09:40:23 -04:00
+Branch: main
+Commit at capture start: 53b5ba2fc4460b5fe47a76b3a97586421bffa78e
+Node: v24.6.0
+npm: 11.5.1
+Note: This file is the verifiable artifact for T1–T3 in docs/ASSIGNMENT_4_TESTING_EVIDENCE.md.
+No secrets are included.
+=== npm install ===
+
+up to date, audited 958 packages in 23s
+
+235 packages are looking for funding
+  run `npm fund` for details
+
+39 vulnerabilities (1 low, 19 moderate, 17 high, 2 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+EXIT_CODE=0
+
+=== npm run test ===
+
+> gogohockey@2.0.0 test
+> vitest run
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v2.1.9 D:/鈽呪槄鈽匒lgonquin Collage study/Ecoop_GoGoHockey/Ecoop_GoGoHockey
+
+ 鉁?__tests__/lib/validations/game.test.ts (12 tests) 18ms
+ 鉁?__tests__/lib/validations/profile.test.ts (6 tests) 18ms
+ 鉁?__tests__/lib/queries/games.test.ts (3 tests) 18ms
+ 鉁?__tests__/lib/validations/booking.test.ts (9 tests) 16ms
+ 鉁?__tests__/lib/rinks/card-metadata.test.ts (6 tests) 8ms
+ 鉁?__tests__/lib/stripe/webhook-idempotency.test.ts (6 tests) 14ms
+ 鉁?__tests__/lib/security/cron-auth.test.ts (7 tests) 7ms
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > reports optional column support in test mode
+[sync-ottawa-rinks:89495e46-b5cf-4162-81c5-6c973d0c69c5] started at 2026-08-08T13:41:01.140Z
+
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as false on non-missing-column probe failures
+[sync-ottawa-rinks:c7ae35eb-e6b6-4d83-9086-ea7bb6eb633f] started at 2026-08-08T13:41:01.165Z
+
+stderr | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as false on non-missing-column probe failures
+[sync-ottawa-rinks:c7ae35eb-e6b6-4d83-9086-ea7bb6eb633f] optional column probe failed for data_source: permission denied for relation rinks
+System.Management.Automation.RemoteException
+ 鉁?__tests__/app/api/sync-ottawa-rinks.route.test.ts (2 tests) 36ms
+ 鉁?__tests__/lib/queries/rinks.test.ts (3 tests) 16ms
+ 鉁?__tests__/lib/utils/sanitize.test.ts (9 tests) 9ms
+ 鉁?__tests__/lib/validations/club.test.ts (3 tests) 17ms
+ 鉁?__tests__/lib/utils/json-ld.test.ts (3 tests) 12ms
+ 鉁?__tests__/lib/validations/notification.test.ts (4 tests) 331ms
+ 鉁?__tests__/lib/booking/conflict-constraint.test.ts (3 tests) 6ms
+ 鉁?__tests__/lib/security/debug-routes.test.ts (3 tests) 8ms
+ 鉁?__tests__/lib/validations/rink.test.ts (3 tests) 14ms
+ 鉁?__tests__/lib/booking/policy-copy.test.ts (2 tests) 7ms
+ 鉁?__tests__/lib/utils/format.test.ts (6 tests) 196ms
+
+ Test Files  18 passed (18)
+      Tests  90 passed (90)
+   Start at  09:40:55
+   Duration  13.32s (transform 6.78s, setup 0ms, collect 15.01s, tests 750ms, environment 9ms, prepare 16.05s)
+
+EXIT_CODE=0
+
+=== npm run lint ===
+
+> gogohockey@2.0.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+System.Management.Automation.RemoteException
+鉁?No ESLint warnings or errors
+EXIT_CODE=0
+
