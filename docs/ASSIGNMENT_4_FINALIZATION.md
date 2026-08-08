@@ -127,7 +127,7 @@ During local final-demo verification, homepage cards showed **Players 0/** and *
 | Upcoming bookings | Cancelled bookings excluded from dashboard upcoming count |
 | Remove interest | Creator receives interest_removed notification (best-effort) |
 
-Commit message: **ix: align dashboard game and notification demo flows**. Evidence: [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (**112/112**). These are concrete demo-flow bug fixes—not claims of Stripe E2E, messaging, matching, or production deployment.
+Commit: **2a8cca5** (ix: align dashboard game and notification demo flows). Evidence: [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (**112/112**). These are concrete demo-flow bug fixes—not claims of Stripe E2E, messaging, matching, or production deployment.
 
 ---
 
