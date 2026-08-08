@@ -25,6 +25,12 @@ import { GameCardSkeleton } from '@/components/ui/skeleton';
 import { sortGamesByMatch } from '@/lib/matching/score';
 import { sanitizePlainText } from '@/lib/utils/sanitize';
 import { fetchGamesListQuery } from '@/lib/queries/games';
+import {
+  getGameDisplayStatus,
+  getGameDisplayStatusLabel,
+  type GameDisplayStatus,
+} from '@/lib/games/display-status';
+import { isGamePast } from '@/lib/games/schedule';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -42,6 +48,7 @@ interface Game {
   interested_count?: number;
   created_at: string;
   isExpired?: boolean;
+  displayStatus?: GameDisplayStatus;
 }
 
 type DateFilter = 'all' | 'upcoming' | 'past';
@@ -58,9 +65,24 @@ export default function GamesPage() {
   const { data: gamesData, isLoading: loading } = useQuery({
     queryKey: ['games'],
     queryFn: () => fetchGamesListQuery(supabase),
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
-  const games = gamesData ?? [];
+  // Recompute past/open at render time so badges stay correct after kickoff.
+  const games = useMemo(() => {
+    const now = new Date();
+    return (gamesData ?? []).map((g) => {
+      const displayStatus = getGameDisplayStatus({
+        status: g.status,
+        gameDate: g.game_date,
+        gameTime: g.game_time,
+        now,
+      });
+      const isExpired = isGamePast(g.game_date, g.game_time, now) || displayStatus === 'past';
+      return { ...g, displayStatus, isExpired };
+    });
+  }, [gamesData]);
 
   // User preferences for "Recommended" sort (age_group, skill_level, area)
   const { data: userPrefs } = useQuery({
@@ -95,11 +117,12 @@ export default function GamesPage() {
   const ageGroups = ['U7', 'U9', 'U11', 'U13', 'U15', 'U18', 'Adult'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
 
-  // status badge 样式统一
-  const statusBadge: Record<GameStatus, string> = {
+  // status badge 样式统一（include past display status)
+  const statusBadge: Record<GameDisplayStatus, string> = {
     open: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
     matched: 'bg-gogo-secondary/20 text-gogo-primary',
     closed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
+    past: 'bg-muted-foreground/80 dark:bg-slate-600 text-white',
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
   };
 
@@ -388,26 +411,33 @@ export default function GamesPage() {
           <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedGames.map((game) => {
-              const expiredBadge =
-                game.isExpired ? (
-                  <span className="bg-muted-foreground/80 dark:bg-slate-600 text-white text-xs px-2 py-1 rounded-full inline-flex items-center">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Expired
-                  </span>
-                ) : null;
+              const displayStatus =
+                game.displayStatus ??
+                getGameDisplayStatus({
+                  status: game.status,
+                  gameDate: game.game_date,
+                  gameTime: game.game_time,
+                });
+              const isPastGame = game.isExpired || displayStatus === 'past';
 
               return (
                 <div
                   key={game.id}
                   className={`bg-card text-card-foreground rounded-xl shadow-md border border-border dark:border-slate-700 hover:shadow-lg transition-shadow relative ${
-                    game.isExpired ? 'opacity-75' : ''
+                    isPastGame ? 'opacity-75' : ''
                   }`}
                 >
                   <div className="absolute top-4 right-4 z-10 flex gap-2">
-                    <span className={`text-xs px-2 py-1 rounded-full ${statusBadge[game.status]}`}>
-                      {game.status}
+                    <span className={`text-xs px-2 py-1 rounded-full inline-flex items-center ${statusBadge[displayStatus]}`}>
+                      {displayStatus === 'past' ? (
+                        <>
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          {getGameDisplayStatusLabel(displayStatus)}
+                        </>
+                      ) : (
+                        getGameDisplayStatusLabel(displayStatus)
+                      )}
                     </span>
-                    {expiredBadge}
                   </div>
 
                   <div className="p-6">
@@ -418,7 +448,7 @@ export default function GamesPage() {
                     <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2" />
-                        <span className={game.isExpired ? 'line-through' : ''}>
+                        <span className={isPastGame ? 'line-through' : ''}>
                           {formatDate(game.game_date)}
                         </span>
                         {game.game_time && <span className="ml-1">at {game.game_time}</span>}
@@ -459,12 +489,12 @@ export default function GamesPage() {
                     <Link
                       href={withLocale(`/games/${game.id}`)}
                       className={`mt-4 block text-center px-4 py-2 rounded-md transition ${
-                        game.isExpired
+                        isPastGame
                           ? 'bg-muted text-muted-foreground hover:bg-muted/80'
                           : 'bg-gogo-primary text-white hover:bg-gogo-dark'
                       }`}
                     >
-                      {game.isExpired ? 'View Details (Expired)' : 'View Details'}
+                      {isPastGame ? 'View Details' : 'View Details'}
                     </Link>
                   </div>
                 </div>

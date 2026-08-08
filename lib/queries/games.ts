@@ -1,4 +1,8 @@
-import { isGamePast, localIsoDate, parseLocalDateParts } from '@/lib/games/schedule';
+import { isGamePast, localIsoDate } from '@/lib/games/schedule';
+import {
+  getGameDisplayStatus,
+  type GameDisplayStatus,
+} from '@/lib/games/display-status';
 
 export type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -16,6 +20,8 @@ export type Game = {
   interested_count?: number;
   created_at: string;
   isExpired?: boolean;
+  /** UI status after schedule rules (past overrides open). */
+  displayStatus?: GameDisplayStatus;
 };
 
 type PostgrestErrorLike = { message?: string | null } | null;
@@ -35,11 +41,14 @@ type SupabaseGamesClient = {
 };
 
 function daysBetweenLocalDates(a: string, b: string): number | null {
-  const pa = parseLocalDateParts(a);
-  const pb = parseLocalDateParts(b);
-  if (!pa || !pb) return null;
-  const da = Date.UTC(pa.year, pa.month - 1, pa.day);
-  const db = Date.UTC(pb.year, pb.month - 1, pb.day);
+  const parse = (s: string) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+    if (!m) return null;
+    return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  };
+  const da = parse(a);
+  const db = parse(b);
+  if (da == null || db == null) return null;
   return Math.round((da - db) / (24 * 60 * 60 * 1000));
 }
 
@@ -61,17 +70,25 @@ export async function fetchGamesListQuery(
       const gameDate = typeof g.game_date === 'string' ? g.game_date : '';
       if (!gameDate) return true;
       const ageDays = daysBetweenLocalDates(todayStr, gameDate.slice(0, 10));
-      // Keep games from the last 7 local calendar days (and future).
       return ageDays == null || ageDays <= 7;
     })
     .map((g) => {
       const row = g as unknown as Game;
+      const status = (['open', 'matched', 'closed', 'cancelled'] as GameStatus[]).includes(row.status)
+        ? row.status
+        : 'open';
+      const displayStatus = getGameDisplayStatus({
+        status,
+        gameDate: row.game_date,
+        gameTime: row.game_time,
+        now,
+      });
+      const isExpired = isGamePast(row.game_date, row.game_time, now) || displayStatus === 'past';
       return {
         ...row,
-        status: (['open', 'matched', 'closed', 'cancelled'] as GameStatus[]).includes(row.status)
-          ? row.status
-          : 'open',
-        isExpired: isGamePast(row.game_date, row.game_time, now),
+        status,
+        displayStatus,
+        isExpired,
       } as Game;
     });
 }

@@ -73,12 +73,27 @@ export function applyLiveMetricsToGames<T extends PostedGameMetricRow>(
   });
 }
 
+import { isGameActivelyOpen } from '@/lib/games/display-status';
+
 export function summarizePostedGameStats<
-  T extends { status: string; view_count?: number | null; interested_count?: number | null },
->(games: T[]) {
+  T extends {
+    status: string;
+    game_date?: string | null;
+    game_time?: string | null;
+    view_count?: number | null;
+    interested_count?: number | null;
+  },
+>(games: T[], now: Date = new Date()) {
   return {
     total: games.length,
-    open: games.filter((g) => g.status === 'open').length,
+    open: games.filter((g) =>
+      isGameActivelyOpen({
+        status: g.status,
+        gameDate: g.game_date,
+        gameTime: g.game_time,
+        now,
+      })
+    ).length,
     matched: games.filter((g) => g.status === 'matched').length,
     cancelled: games.filter((g) => g.status === 'cancelled').length,
     totalViews: games.reduce((sum, g) => sum + Number(g.view_count || 0), 0),

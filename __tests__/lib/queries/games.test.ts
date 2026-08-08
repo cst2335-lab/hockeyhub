@@ -50,6 +50,7 @@ describe('fetchGamesListQuery', () => {
     const games = await fetchGamesListQuery(supabase, now);
     expect(games).toHaveLength(1);
     expect(games[0].isExpired).toBe(true);
+    expect(games[0].displayStatus).toBe('past');
   });
 
   it('marks today morning as past and today evening as upcoming', async () => {

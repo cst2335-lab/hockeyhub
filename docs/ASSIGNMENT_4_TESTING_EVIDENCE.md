@@ -65,7 +65,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (game date classification):** [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log) — `Test Files  24 passed (24)`, `Tests  131 passed (131)`. Prior posted-metrics log: [assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) (23/120). |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (past status display):** [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) — `Test Files  25 passed (25)`, `Tests  138 passed (138)`. |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -144,6 +144,20 @@ Game date classification was corrected so yesterday/past games are not shown in 
 | Tests | `__tests__/lib/games/schedule.test.ts`, updated `__tests__/lib/queries/games.test.ts` |
 | Verifiable log | [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log) — **24 files, 131/131 passed** |
 | Lint | `npm run lint` — no ESLint warnings/errors |
+| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+
+
+### Past Game Status Display Fix
+
+Past games with status=open are now displayed as past/closed and are excluded from active open/upcoming counts.
+
+| Item | Detail |
+|------|--------|
+| Bug | Cards still showed DB badge `open` + Join/Interest after kickoff (e.g. Aug 8 10:00 shown as active open) |
+| Fix | `lib/games/display-status.ts` overrides `open` → `past` when scheduled datetime < now; wired into Find Games, homepage card, detail, dashboard, My Games |
+| Commit message | `fix: display past games as inactive instead of open` |
+| Tests | `__tests__/lib/games/display-status.test.ts` (+ posted-metrics open count) |
+| Verifiable log | [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) — **25 files, 138/138 passed** |
 | Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
 
 ### Summary mirror (do not invent PASS)

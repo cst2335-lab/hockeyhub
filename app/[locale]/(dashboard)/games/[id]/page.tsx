@@ -9,6 +9,13 @@ import RatingStars from '@/components/rating/RatingStars';
 import {toast} from 'sonner';
 import { ArrowLeft } from 'lucide-react';
 import { sanitizeOptionalText, sanitizePlainText } from '@/lib/utils/sanitize';
+import {
+  canExpressGameInterest,
+  getGameDisplayStatus,
+  getGameDisplayStatusLabel,
+  type GameDisplayStatus,
+} from '@/lib/games/display-status';
+import { parseLocalDateParts } from '@/lib/games/schedule';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -284,12 +291,27 @@ export default function GameDetailsPage() {
     );
   }
 
-  const gameDateFormatted = new Date(game.game_date).toLocaleDateString();
+  const gameDateParts = parseLocalDateParts(game.game_date);
+  const gameDateFormatted = gameDateParts
+    ? new Date(gameDateParts.year, gameDateParts.month - 1, gameDateParts.day).toLocaleDateString()
+    : new Date(game.game_date).toLocaleDateString();
 
-  const statusBadge: Record<GameStatus, string> = {
+  const displayStatus: GameDisplayStatus = getGameDisplayStatus({
+    status: game.status,
+    gameDate: game.game_date,
+    gameTime: game.game_time,
+  });
+  const canInterest = canExpressGameInterest({
+    status: game.status,
+    gameDate: game.game_date,
+    gameTime: game.game_time,
+  });
+
+  const statusBadge: Record<GameDisplayStatus, string> = {
     open: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
     matched: 'bg-gogo-secondary/20 text-gogo-primary',
     closed: 'bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300',
+    past: 'bg-muted-foreground/80 dark:bg-slate-600 text-white',
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300',
   };
 
@@ -325,8 +347,8 @@ export default function GameDetailsPage() {
                   <p><strong>Skill Level:</strong> {sanitizePlainText(game.skill_level)}</p>
                   <p>
                     <strong>Status:</strong>
-                    <span className={`ml-2 px-2 py-1 rounded text-sm ${statusBadge[game.status]}`}>
-                      {game.status}
+                    <span className={`ml-2 px-2 py-1 rounded text-sm ${statusBadge[displayStatus]}`}>
+                      {getGameDisplayStatusLabel(displayStatus)}
                     </span>
                   </p>
                 </div>
@@ -398,7 +420,12 @@ export default function GameDetailsPage() {
                 </div>
               ) : currentUser ? (
                 <div>
-                  {!isInterested && !showMessageForm && (
+                  {!canInterest && !isInterested && (
+                    <p className="text-muted-foreground mb-2">
+                      This game is no longer open for interest ({getGameDisplayStatusLabel(displayStatus)}).
+                    </p>
+                  )}
+                  {!isInterested && !showMessageForm && canInterest && (
                     <button
                       onClick={() => setShowMessageForm(true)}
                       className="bg-gogo-primary text-white px-6 py-2 rounded-lg hover:bg-gogo-dark"
@@ -407,7 +434,7 @@ export default function GameDetailsPage() {
                     </button>
                   )}
 
-                  {showMessageForm && !isInterested && (
+                  {showMessageForm && !isInterested && canInterest && (
                     <div className="space-y-4">
                       <textarea
                         value={message}

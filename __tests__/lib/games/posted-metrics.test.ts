@@ -90,11 +90,16 @@ describe('summarizePostedGameStats', () => {
     });
   });
 
-  it('does not count removed interests when games already carry filtered counts', () => {
-    const stats = summarizePostedGameStats([
-      { status: 'open', view_count: 2, interested_count: 1 },
-    ]);
-    expect(stats.totalInterested).toBe(1);
-    expect(stats.totalViews).toBe(2);
+  it('excludes past open games from active open count', () => {
+    const now = new Date(2026, 7, 8, 15, 0, 0);
+    const stats = summarizePostedGameStats(
+      [
+        { status: 'open', game_date: '2026-08-07', game_time: '10:00', view_count: 1, interested_count: 1 },
+        { status: 'open', game_date: '2026-08-09', game_time: '10:00', view_count: 0, interested_count: 0 },
+      ],
+      now
+    );
+    expect(stats.open).toBe(1);
+    expect(stats.total).toBe(2);
   });
 });

@@ -14,6 +14,12 @@ import {
   todayIsoDate,
 } from '@/lib/booking/upcoming';
 import { fetchMyGamesWithLiveMetrics } from '@/lib/games/fetch-my-games';
+import {
+  getGameDisplayStatus,
+  getGameDisplayStatusLabel,
+  isGameActivelyOpen,
+} from '@/lib/games/display-status';
+import { parseLocalDateParts } from '@/lib/games/schedule';
 import { useTranslations } from 'next-intl';
 import { formatCurrency, formatDateByLocale } from '@/lib/utils/format';
 import {
@@ -170,7 +176,18 @@ export default function DashboardPage() {
   const interestedGames = myGamesData?.interestedGames ?? [];
   const stats = myGamesData?.stats ?? { total: 0, open: 0, matched: 0, cancelled: 0, totalViews: 0, totalInterested: 0 };
 
-  const filteredGames = filter === 'all' ? games : games.filter((g) => g.status === filter);
+  const filteredGames =
+    filter === 'all'
+      ? games
+      : filter === 'open'
+        ? games.filter((g) =>
+            isGameActivelyOpen({
+              status: g.status,
+              gameDate: g.game_date,
+              gameTime: g.game_time,
+            })
+          )
+        : games.filter((g) => g.status === filter);
 
   async function updateGameStatus(gameId: string, newStatus: string) {
     try {
@@ -236,28 +253,43 @@ export default function DashboardPage() {
 
   function formatDate(dateStr: string) {
     if (!dateStr) return 'TBD';
-    const date = new Date(dateStr);
+    const parts = parseLocalDateParts(dateStr);
+    const date = parts
+      ? new Date(parts.year, parts.month - 1, parts.day)
+      : new Date(dateStr);
     const today = new Date();
-    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    today.setHours(0, 0, 0, 0);
+    const dayOnly = new Date(date);
+    dayOnly.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((dayOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     let rel = '';
     if (diffDays === 0) rel = ' (Today)';
     else if (diffDays === 1) rel = ' (Tomorrow)';
     else if (diffDays === -1) rel = ' (Yesterday)';
     else if (diffDays < -1) rel = ` (${Math.abs(diffDays)} days ago)`;
     else if (diffDays > 1 && diffDays <= 7) rel = ` (in ${diffDays} days)`;
-    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + rel;
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + rel;
   }
 
-  function getStatusBadge(status: string) {
-    switch (status) {
+  function getStatusBadge(game: { status: string; game_date?: string; game_time?: string }) {
+    const display = getGameDisplayStatus({
+      status: game.status,
+      gameDate: game.game_date,
+      gameTime: game.game_time,
+    });
+    const label = getGameDisplayStatusLabel(display);
+    switch (display) {
       case 'open':
         return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">{tGames('statusOpen')}</span>;
       case 'matched':
         return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">{tGames('statusMatched')}</span>;
       case 'cancelled':
         return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{tGames('statusCancelled')}</span>;
+      case 'past':
+      case 'closed':
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted-foreground/80 text-white dark:bg-slate-600">{label}</span>;
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{status}</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{label}</span>;
     }
   }
 
@@ -501,7 +533,7 @@ export default function DashboardPage() {
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="text-lg font-semibold text-foreground">{game.title}</h3>
-                              {getStatusBadge(game.status)}
+                              {getStatusBadge(game)}
                             </div>
                             <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                               <div className="space-y-1">
@@ -516,7 +548,12 @@ export default function DashboardPage() {
                               </div>
                             </div>
                             {game.description && <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{game.description}</p>}
-                            {game.interested_count > 0 && game.status === 'open' && (
+                            {game.interested_count > 0 &&
+                              isGameActivelyOpen({
+                                status: game.status,
+                                gameDate: game.game_date,
+                                gameTime: game.game_time,
+                              }) && (
                               <div className="mt-3 p-2 bg-gogo-secondary/10 border border-gogo-secondary/30 rounded text-sm">
                                 <AlertCircle className="inline h-4 w-4 text-gogo-primary mr-1" />
                                 <span className="text-gogo-primary">
@@ -529,11 +566,23 @@ export default function DashboardPage() {
                           <div className="ml-4 flex flex-col space-y-2">
                             <Link href={withLocale(`/games/${game.id}`)} className="text-gogo-primary hover:text-gogo-dark text-sm">{tMyGames('viewDetails')}</Link>
                             <Link href={withLocale(`/games/${game.id}/edit`)} className="text-purple-600 hover:text-purple-800 text-sm">{tMyGames('editGame')}</Link>
-                            {game.status === 'open' && (
+                            {isGameActivelyOpen({
+                              status: game.status,
+                              gameDate: game.game_date,
+                              gameTime: game.game_time,
+                            }) && (
                               <>
                                 <button onClick={() => updateGameStatus(game.id, 'matched')} className="text-green-600 hover:text-green-800 text-sm text-left">{tMyGames('markAsMatched')}</button>
                                 <button onClick={() => updateGameStatus(game.id, 'cancelled')} className="text-orange-600 hover:text-orange-800 text-sm text-left">{tMyGames('cancelGame')}</button>
                               </>
+                            )}
+                            {game.status === 'open' &&
+                              !isGameActivelyOpen({
+                                status: game.status,
+                                gameDate: game.game_date,
+                                gameTime: game.game_time,
+                              }) && (
+                              <button onClick={() => updateGameStatus(game.id, 'cancelled')} className="text-orange-600 hover:text-orange-800 text-sm text-left">{tMyGames('cancelGame')}</button>
                             )}
                             {game.status === 'cancelled' && (
                               <button onClick={() => updateGameStatus(game.id, 'open')} className="text-green-600 hover:text-green-800 text-sm text-left">{tMyGames('reopenGame')}</button>
@@ -569,7 +618,7 @@ export default function DashboardPage() {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-semibold text-foreground">{interest.game_invitations?.title}</h3>
-                            {interest.game_invitations && getStatusBadge(interest.game_invitations.status)}
+                            {interest.game_invitations && getStatusBadge(interest.game_invitations)}
                           </div>
                           <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
                             <div className="space-y-1">

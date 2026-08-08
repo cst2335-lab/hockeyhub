@@ -9,6 +9,12 @@ import { toast } from 'sonner';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import { fetchMyGamesWithLiveMetrics } from '@/lib/games/fetch-my-games';
+import {
+  getGameDisplayStatus,
+  getGameDisplayStatusLabel,
+  isGameActivelyOpen,
+} from '@/lib/games/display-status';
+import { parseLocalDateParts } from '@/lib/games/schedule';
 import { 
   Calendar, 
   MapPin, 
@@ -186,41 +192,79 @@ export default function MyGamesPage() {
 
   function formatDate(dateStr: string) {
     if (!dateStr) return 'TBD';
-    const date = new Date(dateStr);
+    const parts = parseLocalDateParts(dateStr);
+    const date = parts
+      ? new Date(parts.year, parts.month - 1, parts.day)
+      : new Date(dateStr);
     const today = new Date();
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+    today.setHours(0, 0, 0, 0);
+    const dayOnly = new Date(date);
+    dayOnly.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((dayOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
     let relativeTime = '';
     if (diffDays === 0) relativeTime = ' (Today)';
     else if (diffDays === 1) relativeTime = ' (Tomorrow)';
     else if (diffDays === -1) relativeTime = ' (Yesterday)';
     else if (diffDays < -1) relativeTime = ` (${Math.abs(diffDays)} days ago)`;
     else if (diffDays > 1 && diffDays <= 7) relativeTime = ` (in ${diffDays} days)`;
-    
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
-    }) + relativeTime;
+
+    return (
+      date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      }) + relativeTime
+    );
   }
 
-  function getStatusBadge(status: string) {
-    switch (status) {
+  function getStatusBadge(game: { status?: string; game_date?: string; game_time?: string } | string | undefined) {
+    if (!game || typeof game === 'string') {
+      const display = getGameDisplayStatus({ status: typeof game === 'string' ? game : 'open' });
+      const label = getGameDisplayStatusLabel(display);
+      if (display === 'open') {
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">{tGames('statusOpen')}</span>;
+      }
+      if (display === 'matched') {
+        return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">{tGames('statusMatched')}</span>;
+      }
+      if (display === 'cancelled') {
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{tGames('statusCancelled')}</span>;
+      }
+      return <span className="px-2 py-1 text-xs rounded-full bg-muted-foreground/80 text-white dark:bg-slate-600">{label}</span>;
+    }
+    const display = getGameDisplayStatus({
+      status: game.status,
+      gameDate: game.game_date,
+      gameTime: game.game_time,
+    });
+    const label = getGameDisplayStatusLabel(display);
+    switch (display) {
       case 'open':
         return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">{tGames('statusOpen')}</span>;
       case 'matched':
         return <span className="px-2 py-1 text-xs rounded-full bg-gogo-secondary/20 text-gogo-primary">{tGames('statusMatched')}</span>;
       case 'cancelled':
         return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{tGames('statusCancelled')}</span>;
+      case 'past':
+      case 'closed':
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted-foreground/80 text-white dark:bg-slate-600">{label}</span>;
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{status}</span>;
+        return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground dark:bg-slate-700 dark:text-slate-300">{label}</span>;
     }
   }
 
   const filteredGames = filter === 'all'
     ? games
-    : games.filter((g) => g.status === filter);
+    : filter === 'open'
+      ? games.filter((g) =>
+          isGameActivelyOpen({
+            status: g.status,
+            gameDate: g.game_date,
+            gameTime: g.game_time,
+          })
+        )
+      : games.filter((g) => g.status === filter);
 
   const isLoading = authLoading || (!!user && loading);
 
@@ -362,7 +406,7 @@ export default function MyGamesPage() {
                             <h3 className="text-lg font-semibold text-foreground">
                               {game.title}
                             </h3>
-                            {getStatusBadge(game.status)}
+                            {getStatusBadge(game)}
                           </div>
 
                           <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
@@ -404,7 +448,12 @@ export default function MyGamesPage() {
                           )}
 
                           {/* Interest Alert */}
-                          {game.interested_count > 0 && game.status === 'open' && (
+                          {game.interested_count > 0 &&
+                            isGameActivelyOpen({
+                              status: game.status,
+                              gameDate: game.game_date,
+                              gameTime: game.game_time,
+                            }) && (
                             <div className="mt-3 p-2 bg-gogo-secondary/10 border border-gogo-secondary/30 rounded text-sm">
                               <AlertCircle className="inline h-4 w-4 text-gogo-primary mr-1" />
                               <span className="text-gogo-primary">
@@ -433,7 +482,11 @@ export default function MyGamesPage() {
                             {t('editGame')}
                           </Link>
                           
-                          {game.status === 'open' && (
+                          {isGameActivelyOpen({
+                            status: game.status,
+                            gameDate: game.game_date,
+                            gameTime: game.game_time,
+                          }) && (
                             <>
                               <button
                                 onClick={() => updateGameStatus(game.id, 'matched')}
@@ -448,6 +501,19 @@ export default function MyGamesPage() {
                                 {t('cancelGame')}
                               </button>
                             </>
+                          )}
+                          {game.status === 'open' &&
+                            !isGameActivelyOpen({
+                              status: game.status,
+                              gameDate: game.game_date,
+                              gameTime: game.game_time,
+                            }) && (
+                            <button
+                              onClick={() => updateGameStatus(game.id, 'cancelled')}
+                              className="text-orange-600 hover:text-orange-800 dark:hover:text-orange-400 text-sm text-left"
+                            >
+                              {t('cancelGame')}
+                            </button>
                           )}
                           
                           {game.status === 'cancelled' && (
@@ -501,7 +567,7 @@ export default function MyGamesPage() {
                           <h3 className="text-lg font-semibold text-foreground">
                             {interest.game_invitations?.title}
                           </h3>
-                          {getStatusBadge(interest.game_invitations?.status)}
+                          {interest.game_invitations && getStatusBadge(interest.game_invitations)}
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">

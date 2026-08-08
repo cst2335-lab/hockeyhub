@@ -141,6 +141,11 @@ Posted game metrics were corrected so creator-side cards and dashboard summaries
 
 Game date classification was corrected so yesterday/past games are not shown in Upcoming. Classification uses local `game_date` + `game_time` vs now (`lib/games/schedule.ts`). Commit message: **`fix: correct game upcoming and past date classification`**. Evidence: [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log).
 
+
+### 7.5 Past games display status
+
+Past games with status=open are now displayed as past/closed and are excluded from active open/upcoming counts. `getGameDisplayStatus` (`lib/games/display-status.ts`) preserves cancelled/matched. Commit message: **`fix: display past games as inactive instead of open`**. Evidence: [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log).
+
 ## 8. Relationship to Assignment 3
 
 Assignment 3 delivered the initial working prototype evidence (Demo 3 checklist, limitations, walkthrough). Assignment 4 keeps that evidence and adds finalization docs, `.env.example`, README reframing, Stripe boundary documentation, and recorded finalization bug fixes for submission.
