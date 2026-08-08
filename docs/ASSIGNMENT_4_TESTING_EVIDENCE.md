@@ -125,7 +125,7 @@ Posted game metrics were corrected so creator-side cards and dashboard summaries
 |------|--------|
 | Bug | My Posted Games showed `0 views` / `0 interested` while `game_views` / `game_interests` (and interest notifications) already had rows; denormalized `view_count` / `interested_count` were stale because non-owners cannot UPDATE `game_invitations` under RLS |
 | Fix | Live metrics via `GET /api/games/posted-metrics` + `lib/games/posted-metrics.ts`; dashboard / my-games enrich cards from `game_views` and active `game_interests`; `syncInterestedCount` uses service role |
-| Commit message | `fix: correct posted game view and interest metrics` |
+| Commit | `0246bde` (`fix: correct posted game view and interest metrics`) |
 | Tests | `__tests__/lib/games/posted-metrics.test.ts` |
 | Verifiable log | [evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) — **23 files, 120/120 passed** |
 | Lint | `npm run lint` — no ESLint warnings/errors (Next deprecation notice only) |
