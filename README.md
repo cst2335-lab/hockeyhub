@@ -104,13 +104,14 @@ Details: [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md
 
 ---
 
-## Testing
+## Testing and lint
 
 ```bash
 npm run test
+npm run lint
 ```
 
-Runs Vitest under `__tests__/`. Manual paths and evidence: [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md).
+`npm run test` runs Vitest under `__tests__/`. `npm run lint` runs ESLint via the Next.js lint script. Manual paths and evidence: [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md).
 
 ---
 
