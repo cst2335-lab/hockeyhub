@@ -100,7 +100,7 @@ See [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.
 - Live RLS verification on remote Supabase as fully confirmed
 - Browser E2E automated suite (Playwright/Cypress)
 
-Details: [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md).
+Details: [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md) · [docs/ASSIGNMENT_4_FEATURE_TRACEABILITY.md](./docs/ASSIGNMENT_4_FEATURE_TRACEABILITY.md).
 
 ---
 
@@ -132,6 +132,7 @@ Stripe webhook boundary / technical debt: [docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md]
 | Document | Purpose |
 |----------|---------|
 | [docs/ASSIGNMENT_4_FINALIZATION.md](./docs/ASSIGNMENT_4_FINALIZATION.md) | Final feature status and limitations |
+| [docs/ASSIGNMENT_4_FEATURE_TRACEABILITY.md](./docs/ASSIGNMENT_4_FEATURE_TRACEABILITY.md) | A1/A2 → code → final status matrix |
 | [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md) | Local run, tests, demo paths, evidence |
 | [docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md](./docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md) | Stripe webhook boundary and debt |
 | [docs/ASSIGNMENT_4_CODE_PACKAGE_NOTES.md](./docs/ASSIGNMENT_4_CODE_PACKAGE_NOTES.md) | Final code package notes |
