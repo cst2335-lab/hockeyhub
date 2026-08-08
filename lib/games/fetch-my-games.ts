@@ -6,27 +6,37 @@ import {
 } from '@/lib/games/posted-metrics';
 
 /**
+ * Minimal query surface used by this helper.
+ * Kept shallow on purpose: assigning the real Supabase client into a deep
+ * structural type causes "Type instantiation is excessively deep".
+ */
+type MyGamesQueryResult = {
+  data: unknown[] | null;
+  error: { message?: string } | null;
+};
+
+type MyGamesDb = {
+  from: (table: string) => {
+    select: (columns: string) => {
+      eq: (column: string, value: string) => {
+        order: (column: string, opts: { ascending: boolean }) => PromiseLike<MyGamesQueryResult>;
+      };
+    };
+  };
+};
+
+/**
  * Load the current user's posted games + games they are interested in,
  * enriching posted games with live view/interest metrics from `/api/games/posted-metrics`.
  */
 export async function fetchMyGamesWithLiveMetrics<TGame extends PostedGameMetricRow>(params: {
-  // Supabase JS client (browser); kept structural to avoid generated Database coupling.
-  supabase: {
-    from: (table: string) => {
-      select: (columns: string) => {
-        eq: (column: string, value: string) => {
-          order: (
-            column: string,
-            opts: { ascending: boolean }
-          ) => PromiseLike<{ data: unknown[] | null; error: { message?: string } | null }>;
-        };
-      };
-    };
-  };
+  /** Browser/server Supabase client. Typed as unknown to avoid deep generic instantiation. */
+  supabase: unknown;
   userId: string;
   fetchMetrics?: () => Promise<Record<string, LiveMetricCounts>>;
 }) {
-  const { supabase, userId } = params;
+  const { userId } = params;
+  const supabase = params.supabase as MyGamesDb;
 
   const [gamesRes, interestsRes] = await Promise.all([
     supabase
