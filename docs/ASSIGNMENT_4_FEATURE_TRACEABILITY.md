@@ -31,10 +31,10 @@
 | Browse Ottawa ice rinks | Rinks list / data model | `rinks/page.tsx`, `lib/queries/rinks.ts` | Implemented |
 | Reserve ice time (booking) | Booking flow | `book/[rinkId]/page.tsx`, bookings APIs | Partially supported (form + create-checkout; **Stripe E2E not claimed**) |
 | Online payment | Payment design (Checkout + webhook) | `/api/bookings/create-checkout`, `/api/webhooks/stripe`, `/api/stripe/webhook`, `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md` | Partially supported (**no full E2E claim**) |
-| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`; capacity helper `lib/games/capacity.ts` (fix `3a8f969`: full only when `maxPlayers > 0` and `currentPlayers >= maxPlayers`; tests in `__tests__/lib/games/capacity.test.ts`) | Implemented (host accept incomplete; capacity full-state corrected and unit-tested) |
+| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`, `/api/games/view` (service-role view persist + `game_views` dedupe); capacity helper `lib/games/capacity.ts` | Implemented (host accept incomplete; capacity + view-count demo fixes unit-tested) |
 | Confirm / match games | Matching design | No `game_matches` usage in app code | Not implemented (**do not claim automatic matching**) |
 | User-to-user messaging | Messaging module | No messages module / table usage | Not implemented (**do not claim direct messaging**) |
-| Notifications / alerts | Notifications design | `notifications/page.tsx`, `useNotifications.ts`; some DB triggers | Partially supported (UI yes; full auto-create incomplete) |
+| Notifications / alerts | Notifications design | `notifications/page.tsx`, `useNotifications.ts`; interest-create DB trigger; interest-remove API notify (`lib/notifications/interest-removed.ts`) | Partially supported (UI yes; create+remove interest notify; host accept / booking events incomplete) |
 | Clubs / roles | AuthZ / RBAC design | Clubs pages + API; `manage-rink` guard; `docs/ROLES_AND_ROUTE_GUARDS.md` | Partially supported (**full RBAC not claimed**) |
 | Data security / RLS | Security design / ERD policies | `scripts/sql/supabase-rls.sql` | Documented only / partially applied (**live RLS not claimed as fully verified**) |
 | i18n (en/fr) | Localization | `next-intl`, `messages/en.json`, `messages/fr.json` | Implemented |

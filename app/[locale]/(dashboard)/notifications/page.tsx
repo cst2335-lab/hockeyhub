@@ -45,6 +45,8 @@ export default function NotificationsPage() {
         return '🏒';
       case 'interest_accepted':
         return '✅';
+      case 'interest_removed':
+        return '↩️';
       case 'game_cancelled':
         return '❌';
       case 'game_updated':
@@ -60,6 +62,8 @@ export default function NotificationsPage() {
         return 'bg-gogo-secondary/20 text-gogo-primary';
       case 'interest_accepted':
         return 'bg-green-100 text-green-800';
+      case 'interest_removed':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300';
       case 'game_cancelled':
         return 'bg-red-100 text-red-800';
       case 'game_updated':

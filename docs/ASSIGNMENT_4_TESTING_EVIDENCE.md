@@ -1,4 +1,4 @@
-# Assignment 4 Testing Evidence â€“ GoGoHockey
+# Assignment 4 Testing Evidence â€?GoGoHockey
 
 **Course:** CST8319 Assignment 4 (final submission)  
 **Updated:** 2026-08-08  
@@ -35,7 +35,7 @@ Do **not** invent PASS results. Do **not** claim Stripe E2E payment or a product
 | Branch / commit | `main` @ `796db52` (evidence log header may show earlier hash from capture time) |
 | Node / npm | Node `v24.6.0` / npm `11.5.1` (from evidence log) |
 | Supabase `.env.local` configured? | Not asserted by the automated capture |
-| Stripe keys configured? | Not required for T1â€“T3 â€” **Stripe E2E not run** |
+| Stripe keys configured? | Not required for T1â€“T3 â€?**Stripe E2E not run** |
 
 **Verifiable automated artifact:** [evidence/assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log)
 
@@ -64,7 +64,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (post capacity fix):** [assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) â€” `Test Files  19 passed (19)`, `Tests  97 passed (97)`, `TEST_EXIT=0` (includes `__tests__/lib/games/capacity.test.ts`). Earlier baseline log (pre-fix): [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log) had 18/90. |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (demo-flow fixes):** [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) â€?`Test Files  22 passed (22)`, `Tests  112 passed (112)`. Prior capacity-fix log: [assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) (19/97). |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -87,12 +87,33 @@ During local Assignment 4 demo verification, homepage game cards showed **Player
 | Item | Detail |
 |------|--------|
 | Bug | `game-card-working.tsx` treated `null`/`0` max capacity as full (`null` coerces to `0`, so `spotsLeft <= 0`) |
-| Fix commit | `3a8f969` â€” `fix: correct game capacity full-state logic` |
+| Fix commit | `3a8f969` â€?`fix: correct game capacity full-state logic` |
 | Code | `lib/games/capacity.ts`; card uses `getGameCapacityState`; shows `0 / Open`, progress 0%, label Open, CTA Join Game when capacity unknown |
 | Tests | `__tests__/lib/games/capacity.test.ts` |
-| Verifiable log | [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) â€” **19 files, 97/97 passed** |
+| Verifiable log | [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) â€?**19 files, 97/97 passed** |
 
 No screenshots invented. Stripe E2E remains **N/A**.
+
+### Final Demo Flow Fixes
+
+Local Assignment 4 demo found three consistency bugs. Fixed in commit message **`fix: align dashboard game and notification demo flows`** (see `git log --oneline` on `main` for the hash after this lands).
+
+| Issue | Root cause | Fix | Status |
+|-------|------------|-----|--------|
+| Game views stuck at 0 | RLS allows only creators to `UPDATE game_invitations`, so `/api/games/view` never persisted `view_count` for other viewers | Service-role write + `game_views` per-user dedupe; detail page applies returned `viewCount` | Fixed |
+| Dashboard â€œUpcoming Bookingsâ€?stayed at 1 after cancel | Metrics query counted all future-dated bookings including `cancelled` | Exclude cancelled; count only `pending` / `confirmed` / `paid` on/after today (`lib/booking/upcoming.ts`); UI prefers same list as My Bookings | Fixed |
+| No notification when interest removed | Remove-interest APIs deleted the row only | Best-effort `interest_removed` notification to creator (skip if remover is creator); insert failure does not fail remove | Fixed |
+
+| Item | Detail |
+|------|--------|
+| Code | `app/api/games/view/route.ts`, `lib/games/record-view.ts`, `lib/booking/upcoming.ts`, `lib/notifications/interest-removed.ts`, interest remove routes, `dashboard/page.tsx`, game detail page |
+| Tests | `__tests__/lib/games/record-view.test.ts`, `__tests__/lib/booking/upcoming.test.ts`, `__tests__/lib/notifications/interest-removed.test.ts` |
+| Verifiable log | [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) â€?**22 files, 112/112 passed** |
+| Optional SQL | `scripts/sql/game-views-unique-index.sql` (unique `(game_id, viewer_id)`; app already dedupes via SELECT) |
+| Lint | `npm run lint` â€?no ESLint warnings/errors (Next deprecation notice only) |
+| Non-claims | Stripe E2E, production URL, messaging, automatic matching â€?unchanged |
+
+Anonymous / unauthenticated game views are **not** counted (auth required for `/api/games/view`); this matches the detail page guard.
 
 ### Summary mirror (do not invent PASS)
 
@@ -112,10 +133,10 @@ Historical Assignment 3 UI notes only: [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TE
 
 | # | Step | Result | Notes |
 |---|------|--------|-------|
-| S1 | Confirm booking â†’ Stripe Checkout redirect (test mode) | N/A | Not executed |
+| S1 | Confirm booking â†?Stripe Checkout redirect (test mode) | N/A | Not executed |
 | S2 | Complete test payment | N/A | Not executed |
 | S3 | Webhook updates booking to `confirmed` | N/A | Not executed |
-| S4 | Screenshot / log attached (no secrets) | N/A | â€” |
+| S4 | Screenshot / log attached (no secrets) | N/A | â€?|
 
 Booking form and checkout/webhook **routes are partially supported**. Do not claim full Stripe E2E.
 
@@ -133,8 +154,8 @@ Demo 3 checklist (2026-07-26) is historical UI evidence only. Assignment 4 autom
 
 | Role | Name | Date | Initials |
 |------|------|------|----------|
-| Automated capture | See `docs/evidence/assignment-4-automated-commands-2026-08-08.log` | 2026-08-08 | â€” |
-| Manual demo checklist | See `docs/evidence/assignment-4-manual-demo-checklist-2026-08-08.md` | 2026-08-08 | â€” |
+| Automated capture | See `docs/evidence/assignment-4-automated-commands-2026-08-08.log` | 2026-08-08 | â€?|
+| Manual demo checklist | See `docs/evidence/assignment-4-manual-demo-checklist-2026-08-08.md` | 2026-08-08 | â€?|
 | Human reviewer (confirm video / screenshots) | TODO | TODO | TODO |
 
 ---

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
+import { notifyInterestRemoved } from '@/lib/notifications/interest-removed';
 import { gameInterestSchema } from '@/lib/validations/game';
 import { sanitizeOptionalText } from '@/lib/utils/sanitize';
 
@@ -108,6 +109,13 @@ export async function DELETE(request: NextRequest) {
 
   const { gameId } = parsed.data;
   const supabase = await createClient();
+
+  const { data: game } = await supabase
+    .from('game_invitations')
+    .select('id, title, created_by')
+    .eq('id', gameId)
+    .maybeSingle();
+
   const { error: deleteError } = await supabase
     .from('game_interests')
     .delete()
@@ -123,5 +131,20 @@ export async function DELETE(request: NextRequest) {
   }
 
   const interestedCount = await syncInterestedCount(supabase, gameId);
+
+  try {
+    if (game?.created_by) {
+      await notifyInterestRemoved({
+        client: supabase,
+        creatorId: game.created_by,
+        removerId: user.id,
+        gameId,
+        gameTitle: game.title,
+      });
+    }
+  } catch (e) {
+    console.error('Remove-interest notification error:', e);
+  }
+
   return NextResponse.json({ ok: true, interestedCount });
 }

@@ -8,6 +8,11 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useBookings } from '@/lib/hooks';
+import {
+  ACTIVE_UPCOMING_BOOKING_STATUSES,
+  countUpcomingBookings,
+  todayIsoDate,
+} from '@/lib/booking/upcoming';
 import { useTranslations } from 'next-intl';
 import { formatCurrency, formatDateByLocale } from '@/lib/utils/format';
 import {
@@ -115,12 +120,14 @@ export default function DashboardPage() {
   const { data: metrics, isLoading: metricsLoading, isError } = useQuery({
     queryKey: ['dashboard-metrics'],
     queryFn: async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayStr = today.toISOString().slice(0, 10);
+      const todayStr = todayIsoDate();
       const [gamesRes, bookingsRes, rinksRes] = await Promise.all([
         supabase.from('game_invitations').select('*', { count: 'exact', head: true }).eq('status', 'open'),
-        supabase.from('bookings').select('*', { count: 'exact', head: true }).gte('booking_date', todayStr),
+        supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .gte('booking_date', todayStr)
+          .in('status', [...ACTIVE_UPCOMING_BOOKING_STATUSES]),
         supabase.from('rinks').select('*', { count: 'exact', head: true }),
       ]);
       return {
@@ -130,6 +137,12 @@ export default function DashboardPage() {
       };
     },
   });
+
+  // Prefer client-side count from the same bookings list shown below (excludes cancelled).
+  const upcomingBookingsCount = useMemo(
+    () => countUpcomingBookings(bookings, todayIsoDate()),
+    [bookings]
+  );
 
   const { data: myGamesData, isLoading: myGamesLoading } = useQuery({
     queryKey: ['my-games', user?.id],
@@ -335,7 +348,9 @@ export default function DashboardPage() {
           </div>
           <div className="rounded-xl border border-border bg-card px-6 py-3">
             <span className="text-sm text-muted-foreground">{t('upcomingBookings')}</span>
-            <span className="ml-2 text-xl font-bold text-gogo-primary">{metrics!.bookingsUpcoming}</span>
+            <span className="ml-2 text-xl font-bold text-gogo-primary">
+              {bookingsLoading ? (metrics?.bookingsUpcoming ?? 0) : upcomingBookingsCount}
+            </span>
           </div>
           <div className="rounded-xl border border-border bg-card px-6 py-3">
             <span className="text-sm text-muted-foreground">{t('totalRinks')}</span>

@@ -154,14 +154,22 @@ export default function GameDetailsPage() {
         }
       }
 
-      // increment views (only non-creator & logged-in)
+      // Record view (non-creator, logged-in). Deduped per user via game_views.
       if (auth.user && g.created_by !== auth.user.id) {
-        await fetch('/api/games/view', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ gameId: id }),
-        });
+        try {
+          const viewRes = await fetch('/api/games/view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ gameId: id }),
+          });
+          const viewData = await viewRes.json().catch(() => ({}));
+          if (viewRes.ok && typeof viewData.viewCount === 'number') {
+            setGame((prev) => (prev ? { ...prev, view_count: viewData.viewCount } : prev));
+          }
+        } catch (viewErr) {
+          console.error('game view increment failed:', viewErr);
+        }
       }
     } catch (e) {
       console.error('loadGameDetails error:', e);

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
+import { decideGameViewRecord, nextViewCount } from '@/lib/games/record-view';
 import { gameViewSchema } from '@/lib/validations/game';
 
 export async function POST(request: NextRequest) {
@@ -44,14 +46,54 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (game.created_by === user.id) {
-    return NextResponse.json({ ok: true, skipped: 'owner' });
+  const currentCount = Number(game.view_count || 0);
+
+  // Prefer service client: RLS only allows creators to UPDATE game_invitations,
+  // and game_views has RLS enabled without public insert policies.
+  let writer: ReturnType<typeof createServiceClient> | Awaited<ReturnType<typeof createClient>>;
+  try {
+    writer = createServiceClient();
+  } catch (e) {
+    console.error('Game view service client unavailable, falling back to user client:', e);
+    writer = supabase;
   }
 
-  const currentCount = Number(game.view_count || 0);
-  const { error: updateError } = await supabase
+  const { data: existingView } = await writer
+    .from('game_views')
+    .select('id')
+    .eq('game_id', gameId)
+    .eq('viewer_id', user.id)
+    .maybeSingle();
+
+  const decision = decideGameViewRecord({
+    viewerId: user.id,
+    creatorId: game.created_by,
+    alreadyViewed: !!existingView,
+  });
+
+  if (decision !== 'record') {
+    return NextResponse.json({
+      ok: true,
+      skipped: decision,
+      viewCount: currentCount,
+    });
+  }
+
+  const { error: insertViewError } = await writer.from('game_views').insert({
+    game_id: gameId,
+    viewer_id: user.id,
+  });
+
+  if (insertViewError) {
+    // Prefer continuing with view_count update so demo views still work when
+    // game_views writes are blocked; unique races are uncommon without a DB constraint.
+    console.error('Insert game_views error (continuing with view_count):', insertViewError);
+  }
+
+  const viewCount = nextViewCount(currentCount, decision);
+  const { error: updateError } = await writer
     .from('game_invitations')
-    .update({ view_count: currentCount + 1 })
+    .update({ view_count: viewCount })
     .eq('id', gameId);
 
   if (updateError) {
@@ -62,5 +104,5 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, viewCount: currentCount + 1 });
+  return NextResponse.json({ ok: true, viewCount });
 }

@@ -28,11 +28,11 @@ Assignment 4 finalizes documentation and submission packaging for the existing G
 | Supabase Auth (login / register / logout) | Implemented | Auth clients + session cookies |
 | Profile view / update | Implemented | Profile pages + `/api/profile/update` |
 | Dashboard | Implemented | Metrics, posted games, bookings (env-dependent) |
-| Games list / create / detail / interest | Implemented | Interest API notification trigger fix (SQL); capacity “Game Full” UI fix `3a8f969` |
+| Games list / create / detail / interest | Implemented | Interest API notification trigger fix (SQL); capacity “Game Full” UI fix `3a8f969`; view-count + remove-interest notify demo-flow fixes |
 | Rinks browse / search / filter / sort | Implemented | Supabase-backed list UI |
-| Booking form + create-checkout | Partially supported | Form and API exist; **Stripe E2E not claimed** |
+| Booking form + create-checkout | Partially supported | Form and API exist; **Stripe E2E not claimed**; upcoming booking metric excludes cancelled |
 | Stripe webhooks | Partially supported | Handlers + idempotency helpers exist; dual path debt documented |
-| Notifications UI | Implemented (UI) | List / read / delete; auto-create incomplete |
+| Notifications UI | Implemented (UI) + partial auto-create | List / read / delete; interest create (DB trigger) + interest remove (API) notify creator; host accept / booking events incomplete |
 | Clubs / rink manager | Partially supported | Code present; not primary final demo claim |
 | Unit tests (Vitest) | Implemented | `__tests__/` |
 | Docs + finalization evidence | Implemented | This file and related A4 docs |
@@ -68,7 +68,9 @@ Show carefully; use precise language:
 ### Notifications
 
 - Users can view and manage notifications in the UI.
-- Some database-side notification triggers exist for game interest; host accept and full event coverage remain incomplete.
+- Game interest **create** notifies the creator via DB trigger (schema-aligned).
+- Game interest **remove** notifies the creator via API (`interest_removed`); failure is non-blocking.
+- Host accept-interest and booking-event auto notifications remain incomplete.
 
 ### Auth guarding
 
@@ -111,9 +113,21 @@ Stripe technical boundary: [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRI
 
 ---
 
-## 7. Finalization bug resolution (game capacity)
+## 7. Finalization bug resolution
 
-During local final-demo verification, homepage cards showed **Players 0/** and **Game Full** when `max_players` was null/0. Cause: capacity math coerced null to 0. Fixed in commit **`3a8f969`** (`lib/games/capacity.ts` + card UI + unit tests). Verifiable test log: [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) (**97/97**). This is documentation of a concrete bugfix during Assignment 4 finalization—not a claim of new product features.
+### 7.1 Game capacity (homepage cards)
+
+During local final-demo verification, homepage cards showed **Players 0/** and **Game Full** when max_players was null/0. Cause: capacity math coerced null to 0. Fixed in commit **3a8f969** (lib/games/capacity.ts + card UI + unit tests). Verifiable test log: [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) (**97/97**).
+
+### 7.2 Demo-flow consistency (views, bookings metric, remove-interest notify)
+
+| Fix | Summary |
+|-----|---------|
+| Game views | Persist views for non-owners via service client + game_views dedupe; UI updates iew_count |
+| Upcoming bookings | Cancelled bookings excluded from dashboard upcoming count |
+| Remove interest | Creator receives interest_removed notification (best-effort) |
+
+Commit message: **ix: align dashboard game and notification demo flows**. Evidence: [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (**112/112**). These are concrete demo-flow bug fixes—not claims of Stripe E2E, messaging, matching, or production deployment.
 
 ---
 
