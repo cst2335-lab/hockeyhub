@@ -62,8 +62,8 @@ This list is for the Assignment 3 report and Demo 3 video. It states what the te
 | Prefer saying | Avoid saying |
 |---------------|--------------|
 | “Implemented in code and demonstrated locally…” | “Fully production-ready payment system” |
-| “Booking form and checkout route are in place; payment verification is Assignment 4…” | “Stripe payments are complete” |
-| “Notifications UI is available; auto-create is planned for Assignment 4…” | “The system notifies users automatically for all events” |
+| “Booking form and checkout route are in place; Stripe E2E remains unverified / partially supported…” | “Stripe payments are complete” |
+| “Notifications UI is available; auto-create coverage is incomplete…” | “The system notifies users automatically for all events” |
 | “Unit tests pass (see checklist)…” | “Fully tested end-to-end” |
 | “Cannot be confirmed from the repository alone…” | “Deployed and used by real users” (unless proven) |
 
