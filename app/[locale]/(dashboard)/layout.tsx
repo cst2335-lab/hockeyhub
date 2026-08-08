@@ -40,9 +40,15 @@ export default function DashboardLayout({
   const [unreadCount, setUnreadCount] = useState(0);
   const [isRinkManager, setIsRinkManager] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // Avoid hydrating interactive nav against DOM mutated by browser tooling/extensions.
+  const [navReady, setNavReady] = useState(false);
 
   // Build a localized href safely (avoid double slashes)
   const withLocale = (p: string) => `/${locale || ''}${p}`.replace('//', '/');
+
+  useEffect(() => {
+    setNavReady(true);
+  }, []);
 
   useEffect(() => {
     checkUser();
@@ -163,7 +169,13 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Navigation — Disclosure pattern like main Navbar, no overflow scrollbar */}
+      {!navReady ? (
+        <header
+          className="sticky top-0 z-40 h-16 bg-gogo-primary shadow-lg border-b border-gogo-secondary"
+          aria-hidden
+          suppressHydrationWarning
+        />
+      ) : (
       <Disclosure
         as="header"
         className="group sticky top-0 z-40 bg-gogo-primary text-white shadow-lg border-b border-gogo-secondary transition-colors"
@@ -172,7 +184,12 @@ export default function DashboardLayout({
         <div className="relative flex h-16 items-center justify-between gap-4">
           {/* Logo + desktop nav — lg only, no overflow */}
           <div className="flex items-center gap-4 lg:gap-6 shrink-0">
-            <Link href={withLocale('/')} className="group shrink-0" aria-label="Go home">
+            <Link
+              href={withLocale('/')}
+              className="group shrink-0"
+              aria-label="Go home"
+              suppressHydrationWarning
+            >
               <Logo size="md" showText={false} light={true} className="group-hover:opacity-90 transition-opacity" />
             </Link>
 
@@ -385,12 +402,13 @@ export default function DashboardLayout({
 
         <div className="h-[3px] w-full bg-gradient-to-r from-gogo-primary via-gogo-secondary to-gogo-primary" />
       </Disclosure>
+      )}
 
       {/* Page Content — pb for mobile bottom nav */}
       <main className="pb-14 lg:pb-0">{children}</main>
 
       {/* Mobile-only bottom nav: Play, Community, Dashboard, Profile */}
-      <BottomNav />
+      {navReady ? <BottomNav /> : <div className="lg:hidden h-14" aria-hidden />}
     </div>
   );
 }

@@ -91,3 +91,35 @@ export function localIsoDate(now: Date = new Date()): string {
   const d = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+/**
+ * Format a stored game_date for list UI using local calendar parts.
+ * Pass an explicit `now` (prefer client clock after mount) so SSR/client labels match.
+ */
+export function formatGameListDate(
+  dateStr: string | null | undefined,
+  now: Date = new Date(),
+  locale: string = 'en-US'
+): string {
+  if (!dateStr) return 'TBD';
+  const parts = parseLocalDateParts(dateStr);
+  const d = parts
+    ? new Date(parts.year, parts.month - 1, parts.day)
+    : new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return String(dateStr);
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round((dayOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  let relative = '';
+  if (diffDays === 0) relative = ' (Today)';
+  else if (diffDays === 1) relative = ' (Tomorrow)';
+  else if (diffDays === -1) relative = ' (Yesterday)';
+  else if (diffDays < -1) relative = ` (${Math.abs(diffDays)} days ago)`;
+  else if (diffDays > 1 && diffDays <= 7) relative = ` (In ${diffDays} days)`;
+
+  return (
+    d.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' }) + relative
+  );
+}

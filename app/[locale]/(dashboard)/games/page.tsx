@@ -30,7 +30,8 @@ import {
   getGameDisplayStatusLabel,
   type GameDisplayStatus,
 } from '@/lib/games/display-status';
-import { isGamePast } from '@/lib/games/schedule';
+import { formatGameListDate, isGamePast, parseLocalDateParts } from '@/lib/games/schedule';
+import { useClientNow } from '@/lib/hooks/useClientNow';
 
 type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
@@ -56,10 +57,16 @@ type SortBy = 'date' | 'interest' | 'views' | 'recommended';
 
 const PAGE_SIZE = 20;
 
+function normalizeOpenStatus(status: GameStatus): GameDisplayStatus {
+  if (status === 'matched' || status === 'closed' || status === 'cancelled') return status;
+  return 'open';
+}
+
 export default function GamesPage() {
   const { locale } = useParams<{ locale: string }>();
   const t = useTranslations('games');
   const supabase = useMemo(() => createClient(), []);
+  const clientNow = useClientNow();
 
   // Fetch games with React Query
   const { data: gamesData, isLoading: loading } = useQuery({
@@ -69,20 +76,26 @@ export default function GamesPage() {
     refetchOnMount: 'always',
   });
 
-  // Recompute past/open at render time so badges stay correct after kickoff.
+  // Recompute past/open with the client clock (after mount) so SSR/hydrate match.
   const games = useMemo(() => {
-    const now = new Date();
     return (gamesData ?? []).map((g) => {
+      if (!clientNow) {
+        return {
+          ...g,
+          displayStatus: (g.displayStatus ?? normalizeOpenStatus(g.status)) as GameDisplayStatus,
+          isExpired: Boolean(g.isExpired),
+        };
+      }
       const displayStatus = getGameDisplayStatus({
         status: g.status,
         gameDate: g.game_date,
         gameTime: g.game_time,
-        now,
+        now: clientNow,
       });
-      const isExpired = isGamePast(g.game_date, g.game_time, now) || displayStatus === 'past';
+      const isExpired = isGamePast(g.game_date, g.game_time, clientNow) || displayStatus === 'past';
       return { ...g, displayStatus, isExpired };
     });
-  }, [gamesData]);
+  }, [gamesData, clientNow]);
 
   // User preferences for "Recommended" sort (age_group, skill_level, area)
   const { data: userPrefs } = useQuery({
@@ -103,8 +116,8 @@ export default function GamesPage() {
 
   const prevFiltersRef = useRef<string>('');
 
-  // UI state
-  const [dateFilter, setDateFilter] = useState<DateFilter>('upcoming');
+  // Default All so past games stay visible (Upcoming alone looks like they vanished).
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [ageGroupFilter, setAgeGroupFilter] = useState('all');
   const [skillLevelFilter, setSkillLevelFilter] = useState('all');
@@ -196,7 +209,7 @@ export default function GamesPage() {
     setAgeGroupFilter('all');
     setSkillLevelFilter('all');
     setLocationFilter('');
-    setDateFilter('upcoming');
+    setDateFilter('all');
     setSortBy('date');
   };
 
@@ -210,31 +223,18 @@ export default function GamesPage() {
     );
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'TBD';
-    // Parse YYYY-MM-DD as local calendar date (avoid UTC midnight shifting the day).
-    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr.trim());
-    const d = m
-      ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
-      : new Date(dateStr);
-    if (Number.isNaN(d.getTime())) return dateStr;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dayOnly = new Date(d);
-    dayOnly.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((dayOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    let relative = '';
-    if (diffDays === 0) relative = ' (Today)';
-    else if (diffDays === 1) relative = ' (Tomorrow)';
-    else if (diffDays === -1) relative = ' (Yesterday)';
-    else if (diffDays < -1) relative = ` (${Math.abs(diffDays)} days ago)`;
-    else if (diffDays > 1 && diffDays <= 7) relative = ` (In ${diffDays} days)`;
-
-    return (
-      d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
-      relative
-    );
+    // Absolute calendar label only until client clock is ready (avoids relative SSR drift).
+    if (!clientNow) {
+      if (!dateStr) return 'TBD';
+      const parts = parseLocalDateParts(dateStr);
+      if (!parts) return dateStr;
+      return new Date(parts.year, parts.month - 1, parts.day).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+    return formatGameListDate(dateStr, clientNow);
   };
 
   if (loading) {

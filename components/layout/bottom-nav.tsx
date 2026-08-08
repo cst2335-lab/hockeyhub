@@ -29,6 +29,7 @@ export default function BottomNav() {
     <nav
       className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]"
       aria-label="Main navigation"
+      suppressHydrationWarning
     >
       <div className="grid grid-cols-4 h-14 max-w-lg mx-auto">
         {items.map((item) => {

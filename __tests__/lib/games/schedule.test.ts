@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatGameListDate,
   getGameScheduledAt,
   isGamePast,
   isGameUpcoming,
@@ -66,5 +67,20 @@ describe('game upcoming/past classification', () => {
   it('localIsoDate avoids UTC toISOString drift', () => {
     const evening = new Date(2026, 7, 8, 21, 0, 0);
     expect(localIsoDate(evening)).toBe('2026-08-08');
+  });
+});
+
+describe('formatGameListDate', () => {
+  const now = new Date(2026, 7, 8, 15, 0, 0); // Aug 8 local
+
+  it('shows Today for stored 2026-08-08, not Yesterday from UTC parsing', () => {
+    const label = formatGameListDate('2026-08-08', now);
+    expect(label).toContain('Aug 8');
+    expect(label).toContain('(Today)');
+    expect(label).not.toContain('Yesterday');
+  });
+
+  it('shows Yesterday for 2026-08-07', () => {
+    expect(formatGameListDate('2026-08-07', now)).toContain('(Yesterday)');
   });
 });
