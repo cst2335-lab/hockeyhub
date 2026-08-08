@@ -31,7 +31,7 @@
 | Browse Ottawa ice rinks | Rinks list / data model | `rinks/page.tsx`, `lib/queries/rinks.ts` | Implemented |
 | Reserve ice time (booking) | Booking flow | `book/[rinkId]/page.tsx`, bookings APIs | Partially supported (form + create-checkout; **Stripe E2E not claimed**) |
 | Online payment | Payment design (Checkout + webhook) | `/api/bookings/create-checkout`, `/api/webhooks/stripe`, `/api/stripe/webhook`, `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md` | Partially supported (**no full E2E claim**) |
-| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest` | Implemented (host accept incomplete) |
+| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`; capacity helper `lib/games/capacity.ts` (fix `3a8f969`: full only when `maxPlayers > 0` and `currentPlayers >= maxPlayers`; tests in `__tests__/lib/games/capacity.test.ts`) | Implemented (host accept incomplete; capacity full-state corrected and unit-tested) |
 | Confirm / match games | Matching design | No `game_matches` usage in app code | Not implemented (**do not claim automatic matching**) |
 | User-to-user messaging | Messaging module | No messages module / table usage | Not implemented (**do not claim direct messaging**) |
 | Notifications / alerts | Notifications design | `notifications/page.tsx`, `useNotifications.ts`; some DB triggers | Partially supported (UI yes; full auto-create incomplete) |

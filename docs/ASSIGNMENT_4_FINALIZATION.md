@@ -28,7 +28,7 @@ Assignment 4 finalizes documentation and submission packaging for the existing G
 | Supabase Auth (login / register / logout) | Implemented | Auth clients + session cookies |
 | Profile view / update | Implemented | Profile pages + `/api/profile/update` |
 | Dashboard | Implemented | Metrics, posted games, bookings (env-dependent) |
-| Games list / create / detail / interest | Implemented | Interest API fixed for notification trigger mismatch (see SQL scripts) |
+| Games list / create / detail / interest | Implemented | Interest API notification trigger fix (SQL); capacity “Game Full” UI fix `3a8f969` |
 | Rinks browse / search / filter / sort | Implemented | Supabase-backed list UI |
 | Booking form + create-checkout | Partially supported | Form and API exist; **Stripe E2E not claimed** |
 | Stripe webhooks | Partially supported | Handlers + idempotency helpers exist; dual path debt documented |
@@ -111,9 +111,15 @@ Stripe technical boundary: [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRI
 
 ---
 
-## 7. Relationship to Assignment 3
+## 7. Finalization bug resolution (game capacity)
 
-Assignment 3 delivered the initial working prototype evidence (Demo 3 checklist, limitations, walkthrough). Assignment 4 keeps that evidence and adds finalization docs, `.env.example`, README reframing, and Stripe boundary documentation for final submission.
+During local final-demo verification, homepage cards showed **Players 0/** and **Game Full** when `max_players` was null/0. Cause: capacity math coerced null to 0. Fixed in commit **`3a8f969`** (`lib/games/capacity.ts` + card UI + unit tests). Verifiable test log: [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) (**97/97**). This is documentation of a concrete bugfix during Assignment 4 finalization—not a claim of new product features.
+
+---
+
+## 8. Relationship to Assignment 3
+
+Assignment 3 delivered the initial working prototype evidence (Demo 3 checklist, limitations, walkthrough). Assignment 4 keeps that evidence and adds finalization docs, `.env.example`, README reframing, Stripe boundary documentation, and recorded finalization bug fixes for submission.
 
 ---
 

@@ -64,7 +64,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | Same log: `Test Files  18 passed (18)`, `Tests  90 passed (90)`, `EXIT_CODE=0`. |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (post capacity fix):** [assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) — `Test Files  19 passed (19)`, `Tests  97 passed (97)`, `TEST_EXIT=0` (includes `__tests__/lib/games/capacity.test.ts`). Earlier baseline log (pre-fix): [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log) had 18/90. |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -79,6 +79,20 @@ Manual UI demo-path verification is tracked here:
 That file covers M1–M14 (homepage through GitHub A4 commit history). Most UI rows use **PASS WITH VIDEO EVIDENCE** (planned final demo video; no screenshots committed yet). README presence and A4 git history use **PASS WITH COMMITTED LOG**.
 
 Stripe E2E payment and production deployment remain **N/A** in that checklist.
+
+### Final Demo Bug Fix Evidence
+
+During local Assignment 4 demo verification, homepage game cards showed **Players 0/** and **Game Full** when `max_players` was missing, null, or 0.
+
+| Item | Detail |
+|------|--------|
+| Bug | `game-card-working.tsx` treated `null`/`0` max capacity as full (`null` coerces to `0`, so `spotsLeft <= 0`) |
+| Fix commit | `3a8f969` — `fix: correct game capacity full-state logic` |
+| Code | `lib/games/capacity.ts`; card uses `getGameCapacityState`; shows `0 / Open`, progress 0%, label Open, CTA Join Game when capacity unknown |
+| Tests | `__tests__/lib/games/capacity.test.ts` |
+| Verifiable log | [evidence/assignment-4-game-capacity-fix-test-2026-08-08.log](./evidence/assignment-4-game-capacity-fix-test-2026-08-08.log) — **19 files, 97/97 passed** |
+
+No screenshots invented. Stripe E2E remains **N/A**.
 
 ### Summary mirror (do not invent PASS)
 

@@ -1,0 +1,53 @@
+GoGoHockey — Assignment 4 game capacity fix test capture
+Captured: 2026-08-08 11:22:58 -04:00
+Branch: main
+Commit at capture: 3a8f96932930df77592cf4fadcb995b828650570
+Node: v24.6.0
+npm: 11.5.1
+Purpose: Evidence for fix: correct game capacity full-state logic (3a8f969)
+No secrets included.
+
+=== npm run test ===
+
+> gogohockey@2.0.0 test
+> vitest run
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v2.1.9 D:/鈽呪槄鈽匒lgonquin Collage study/Ecoop_GoGoHockey/Ecoop_GoGoHockey
+
+ 鉁?__tests__/lib/validations/profile.test.ts (6 tests) 13ms
+ 鉁?__tests__/lib/queries/games.test.ts (3 tests) 15ms
+ 鉁?__tests__/lib/validations/game.test.ts (12 tests) 19ms
+ 鉁?__tests__/lib/validations/booking.test.ts (9 tests) 14ms
+ 鉁?__tests__/lib/stripe/webhook-idempotency.test.ts (6 tests) 13ms
+ 鉁?__tests__/lib/games/capacity.test.ts (7 tests) 8ms
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > reports optional column support in test mode
+[sync-ottawa-rinks:d370215d-d37a-4a13-9579-53dc20f4fd18] started at 2026-08-08T15:23:06.141Z
+
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as false on non-missing-column probe failures
+[sync-ottawa-rinks:08ab6ed5-85dc-4fd1-b391-e1a9cd00fb3b] started at 2026-08-08T15:23:06.163Z
+
+stderr | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as false on non-missing-column probe failures
+[sync-ottawa-rinks:08ab6ed5-85dc-4fd1-b391-e1a9cd00fb3b] optional column probe failed for data_source: permission denied for relation rinks
+System.Management.Automation.RemoteException
+ 鉁?__tests__/app/api/sync-ottawa-rinks.route.test.ts (2 tests) 33ms
+ 鉁?__tests__/lib/rinks/card-metadata.test.ts (6 tests) 8ms
+ 鉁?__tests__/lib/security/cron-auth.test.ts (7 tests) 9ms
+ 鉁?__tests__/lib/queries/rinks.test.ts (3 tests) 11ms
+ 鉁?__tests__/lib/utils/sanitize.test.ts (9 tests) 9ms
+ 鉁?__tests__/lib/validations/club.test.ts (3 tests) 11ms
+ 鉁?__tests__/lib/validations/notification.test.ts (4 tests) 12ms
+ 鉁?__tests__/lib/validations/rink.test.ts (3 tests) 11ms
+ 鉁?__tests__/lib/utils/json-ld.test.ts (3 tests) 8ms
+ 鉁?__tests__/lib/booking/conflict-constraint.test.ts (3 tests) 5ms
+ 鉁?__tests__/lib/security/debug-routes.test.ts (3 tests) 5ms
+ 鉁?__tests__/lib/booking/policy-copy.test.ts (2 tests) 5ms
+ 鉁?__tests__/lib/utils/format.test.ts (6 tests) 94ms
+
+ Test Files  19 passed (19)
+      Tests  97 passed (97)
+   Start at  11:23:03
+   Duration  5.55s (transform 1.85s, setup 0ms, collect 6.05s, tests 303ms, environment 9ms, prepare 7.80s)
+
+TEST_EXIT=0
