@@ -6,12 +6,24 @@
 
 ---
 
+## Evidence Policy
+
+| Kind | Requirement to mark PASS |
+|------|--------------------------|
+| Automated (install / test / lint / build) | Committed, secret-free command-output log under `docs/evidence/` |
+| Manual demo path | Screenshot under `docs/evidence/` **or** final demo video evidence (status: `PASS WITH SCREENSHOT` / `PASS WITH VIDEO EVIDENCE`) |
+| Unsupported / unverified | Must remain `TODO` or `N/A` |
+
+Do **not** invent PASS results. Do **not** claim Stripe E2E payment or a production deployment URL without real evidence.
+
+---
+
 ## Instructions
 
 1. Fill **Result** only after actually running the step.  
-2. Allowed values: `TODO` | `PASS` | `FAIL` | `BLOCKED` | `N/A`  
-3. Do **not** invent PASS results.  
-4. For automated commands (install / test / lint / build), a **PASS requires a committed, secret-free output artifact** under `docs/evidence/` (or an equivalent attached log). Counts and exit codes alone in this markdown file are not sufficient evidence.  
+2. Allowed values for automated/manual tables in this file: `TODO` | `PASS` | `FAIL` | `BLOCKED` | `N/A`  
+3. Manual demo checklist statuses also include `PASS WITH VIDEO EVIDENCE`, `PASS WITH SCREENSHOT`, and `PASS WITH COMMITTED LOG` (see linked evidence file).  
+4. For automated commands, a **PASS requires** the committed log linked below.  
 5. Do **not** mark Stripe E2E as PASS unless a real test-mode payment was completed and recorded.
 
 **Environment notes**
@@ -20,12 +32,14 @@
 |------|-------|
 | Tester | Automated command capture (see artifact); human reviewer should confirm the log |
 | Date | 2026-08-08 |
-| Branch / commit | `main` @ `53b5ba2` (commit recorded in evidence log header; may advance after this doc is committed) |
+| Branch / commit | `main` @ `796db52` (evidence log header may show earlier hash from capture time) |
 | Node / npm | Node `v24.6.0` / npm `11.5.1` (from evidence log) |
-| Supabase `.env.local` configured? | Not asserted by this automated capture |
+| Supabase `.env.local` configured? | Not asserted by the automated capture |
 | Stripe keys configured? | Not required for T1–T3 — **Stripe E2E not run** |
 
 **Verifiable automated artifact:** [evidence/assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log)
+
+Automated checks (T1–T3) are supported by that committed log. Manual demo-path checks are tracked **separately** in the manual checklist linked below.
 
 ---
 
@@ -56,23 +70,27 @@ npm run test
 
 ---
 
-## Manual demo path checklist
+## Manual Demo Verification Evidence
 
-| # | Area | Action | Expected | Result | Notes / Evidence |
-|---|------|--------|----------|--------|------------------|
-| 1 | Homepage | Open `/en` | Hero / CTAs load | TODO | Not re-verified in this automated capture. Historical Demo 3 checklist only — do not treat as A4 PASS. |
-| 2 | Navigation | Use menu / bottom nav | Main links reachable | TODO | Not re-verified here |
-| 3 | Login | `/en/login` | Signs in; toward dashboard | TODO | Not re-verified here |
-| 4 | Dashboard | `/en/dashboard` | Loads metrics / sections | TODO | Not re-verified here |
-| 5 | Profile | `/en/profile` | Profile view loads | TODO | Not re-verified here |
-| 6 | Games list | `/en/games` | List or empty state | TODO | Not re-verified here |
-| 7 | Game detail / interest | Open a game; interest if not creator | Detail loads; interest succeeds or clear error | TODO | Not re-verified here |
-| 8 | Rinks | `/en/rinks` | Browse / search / filter usable | TODO | Not re-verified here |
-| 9 | Booking form | `/en/book/[rinkId]` | Date/time/cost UI | TODO | Not re-verified here. **No Stripe E2E claim** |
-| 10 | Notifications | `/en/notifications` | Page / empty state | TODO | Not re-verified here |
-| 11 | Console | DevTools on main path | No blocking app crashes | TODO | Not re-verified here |
+Manual UI demo-path verification is tracked here:
 
-Manual rows remain **TODO**. Historical context only: [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TESTING_CHECKLIST.md) (Assignment 3).
+**[evidence/assignment-4-manual-demo-checklist-2026-08-08.md](./evidence/assignment-4-manual-demo-checklist-2026-08-08.md)**
+
+That file covers M1–M14 (homepage through GitHub A4 commit history). Most UI rows use **PASS WITH VIDEO EVIDENCE** (planned final demo video; no screenshots committed yet). README presence and A4 git history use **PASS WITH COMMITTED LOG**.
+
+Stripe E2E payment and production deployment remain **N/A** in that checklist.
+
+### Summary mirror (do not invent PASS)
+
+| Area | Status in manual checklist | Notes |
+|------|----------------------------|-------|
+| Core UI demo path (M1–M12) | PASS WITH VIDEO EVIDENCE | Pending final Assignment 4 demo video |
+| README setup (M13) | PASS WITH COMMITTED LOG | Root `README.md` |
+| A4 git history (M14) | PASS WITH COMMITTED LOG | `git log` on `main` |
+| Stripe E2E | N/A | Not executed |
+| Production URL | N/A | Not claimed |
+
+Historical Assignment 3 UI notes only: [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TESTING_CHECKLIST.md).
 
 ---
 
@@ -102,8 +120,9 @@ Demo 3 checklist (2026-07-26) is historical UI evidence only. Assignment 4 autom
 | Role | Name | Date | Initials |
 |------|------|------|----------|
 | Automated capture | See `docs/evidence/assignment-4-automated-commands-2026-08-08.log` | 2026-08-08 | — |
-| Human reviewer (required for final claim of manual PASS) | TODO | TODO | TODO |
+| Manual demo checklist | See `docs/evidence/assignment-4-manual-demo-checklist-2026-08-08.md` | 2026-08-08 | — |
+| Human reviewer (confirm video / screenshots) | TODO | TODO | TODO |
 
 ---
 
-*T1–T3 PASS only with the linked evidence log. Manual UI and Stripe E2E remain non-PASS until separately verified with artifacts.*
+*Automated PASS requires the linked command log. Manual demo PASS requires video or screenshot evidence as stated in the manual checklist.*
