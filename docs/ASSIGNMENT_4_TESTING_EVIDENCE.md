@@ -65,7 +65,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (past status display):** [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) — `Test Files  25 passed (25)`, `Tests  138 passed (138)`. |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (Stripe checkout error handling):** [evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log](./evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log) — `Test Files  26 passed (26)`, `Tests  148 passed (148)`. Prior past-status: [assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) (25/138). |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -159,6 +159,22 @@ Past games with status=open are now displayed as past/closed and are excluded fr
 | Tests | `__tests__/lib/games/display-status.test.ts` (+ posted-metrics open count) |
 | Verifiable log | [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) — **25 files, 138/138 passed** |
 | Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+
+
+### Stripe Checkout Error Handling Fix
+
+Booking payment UX no longer shows a success redirect toast when checkout creation fails (e.g. Stripe not configured).
+
+| Item | Detail |
+|------|--------|
+| Bug | `toast.success("Redirecting to payment...")` ran **before** `fetch('/api/bookings/create-checkout')`, so a 503 Stripe config error also showed the redirect success toast |
+| Fix | Call API first; show redirect toast **only** after `interpretCheckoutResponse` returns success with a checkout URL; error toast uses API `error` text (keeps "Stripe is not configured. Set STRIPE_SECRET_KEY."); reset `submitting` on failure |
+| API | Missing `STRIPE_SECRET_KEY` already returns **503** JSON error (unchanged) |
+| Code | `lib/booking/checkout-client.ts`; `app/[locale]/(dashboard)/book/[rinkId]/page.tsx` |
+| Tests | `__tests__/lib/booking/checkout-client.test.ts` |
+| Verifiable log | [evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log](./evidence/assignment-4-stripe-checkout-error-handling-test-2026-08-08.log) — **26 files, 148/148 passed**; lint clean |
+| Non-claims | Stripe E2E payment still **not** claimed |
+
 
 ### Summary mirror (do not invent PASS)
 

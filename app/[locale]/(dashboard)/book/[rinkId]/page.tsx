@@ -8,6 +8,7 @@ import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {addHours, format, isValid, parse} from 'date-fns';
 import {bookingFormSchema} from '@/lib/validations/booking';
+import {CHECKOUT_REDIRECT_TOAST, interpretCheckoutResponse} from '@/lib/booking/checkout-client';
 
 export default function BookRinkPage() {
   const t = useTranslations('book');
@@ -156,7 +157,6 @@ export default function BookRinkPage() {
         return;
       }
 
-      toast.success('Redirecting to payment...');
       const res = await fetch('/api/bookings/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -171,17 +171,21 @@ export default function BookRinkPage() {
       });
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data.error ?? t('checkoutFailed'));
+      const outcome = interpretCheckoutResponse({
+        ok: res.ok,
+        body: data,
+        fallbackError: t('checkoutFailed'),
+        invalidResponse: t('invalidResponse'),
+      });
+
+      if (outcome.kind === 'error') {
+        toast.error(outcome.message);
         setSubmitting(false);
         return;
       }
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
-      toast.error(t('invalidResponse'));
-      setSubmitting(false);
+
+      toast.success(CHECKOUT_REDIRECT_TOAST);
+      window.location.href = outcome.url;
     } catch (err) {
       console.error('Booking error:', err);
       toast.error(t('createFailed'));
