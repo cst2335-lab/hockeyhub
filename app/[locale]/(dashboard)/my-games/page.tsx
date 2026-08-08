@@ -8,6 +8,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useTranslations } from 'next-intl';
+import { fetchMyGamesWithLiveMetrics } from '@/lib/games/fetch-my-games';
 import { 
   Calendar, 
   MapPin, 
@@ -75,25 +76,22 @@ export default function MyGamesPage() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ['my-games', user?.id],
     queryFn: async () => {
-      if (!user) return { games: [], interestedGames: [], stats: { total: 0, open: 0, matched: 0, cancelled: 0, totalViews: 0, totalInterested: 0 } };
-      const [gamesRes, interestsRes] = await Promise.all([
-        supabase.from('game_invitations').select('*').eq('created_by', user.id).order('created_at', { ascending: false }),
-        supabase.from('game_interests').select('*, game_invitations (*)').eq('user_id', user.id).order('created_at', { ascending: false }),
-      ]);
-      if (gamesRes.error) throw gamesRes.error;
-      const gamesData = (gamesRes.data || []) as Game[];
-      const interestedData = (interestsRes.data || []) as GameInterest[];
-      const stats: Stats = {
-        total: gamesData.length,
-        open: gamesData.filter((g) => g.status === 'open').length,
-        matched: gamesData.filter((g) => g.status === 'matched').length,
-        cancelled: gamesData.filter((g) => g.status === 'cancelled').length,
-        totalViews: gamesData.reduce((sum, g) => sum + (g.view_count || 0), 0),
-        totalInterested: gamesData.reduce((sum, g) => sum + (g.interested_count || 0), 0),
-      };
-      return { games: gamesData, interestedGames: interestedData, stats };
+      if (!user) {
+        return {
+          games: [],
+          interestedGames: [],
+          stats: { total: 0, open: 0, matched: 0, cancelled: 0, totalViews: 0, totalInterested: 0 },
+        };
+      }
+      return fetchMyGamesWithLiveMetrics<Game>({
+        supabase,
+        userId: user.id,
+      });
     },
     enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const games = data?.games ?? [];

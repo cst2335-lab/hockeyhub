@@ -2,22 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 import { notifyInterestRemoved } from '@/lib/notifications/interest-removed';
+import { syncInterestedCount } from '@/lib/games/sync-interested-count';
 import { gameInterestSchema } from '@/lib/validations/game';
 import { sanitizeOptionalText } from '@/lib/utils/sanitize';
-
-async function syncInterestedCount(supabase: Awaited<ReturnType<typeof createClient>>, gameId: string) {
-  const { count } = await supabase
-    .from('game_interests')
-    .select('*', { count: 'exact', head: true })
-    .eq('game_id', gameId);
-
-  await supabase
-    .from('game_invitations')
-    .update({ interested_count: count ?? 0 })
-    .eq('id', gameId);
-
-  return count ?? 0;
-}
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuth();

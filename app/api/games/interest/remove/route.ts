@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 import { notifyInterestRemoved } from '@/lib/notifications/interest-removed';
+import { syncInterestedCount } from '@/lib/games/sync-interested-count';
 import { removeGameInterestSchema } from '@/lib/validations/game';
 
 export async function POST(request: NextRequest) {
@@ -73,14 +74,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { count } = await supabase
-    .from('game_interests')
-    .select('*', { count: 'exact', head: true })
-    .eq('game_id', interest.game_id);
-  await supabase
-    .from('game_invitations')
-    .update({ interested_count: count ?? 0 })
-    .eq('id', interest.game_id);
+  const interestedCount = await syncInterestedCount(supabase, interest.game_id);
 
   // Best-effort creator notification — must not fail the remove response
   try {
@@ -97,5 +91,5 @@ export async function POST(request: NextRequest) {
     console.error('Remove-interest notification error:', e);
   }
 
-  return NextResponse.json({ ok: true, interestedCount: count ?? 0 });
+  return NextResponse.json({ ok: true, interestedCount });
 }

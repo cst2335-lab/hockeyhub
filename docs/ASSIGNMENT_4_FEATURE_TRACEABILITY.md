@@ -27,11 +27,11 @@
 | Modern web stack + cloud backend | Tech stack / services architecture | Next.js 15, TypeScript, Tailwind, Supabase, Stripe configs, `package.json` | Implemented |
 | User accounts: register / sign in | AuthN flows | `LoginClient.tsx`, `RegisterClient.tsx`, `lib/supabase/*` | Implemented |
 | Hockey profile | Profile UI / entity | `profile/page.tsx`, `profile/edit/page.tsx`, `/api/profile/update` | Implemented |
-| Personal dashboard / hub | Dashboard use case | `dashboard/page.tsx` | Implemented |
+| Personal dashboard / hub | Dashboard use case | `dashboard/page.tsx`, `my-games/page.tsx`, live posted metrics via `/api/games/posted-metrics` + `lib/games/posted-metrics.ts` (creator cards use current views/active interests) | Implemented |
 | Browse Ottawa ice rinks | Rinks list / data model | `rinks/page.tsx`, `lib/queries/rinks.ts` | Implemented |
 | Reserve ice time (booking) | Booking flow | `book/[rinkId]/page.tsx`, bookings APIs | Partially supported (form + create-checkout; **Stripe E2E not claimed**) |
 | Online payment | Payment design (Checkout + webhook) | `/api/bookings/create-checkout`, `/api/webhooks/stripe`, `/api/stripe/webhook`, `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md` | Partially supported (**no full E2E claim**) |
-| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`, `/api/games/view` (service-role view persist + `game_views` dedupe); capacity helper `lib/games/capacity.ts` | Implemented (host accept incomplete; capacity + view-count demo fixes unit-tested) |
+| Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`, `/api/games/view`, `/api/games/posted-metrics` (live creator metrics); capacity helper `lib/games/capacity.ts` | Implemented (host accept incomplete; capacity + view/interest metrics corrected and unit-tested) |
 | Confirm / match games | Matching design | No `game_matches` usage in app code | Not implemented (**do not claim automatic matching**) |
 | User-to-user messaging | Messaging module | No messages module / table usage | Not implemented (**do not claim direct messaging**) |
 | Notifications / alerts | Notifications design | `notifications/page.tsx`, `useNotifications.ts`; interest-create DB trigger; interest-remove API notify (`lib/notifications/interest-removed.ts`) | Partially supported (UI yes; create+remove interest notify; host accept / booking events incomplete) |

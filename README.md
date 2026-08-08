@@ -60,7 +60,7 @@ Copy `.env.example` to `.env.local` and fill in values (never commit secrets). W
 |----------|----------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase public/anon key |
-| `SUPABASE_SERVICE_KEY` | For server/admin scripts | Service role key (map `SUPABASE_SERVICE_ROLE_KEY` → `SUPABASE_SERVICE_KEY` if needed) |
+| `SUPABASE_SERVICE_KEY` | Yes (game views + server ops) | Service role key — **required for game view tracking** (`POST /api/games/view`). Also used by admin/import scripts. Map `SUPABASE_SERVICE_ROLE_KEY` → `SUPABASE_SERVICE_KEY` if needed. Never commit the real value. |
 | `STRIPE_SECRET_KEY` | Optional for core demo | Stripe secret (booking checkout) |
 | `STRIPE_WEBHOOK_SECRET` | Optional for core demo | Stripe webhook signature (`whsec_…`) |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Optional | Stripe publishable key |
