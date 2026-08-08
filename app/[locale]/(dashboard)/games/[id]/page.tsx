@@ -405,7 +405,7 @@ export default function GameDetailsPage() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Add a message (optional)"
-                        className="w-full p-3 border rounded-lg"
+                        className="w-full p-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground caret-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-400 dark:caret-white dark:border-slate-600"
                         rows={3}
                         maxLength={INTEREST_MESSAGE_MAX_LENGTH}
                       />
@@ -479,7 +479,7 @@ export default function GameDetailsPage() {
                       value={ratingComment}
                       onChange={(e) => setRatingComment(e.target.value)}
                       placeholder="Share your experience (optional)"
-                      className="w-full p-3 border rounded-lg resize-none"
+                      className="w-full p-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground caret-foreground resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gogo-secondary dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-400 dark:caret-white dark:border-slate-600"
                       rows={3}
                       maxLength={RATING_COMMENT_MAX_LENGTH}
                     />
