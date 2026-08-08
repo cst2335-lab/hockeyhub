@@ -8,7 +8,11 @@ import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 import {addHours, format, isValid, parse} from 'date-fns';
 import {bookingFormSchema} from '@/lib/validations/booking';
-import {CHECKOUT_REDIRECT_TOAST, interpretCheckoutResponse} from '@/lib/booking/checkout-client';
+import {
+  CHECKOUT_REDIRECT_TOAST,
+  DEMO_PENDING_BOOKING_TOAST,
+  interpretCheckoutResponse,
+} from '@/lib/booking/checkout-client';
 
 export default function BookRinkPage() {
   const t = useTranslations('book');
@@ -180,6 +184,13 @@ export default function BookRinkPage() {
 
       if (outcome.kind === 'error') {
         toast.error(outcome.message);
+        setSubmitting(false);
+        return;
+      }
+
+      if (outcome.kind === 'demo_pending') {
+        toast.success(DEMO_PENDING_BOOKING_TOAST);
+        router.push(withLocale(`/bookings/${outcome.bookingId}`));
         setSubmitting(false);
         return;
       }

@@ -30,7 +30,7 @@ Assignment 4 finalizes documentation and submission packaging for the existing G
 | Dashboard | Implemented | Metrics, posted games, bookings (env-dependent) |
 | Games list / create / detail / interest | Implemented | Interest API notification trigger fix (SQL); capacity “Game Full” UI fix `3a8f969`; view-count + remove-interest notify demo-flow fixes |
 | Rinks browse / search / filter / sort | Implemented | Supabase-backed list UI |
-| Booking form + create-checkout | Partially supported | Form and API exist; **Stripe E2E not claimed**; upcoming booking metric excludes cancelled |
+| Booking form + create-checkout | Partially supported | Form and API exist; **pending booking demo works without Stripe**; **Stripe E2E not claimed**; upcoming booking metric excludes cancelled |
 | Stripe webhooks | Partially supported | Handlers + idempotency helpers exist; dual path debt documented |
 | Notifications UI | Implemented (UI) + partial auto-create | List / read / delete; interest create (DB trigger) + interest remove (API) notify creator; host accept / booking events incomplete |
 | Clubs / rink manager | Partially supported | Code present; not primary final demo claim |
@@ -62,6 +62,7 @@ Show carefully; use precise language:
 ### Booking and Stripe
 
 - Booking UI and `POST /api/bookings/create-checkout` are implemented.
+- **Local demo:** without Stripe keys, Confirm Booking still creates a **pending** booking and opens the booking detail page (payment unavailable message). It does not fake payment success.
 - Webhook routes exist (`/api/webhooks/stripe` recommended; `/api/stripe/webhook` legacy).
 - **Do not claim** Checkout → webhook → booking `confirmed` as fully verified unless a recorded test-mode payment exists in evidence.
 
@@ -156,6 +157,12 @@ When Stripe is not configured, the booking form previously showed both an error 
 ### 7.7 Rink name text encoding
 
 Rink list showed corrupted French accents (U+FFFD) because imported/stored text had already lost the original bytes. Fixed with verified repairs (`Aréna`, `Grandmaître`, known outdoor street forms), DB SQL cleanup, UTF-8-aware import warnings, and accent-insensitive rink search. Evidence: [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log).
+
+
+
+### 7.8 Booking demo fallback without Stripe
+
+When `STRIPE_SECRET_KEY` is missing, Confirm Booking creates a **pending** booking and redirects to the booking detail page with an informational success message. It does **not** call Stripe, does **not** show secret-key configuration errors to end users, and does **not** mark the booking paid/confirmed. With Stripe configured, Checkout redirect behavior is unchanged. **Stripe E2E is not claimed.** Evidence: [evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log](./evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log).
 
 
 ## 8. Relationship to Assignment 3

@@ -85,7 +85,7 @@ See [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.
 
 ### Partially supported (do not overclaim)
 
-- **Booking → Stripe:** booking form and create-checkout API exist; webhook handlers exist with idempotency helpers. **Full Checkout → webhook → booking `confirmed` E2E is not claimed** unless separately verified and recorded.
+- **Booking → Stripe:** booking form and create-checkout API exist; webhook handlers exist with idempotency helpers. **Local demo booking supports creation of a pending booking when Stripe payment is unavailable. Stripe end-to-end payment confirmation is not claimed.**
 - **Notifications:** UI works; automatic creation from all business events is incomplete (some DB triggers exist; host accept loop remains incomplete).
 - **Page protection:** dashboard layout redirects unauthenticated users (client-side); middleware does not fully enforce auth on all pages.
 
@@ -117,6 +117,7 @@ Runs Vitest under `__tests__/`. Manual paths and evidence: [docs/ASSIGNMENT_4_TE
 ## Known limitations
 
 - Stripe Checkout E2E payment confirmation is **not** claimed without recorded verification.
+- Without `STRIPE_SECRET_KEY`, Confirm Booking still creates a **pending** booking and opens the booking detail page (payment unavailable demo message) — it does **not** mark the booking paid/confirmed.
 - Messaging and automatic game matching are **not implemented**.
 - Host accept-interest and full auto-notification coverage remain incomplete.
 - Full RBAC and live RLS confirmation are **not** claimed as complete.

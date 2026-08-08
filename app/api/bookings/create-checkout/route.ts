@@ -5,6 +5,10 @@ import { requireAuth } from '@/lib/api/auth';
 import { createClient } from '@/lib/supabase/server';
 import { bookingCheckoutSchema } from '@/lib/validations/booking';
 import { isBookingOverlapConstraintError } from '@/lib/booking/conflict-constraint';
+import {
+  buildDemoPendingBookingResponse,
+  buildStripeCheckoutBookingResponse,
+} from '@/lib/booking/checkout-response';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2025-02-24.acacia' }) : null;
@@ -101,13 +105,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!stripe) {
-    return NextResponse.json(
-      { error: 'Stripe is not configured. Set STRIPE_SECRET_KEY.' },
-      { status: 503 }
-    );
-  }
-
+  // Always create a pending booking first (payment may be unavailable in local demo).
   const { data: booking, error: insertError } = await supabase
     .from('bookings')
     .insert({
@@ -140,6 +138,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Local demo fallback: no Stripe secret → keep pending; do not expose config details.
+  if (!stripe) {
+    return NextResponse.json(buildDemoPendingBookingResponse(booking.id), { status: 200 });
+  }
+
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.VERCEL_URL ||
@@ -147,35 +150,43 @@ export async function POST(request: NextRequest) {
   const protocol = baseUrl.startsWith('http') ? '' : 'https://';
   const origin = `${protocol}${baseUrl}`.replace(/\/$/, '');
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    customer_email: user.email,
-    line_items: [
-      {
-        price_data: {
-          currency: 'cad',
-          product_data: {
-            name: `Ice time at ${rink.name}`,
-            description: `${bookingDate} ${startTime}–${endTime}, ${hours} hr(s)`,
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: user.email,
+      line_items: [
+        {
+          price_data: {
+            currency: 'cad',
+            product_data: {
+              name: `Ice time at ${rink.name}`,
+              description: `${bookingDate} ${startTime}–${endTime}, ${hours} hr(s)`,
+            },
+            unit_amount: totalCents,
           },
-          unit_amount: totalCents,
+          quantity: 1,
         },
-        quantity: 1,
+      ],
+      success_url: `${origin}/${locale}/dashboard?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
+      cancel_url: `${origin}/${locale}/book/${rinkId}?cancelled=1`,
+      metadata: {
+        booking_id: booking.id,
       },
-    ],
-    success_url: `${origin}/${locale}/dashboard?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
-    cancel_url: `${origin}/${locale}/book/${rinkId}?cancelled=1`,
-    metadata: {
-      booking_id: booking.id,
-    },
-  });
+    });
 
-  if (!session.url) {
+    if (!session.url) {
+      return NextResponse.json(
+        { error: 'Failed to create checkout session', bookingId: booking.id },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(buildStripeCheckoutBookingResponse(session.url, booking.id));
+  } catch (err) {
+    console.error('Stripe checkout session error:', err);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'Failed to create checkout session', bookingId: booking.id },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ url: session.url, bookingId: booking.id });
 }

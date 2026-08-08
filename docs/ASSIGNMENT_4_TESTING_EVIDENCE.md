@@ -65,7 +65,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (rink text encoding):** [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log) — `Test Files  27 passed (27)`, `Tests  157 passed (157)`. |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (booking demo fallback):** [evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log](./evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log) — `Test Files  27 passed (27)`, `Tests  162 passed (162)`. |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -189,6 +189,21 @@ French rink names/addresses stored U+FFFD (replacement) after bad import encodin
 | Tests | `__tests__/lib/rinks/text-encoding.test.ts`, updated `__tests__/lib/queries/rinks.test.ts` |
 | Verifiable log | [evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log](./evidence/assignment-4-rink-text-encoding-fix-2026-08-08.log) |
 | Non-claims | Stripe E2E unchanged |
+
+
+
+### Booking Demo Fallback (Stripe unavailable)
+
+Local Assignment 4 demo must not show a broken Stripe configuration error when `STRIPE_SECRET_KEY` is missing.
+
+| Item | Detail |
+|------|--------|
+| Bug | `POST /api/bookings/create-checkout` returned 503 with `Stripe is not configured. Set STRIPE_SECRET_KEY.` before creating a booking |
+| Fix | Create **pending** booking first; if Stripe is unavailable return `{ bookingCreated, paymentAvailable: false, bookingId, status: "pending" }` (no secret details); UI shows demo success toast and opens booking detail — **no** payment redirect |
+| With Stripe | Unchanged: create pending booking → Checkout session → redirect toast + Stripe URL |
+| Non-claims | Does **not** mark booking paid/confirmed; Stripe E2E still not claimed |
+| Tests | `__tests__/lib/booking/checkout-client.test.ts` (+ `lib/booking/checkout-response.ts`) |
+| Verifiable log | [evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log](./evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log) |
 
 
 ### Summary mirror (do not invent PASS)
