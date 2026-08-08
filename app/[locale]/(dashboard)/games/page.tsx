@@ -417,6 +417,7 @@ export default function GamesPage() {
                   status: game.status,
                   gameDate: game.game_date,
                   gameTime: game.game_time,
+                  now: clientNow ?? undefined,
                 });
               const isPastGame = game.isExpired || displayStatus === 'past';
 
