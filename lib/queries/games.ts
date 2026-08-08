@@ -1,3 +1,5 @@
+import { isGamePast, localIsoDate, parseLocalDateParts } from '@/lib/games/schedule';
+
 export type GameStatus = 'open' | 'matched' | 'closed' | 'cancelled';
 
 export type Game = {
@@ -32,7 +34,19 @@ type SupabaseGamesClient = {
   from: (table: 'game_invitations') => GamesQueryBuilder;
 };
 
-export async function fetchGamesListQuery(supabase: SupabaseGamesClient): Promise<Game[]> {
+function daysBetweenLocalDates(a: string, b: string): number | null {
+  const pa = parseLocalDateParts(a);
+  const pb = parseLocalDateParts(b);
+  if (!pa || !pb) return null;
+  const da = Date.UTC(pa.year, pa.month - 1, pa.day);
+  const db = Date.UTC(pb.year, pb.month - 1, pb.day);
+  return Math.round((da - db) / (24 * 60 * 60 * 1000));
+}
+
+export async function fetchGamesListQuery(
+  supabase: SupabaseGamesClient,
+  now: Date = new Date()
+): Promise<Game[]> {
   const { data, error } = await supabase
     .from('game_invitations')
     .select('*')
@@ -40,17 +54,15 @@ export async function fetchGamesListQuery(supabase: SupabaseGamesClient): Promis
 
   if (error) throw new Error(error.message ?? 'Failed to load games');
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = today.toISOString().split('T')[0];
-  const sevenDaysAgo = new Date(today);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+  const todayStr = localIsoDate(now);
 
   return (data ?? [])
     .filter((g) => {
       const gameDate = typeof g.game_date === 'string' ? g.game_date : '';
-      return !gameDate || gameDate >= sevenDaysAgoStr;
+      if (!gameDate) return true;
+      const ageDays = daysBetweenLocalDates(todayStr, gameDate.slice(0, 10));
+      // Keep games from the last 7 local calendar days (and future).
+      return ageDays == null || ageDays <= 7;
     })
     .map((g) => {
       const row = g as unknown as Game;
@@ -59,7 +71,7 @@ export async function fetchGamesListQuery(supabase: SupabaseGamesClient): Promis
         status: (['open', 'matched', 'closed', 'cancelled'] as GameStatus[]).includes(row.status)
           ? row.status
           : 'open',
-        isExpired: row.game_date ? row.game_date < todayStr : false,
+        isExpired: isGamePast(row.game_date, row.game_time, now),
       } as Game;
     });
 }

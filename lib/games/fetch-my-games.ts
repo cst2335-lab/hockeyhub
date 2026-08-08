@@ -10,9 +10,19 @@ import {
  * enriching posted games with live view/interest metrics from `/api/games/posted-metrics`.
  */
 export async function fetchMyGamesWithLiveMetrics<TGame extends PostedGameMetricRow>(params: {
-  // Supabase JS client (browser or server); typed loosely to avoid coupling to generated Database types.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any;
+  // Supabase JS client (browser); kept structural to avoid generated Database coupling.
+  supabase: {
+    from: (table: string) => {
+      select: (columns: string) => {
+        eq: (column: string, value: string) => {
+          order: (
+            column: string,
+            opts: { ascending: boolean }
+          ) => PromiseLike<{ data: unknown[] | null; error: { message?: string } | null }>;
+        };
+      };
+    };
+  };
   userId: string;
   fetchMetrics?: () => Promise<Record<string, LiveMetricCounts>>;
 }) {

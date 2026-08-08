@@ -1,0 +1,60 @@
+﻿
+> gogohockey@2.0.0 test
+> vitest run
+
+node.exe : [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cj
+s-node-api-deprecated for more details.[39m
+所在位置 行:1 字符: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mThe CJS bu...e details.[39m:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v2.1.9 D:/鈽呪槄鈽匒lgonquin Collage study/Ecoop_GoGoHockey/Ecoop_GoGoHockey
+
+ 鉁?__tests__/lib/validations/game.test.ts (12 tests) 48ms
+ 鉁?__tests__/lib/validations/booking.test.ts (9 tests) 14ms
+ 鉁?__tests__/lib/games/posted-metrics.test.ts (8 tests) 14ms
+ 鉁?__tests__/lib/games/schedule.test.ts (9 tests) 12ms
+ 鉁?__tests__/lib/booking/upcoming.test.ts (8 tests) 15ms
+ 鉁?__tests__/lib/queries/games.test.ts (5 tests) 15ms
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > reports optional column support in test mode
+[sync-ottawa-rinks:79c60a9e-223f-4d26-a94c-30b24ba12ef6] started at 2026-08-08T17:02:41.443Z
+
+stdout | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as false on non-missing-column probe failures
+[sync-ottawa-rinks:e503355a-dac4-461c-bd7a-14bcbf9310fc] started at 2026-08-08T17:02:41.511Z
+
+stderr | __tests__/app/api/sync-ottawa-rinks.route.test.ts > sync ottawa rinks test mode > keeps optional column as fal
+se on non-missing-column probe failures
+[sync-ottawa-rinks:e503355a-dac4-461c-bd7a-14bcbf9310fc] optional column probe failed for data_source: permission denie
+d for relation rinks
+
+ 鉁?__tests__/app/api/sync-ottawa-rinks.route.test.ts (2 tests) 77ms
+ 鉁?__tests__/lib/games/capacity.test.ts (7 tests) 11ms
+ 鉁?__tests__/lib/validations/profile.test.ts (6 tests) 12ms
+ 鉁?__tests__/lib/stripe/webhook-idempotency.test.ts (6 tests) 12ms
+ 鉁?__tests__/lib/rinks/card-metadata.test.ts (6 tests) 9ms
+ 鉁?__tests__/lib/security/cron-auth.test.ts (7 tests) 9ms
+stderr | __tests__/lib/notifications/interest-removed.test.ts > notifyInterestRemoved > returns insert_failed without t
+hrowing when insert errors
+notifyInterestRemoved insert failed: { message: 'boom' }
+
+ 鉁?__tests__/lib/notifications/interest-removed.test.ts (3 tests) 15ms
+ 鉁?__tests__/lib/queries/rinks.test.ts (3 tests) 11ms
+ 鉁?__tests__/lib/utils/sanitize.test.ts (9 tests) 16ms
+ 鉁?__tests__/lib/validations/club.test.ts (3 tests) 21ms
+ 鉁?__tests__/lib/games/record-view.test.ts (4 tests) 6ms
+ 鉁?__tests__/lib/validations/notification.test.ts (4 tests) 14ms
+ 鉁?__tests__/lib/utils/json-ld.test.ts (3 tests) 7ms
+ 鉁?__tests__/lib/validations/rink.test.ts (3 tests) 9ms
+ 鉁?__tests__/lib/security/debug-routes.test.ts (3 tests) 5ms
+ 鉁?__tests__/lib/booking/conflict-constraint.test.ts (3 tests) 5ms
+ 鉁?__tests__/lib/booking/policy-copy.test.ts (2 tests) 5ms
+ 鉁?__tests__/lib/utils/format.test.ts (6 tests) 82ms
+
+ Test Files  24 passed (24)
+      Tests  131 passed (131)
+   Start at  13:02:35
+   Duration  10.34s (transform 6.16s, setup 0ms, collect 11.64s, tests 446ms, environment 11ms, prepare 16.90s)
+

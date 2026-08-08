@@ -136,6 +136,11 @@ Commit: **2a8cca5** (ix: align dashboard game and notification demo flows). Evi
 
 Posted game metrics were corrected so creator-side cards and dashboard summaries use current view and active interest counts. Live counts come from game_views and active game_interests via GET /api/games/posted-metrics (lib/games/posted-metrics.ts). Commit message: **ix: correct posted game view and interest metrics**. Evidence: [evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log).
 
+
+### 7.4 Game upcoming/past classification
+
+Game date classification was corrected so yesterday/past games are not shown in Upcoming. Classification uses local `game_date` + `game_time` vs now (`lib/games/schedule.ts`). Commit message: **`fix: correct game upcoming and past date classification`**. Evidence: [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log).
+
 ## 8. Relationship to Assignment 3
 
 Assignment 3 delivered the initial working prototype evidence (Demo 3 checklist, limitations, walkthrough). Assignment 4 keeps that evidence and adds finalization docs, `.env.example`, README reframing, Stripe boundary documentation, and recorded finalization bug fixes for submission.

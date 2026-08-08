@@ -188,11 +188,18 @@ export default function GamesPage() {
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'TBD';
-    const d = new Date(dateStr);
+    // Parse YYYY-MM-DD as local calendar date (avoid UTC midnight shifting the day).
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr.trim());
+    const d = m
+      ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+      : new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+
     const today = new Date();
-    today.setHours(0,0,0,0);
-    d.setHours(0,0,0,0);
-    const diffDays = Math.round((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    today.setHours(0, 0, 0, 0);
+    const dayOnly = new Date(d);
+    dayOnly.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((dayOnly.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     let relative = '';
     if (diffDays === 0) relative = ' (Today)';

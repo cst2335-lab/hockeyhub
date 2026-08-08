@@ -65,7 +65,7 @@ npm run test
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (posted metrics fix):** [evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) — `Test Files  23 passed (23)`, `Tests  120 passed (120)`. Prior demo-flow log: [assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (22/112). |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (game date classification):** [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log) — `Test Files  24 passed (24)`, `Tests  131 passed (131)`. Prior posted-metrics log: [assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) (23/120). |
 | T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
 | T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
 
@@ -129,6 +129,21 @@ Posted game metrics were corrected so creator-side cards and dashboard summaries
 | Tests | `__tests__/lib/games/posted-metrics.test.ts` |
 | Verifiable log | [evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) — **23 files, 120/120 passed** |
 | Lint | `npm run lint` — no ESLint warnings/errors (Next deprecation notice only) |
+| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+
+
+### Game Date Classification Fix
+
+Game date classification was corrected so yesterday/past games are not shown in Upcoming.
+
+| Item | Detail |
+|------|--------|
+| Bug | Find Games Upcoming tab included yesterday games (date-only / UTC-drift `isExpired`) |
+| Fix | `lib/games/schedule.ts` compares local `game_date` + `game_time` to now; `fetchGamesListQuery` sets `isExpired` from that |
+| Commit message | `fix: correct game upcoming and past date classification` |
+| Tests | `__tests__/lib/games/schedule.test.ts`, updated `__tests__/lib/queries/games.test.ts` |
+| Verifiable log | [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log) — **24 files, 131/131 passed** |
+| Lint | `npm run lint` — no ESLint warnings/errors |
 | Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
 
 ### Summary mirror (do not invent PASS)
