@@ -33,8 +33,8 @@ GoGoHockey is deployed on Vercel, with Supabase providing database, authenticati
 | Hockey profile | Profile UI / entity | `profile/page.tsx`, `profile/edit/page.tsx`, `/api/profile/update` | Implemented |
 | Personal dashboard / hub | Dashboard use case | `dashboard/page.tsx`, `my-games/page.tsx`, live posted metrics via `/api/games/posted-metrics` + `lib/games/posted-metrics.ts` (creator cards use current views/active interests) | Implemented |
 | Browse Ottawa ice rinks | Rinks list / data model | `rinks/page.tsx`, `lib/queries/rinks.ts` | Implemented |
-| Reserve ice time (booking) | Booking flow | `book/[rinkId]/page.tsx`, bookings APIs | Partially supported (form + create-checkout; **Stripe E2E not claimed**) |
-| Online payment | Payment design (Checkout + webhook) | `/api/bookings/create-checkout`, `/api/webhooks/stripe`, `/api/stripe/webhook`, `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md` | Partially supported (**no full E2E claim**) |
+| Reserve ice time (booking) | Booking Workflow | `book/[rinkId]/page.tsx`, bookings pages/APIs, pending-booking fallback without Stripe, cancellation / upcoming booking helpers | Implemented (select rink; date/start/duration; pricing; pending booking; booking detail; local fallback; **not** Stripe E2E) |
+| Online payment | Stripe Payment Integration | `/api/bookings/create-checkout`, `/api/webhooks/stripe`, `/api/stripe/webhook`, idempotency helpers, `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md` | Partially supported (Checkout + webhooks exist; **Checkout → webhook → paid/confirmed E2E not claimed**) |
 | Game invitations: post / browse / interest | Games use cases | `games/*`, `/api/games/create`, `/api/games/interest`, `/api/games/view`, `/api/games/posted-metrics` (live creator metrics); capacity helper `lib/games/capacity.ts` | Implemented (host accept incomplete; capacity + view/interest metrics corrected and unit-tested) |
 | Confirm / match games | Matching design | No `game_matches` usage in app code | Not implemented (**do not claim automatic matching**) |
 | User-to-user messaging | Messaging module | No messages module / table usage | Not implemented (**do not claim direct messaging**) |
@@ -53,7 +53,7 @@ GoGoHockey is deployed on Vercel, with Supabase providing database, authenticati
 | Design expectation | Final alignment |
 |--------------------|-----------------|
 | App Router + API + Supabase + Stripe | Aligned in code structure |
-| Auth / games / rinks / book / dashboard flows | Mostly aligned; messaging & matching absent |
+| Auth / games / rinks / booking workflow / dashboard flows | Mostly aligned; Stripe payment E2E partial; messaging & matching absent |
 | Component / feature folders | Aligned (`components/*`, `lib/*`) |
 | ERD / tables | Mostly aligned; unused / unwired areas remain (`messages`, `game_matches`, `payments` writes) |
 | Validated server write paths | Aligned (`requireAuth` + Zod) |

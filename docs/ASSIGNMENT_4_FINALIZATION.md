@@ -34,8 +34,8 @@ Assignment 4 finalizes documentation and submission packaging for the existing G
 | Dashboard | Implemented | Metrics, posted games, bookings (env-dependent) |
 | Games list / create / detail / interest | Implemented | Interest API notification trigger fix (SQL); capacity “Game Full” UI fix `3a8f969`; view-count + remove-interest notify demo-flow fixes |
 | Rinks browse / search / filter / sort | Implemented | Supabase-backed list UI |
-| Booking form + create-checkout | Partially supported | Form and API exist; **pending booking demo works without Stripe**; **Stripe E2E not claimed**; upcoming booking metric excludes cancelled |
-| Stripe webhooks | Partially supported | Handlers + idempotency helpers exist; dual path debt documented |
+| Booking Workflow | Implemented | Select rink; date/start time/duration; pricing; create **pending** booking; booking detail; cancellation / upcoming-booking behavior where supported; local pending-booking fallback without Stripe |
+| Stripe Payment Integration | Partially supported | Checkout route + webhook handlers / idempotency helpers exist; **Checkout → webhook → paid/confirmed E2E not claimed** |
 | Notifications UI | Implemented (UI) + partial auto-create | List / read / delete; interest create (DB trigger) + interest remove (API) notify creator; host accept / booking events incomplete |
 | Clubs / rink manager | Partially supported | Code present; not primary final demo claim |
 | Unit tests (Vitest) | Implemented | `__tests__/` |
@@ -58,6 +58,7 @@ Safe to present as working in a configured local environment, and on the verifie
 8. Validated write APIs (`requireAuth` + Zod on main paths)
 9. Unit test suite and project documentation
 10. Live Vercel deployment with Supabase database/authentication/backend services
+11. **Booking Workflow:** rink selection, date/start time/duration, pricing, create pending booking, booking detail, cancellation / upcoming booking behavior where supported, and local pending-booking fallback when Stripe is unavailable (no fake payment success)
 
 ---
 
@@ -65,12 +66,12 @@ Safe to present as working in a configured local environment, and on the verifie
 
 Show carefully; use precise language:
 
-### Booking and Stripe
+### Stripe Payment Integration
 
-- Booking UI and `POST /api/bookings/create-checkout` are implemented.
-- **Local demo:** without Stripe keys, Confirm Booking still creates a **pending** booking and opens the booking detail page (payment unavailable message). It does not fake payment success.
-- Webhook routes exist (`/api/webhooks/stripe` recommended; `/api/stripe/webhook` legacy).
-- **Do not claim** Checkout → webhook → booking `confirmed` as fully verified unless a recorded test-mode payment exists in evidence.
+- Stripe Checkout route exists (`POST /api/bookings/create-checkout` can create a Checkout session when keys are configured).
+- Webhook handlers and idempotency helpers exist (`/api/webhooks/stripe` recommended; `/api/stripe/webhook` legacy).
+- Without Stripe keys, Confirm Booking still creates a **pending** booking and opens booking detail (payment unavailable message). That is part of the **implemented Booking Workflow**, not Stripe E2E success.
+- **Do not claim** Checkout → webhook → booking paid/`confirmed` as fully verified unless a recorded test-mode payment exists in evidence.
 
 ### Notifications
 
