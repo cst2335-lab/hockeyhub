@@ -1,0 +1,49 @@
+# Assignment 4 — Final verification log
+# Product: GoGoHockey
+# Date: 2026-08-16
+# Branch: main
+# Purpose: Record final npm run test / lint / build results for Assignment 4 submission.
+# No secrets are recorded in this file.
+
+========================================================================
+COMMAND: npm run test
+========================================================================
+Result: PASS
+Test Files: 27 passed (27)
+Tests: 162 passed (162)
+Failed: 0
+Exit code: 0
+
+========================================================================
+COMMAND: npm run lint
+========================================================================
+Result: PASS
+ESLint errors: 0
+ESLint warnings: 0
+Exit code: 0
+Note: Next.js printed an informational deprecation notice that `next lint`
+will be removed in Next.js 16. This is not an ESLint failure.
+
+Exact linter message:
+✔ No ESLint warnings or errors
+
+========================================================================
+COMMAND: npm run build
+========================================================================
+Result: PASS
+Next.js: 15.5.12
+Compile: Compiled successfully in 49s
+Static pages: Generating static pages (71/71)
+Exit code: 0
+
+========================================================================
+DEPLOYMENT (documented, not invented by this log)
+========================================================================
+Live Application: https://gogohockey-henna.vercel.app/en
+Hosting: Vercel (Next.js application)
+Backend: Supabase (database, authentication, backend data services)
+Stripe E2E payment confirmation: NOT claimed
+
+========================================================================
+END OF LOG
+========================================================================

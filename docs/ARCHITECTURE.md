@@ -118,5 +118,5 @@ public/                    # 静态资源（img/ 见 public/img/SPEC.md）
 ## 相关文档
 
 - [docs/README.md](./README.md) — 文档索引
-- [AGENTS.md](../AGENTS.md) — 环境变量与常用命令
-- [DEPLOYMENT.md](./DEPLOYMENT.md)、[API.md](./API.md)
+- [DEPLOYMENT.md](./DEPLOYMENT.md) — 环境变量与部署
+- [API.md](./API.md)

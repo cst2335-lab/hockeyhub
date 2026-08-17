@@ -1,8 +1,12 @@
 # Assignment 4 Testing Evidence – GoGoHockey
 
 **Course:** CST8319 Assignment 4 (final submission)  
-**Updated:** 2026-08-08  
+**Updated:** 2026-08-16  
 **Related:** [ASSIGNMENT_4_FINALIZATION.md](./ASSIGNMENT_4_FINALIZATION.md) · [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TESTING_CHECKLIST.md)
+
+**Live Application:** https://gogohockey-henna.vercel.app/en  
+
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
 
 ---
 
@@ -14,7 +18,7 @@
 | Manual demo path | Screenshot under `docs/evidence/` **or** final demo video evidence (status: `PASS WITH SCREENSHOT` / `PASS WITH VIDEO EVIDENCE`) |
 | Unsupported / unverified | Must remain `TODO` or `N/A` |
 
-Do **not** invent PASS results. Do **not** claim Stripe E2E payment or a production deployment URL without real evidence.
+Do **not** invent PASS results. Do **not** claim Stripe E2E payment without real evidence.
 
 ---
 
@@ -30,17 +34,20 @@ Do **not** invent PASS results. Do **not** claim Stripe E2E payment or a product
 
 | Item | Value |
 |------|-------|
-| Tester | Automated command capture (see artifact); human reviewer should confirm the log |
-| Date | 2026-08-08 |
-| Branch / commit | `main` @ `796db52` (evidence log header may show earlier hash from capture time) |
-| Node / npm | Node `v24.6.0` / npm `11.5.1` (from evidence log) |
-| Supabase `.env.local` configured? | Not asserted by the automated capture |
+| Tester | Automated final verification (2026-08-16) + prior 2026-08-08 capture |
+| Date | 2026-08-16 (final verification); earlier logs dated 2026-08-08 |
+| Branch / commit | `main` (record hash at packaging time) |
+| Node / npm | As reported by local toolchain during capture |
+| Supabase `.env.local` configured? | Required for full local data pages; live app uses Vercel + Supabase |
 | `SUPABASE_SERVICE_KEY` | **Required for game view tracking** (`POST /api/games/view`). Also used for server/admin scripts. Name only — no secret value in repo (see `.env.example`). |
-| Stripe keys configured? | Not required for T1–T3 — **Stripe E2E not run** |
+| Stripe keys configured? | Not required for T1–T4 — **Stripe E2E not run** |
+| Live deployment | Verified: https://gogohockey-henna.vercel.app/en (Vercel + Supabase) |
 
-**Verifiable automated artifact:** [evidence/assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log)
+**Final automated artifact (2026-08-16):** [evidence/assignment-4-final-verification-2026-08-16.log](./evidence/assignment-4-final-verification-2026-08-16.log)
 
-Automated checks (T1–T3) are supported by that committed log. Manual demo-path checks are tracked **separately** in the manual checklist linked below.
+**Earlier automated artifact (2026-08-08):** [evidence/assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log)
+
+Automated checks (T2–T4) are supported by the final verification log. Manual demo-path checks are tracked **separately** in the manual checklist linked below.
 
 ---
 
@@ -54,20 +61,34 @@ npm run dev
 
 Open [http://localhost:3000/en](http://localhost:3000/en).
 
+Live application: [https://gogohockey-henna.vercel.app/en](https://gogohockey-henna.vercel.app/en).
+
 ---
 
 ## Automated tests
 
 ```bash
 npm run test
+npm run lint
+npm run build
 ```
+
+### Final verification results (2026-08-16)
+
+Recorded in [evidence/assignment-4-final-verification-2026-08-16.log](./evidence/assignment-4-final-verification-2026-08-16.log):
+
+| Command | Result | Exact counts / status |
+|---------|--------|------------------------|
+| `npm run test` | PASS | Test files **27 passed (27)**; Tests **162 passed (162)**; Failed **0**; exit code **0** |
+| `npm run lint` | PASS | ESLint errors **0**; warnings **0**; exit code **0**. Next.js `next lint` deprecation notice is informational only |
+| `npm run build` | PASS | Next.js **15.5.12**; Compiled successfully in **49s**; static pages **71/71**; exit code **0** |
 
 | # | Command | Expected | Result | Notes / Evidence |
 |---|---------|----------|--------|------------------|
 | T1 | `npm install` | Completes without fatal errors | PASS | Captured in [assignment-4-automated-commands-2026-08-08.log](./evidence/assignment-4-automated-commands-2026-08-08.log): `up to date, audited 958 packages`, `EXIT_CODE=0`. Audit vulnerability listing is informational. |
-| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Latest (booking demo fallback):** [evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log](./evidence/assignment-4-booking-demo-fallback-test-2026-08-08.log) — `Test Files  27 passed (27)`, `Tests  162 passed (162)`. |
-| T3 | `npm run lint` (optional) | No blocking lint errors, or document deprecation notices | PASS | Same log: `No ESLint warnings or errors`, `EXIT_CODE=0`. Includes Next.js notice that `next lint` is deprecated. |
-| T4 | `npm run build` (optional) | Build succeeds, or document failure honestly | N/A | Not included in the 2026-08-08 automated artifact. Do not claim PASS without a captured build log. |
+| T2 | `npm run test` | Vitest completes; record pass/fail counts | PASS | **Final (2026-08-16):** [assignment-4-final-verification-2026-08-16.log](./evidence/assignment-4-final-verification-2026-08-16.log) — `Test Files  27 passed (27)`, `Tests  162 passed (162)`, exit `0`. |
+| T3 | `npm run lint` | No blocking lint errors, or document deprecation notices | PASS | Same final log: `No ESLint warnings or errors`, exit `0`. Includes Next.js notice that `next lint` is deprecated (informational). |
+| T4 | `npm run build` | Build succeeds, or document failure honestly | PASS | Same final log: Next.js 15.5.12, compiled successfully in 49s, generating static pages 71/71, exit `0`. |
 
 ---
 
@@ -79,7 +100,7 @@ Manual UI demo-path verification is tracked here:
 
 That file covers M1–M14 (homepage through GitHub A4 commit history). Most UI rows use **PASS WITH VIDEO EVIDENCE** (planned final demo video; no screenshots committed yet). README presence and A4 git history use **PASS WITH COMMITTED LOG**.
 
-Stripe E2E payment and production deployment remain **N/A** in that checklist.
+Stripe E2E payment remains **N/A** in that checklist. Production deployment is verified at https://gogohockey-henna.vercel.app/en.
 
 ### Final Demo Bug Fix Evidence
 
@@ -112,7 +133,7 @@ Local Assignment 4 demo found three consistency bugs. Fixed in commit **`2a8cca5
 | Verifiable log | [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) — **22 files, 112/112 passed** |
 | Optional SQL | `scripts/sql/game-views-unique-index.sql` (unique `(game_id, viewer_id)`; app already dedupes via SELECT) |
 | Lint | `npm run lint` — no ESLint warnings/errors (Next deprecation notice only) |
-| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+| Non-claims | Stripe E2E, messaging, automatic matching — unchanged |
 
 Anonymous / unauthenticated game views are **not** counted (auth required for `/api/games/view`); this matches the detail page guard. **`SUPABASE_SERVICE_KEY` is required** in `.env.local` for view counts to persist (service-role write bypasses creator-only RLS). The key name is listed in `.env.example` / README with an empty value — **no real secret is stored in the repository**.
 
@@ -129,7 +150,7 @@ Posted game metrics were corrected so creator-side cards and dashboard summaries
 | Tests | `__tests__/lib/games/posted-metrics.test.ts` |
 | Verifiable log | [evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log](./evidence/assignment-4-posted-game-metrics-fix-test-2026-08-08.log) — **23 files, 120/120 passed** |
 | Lint | `npm run lint` — no ESLint warnings/errors (Next deprecation notice only) |
-| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+| Non-claims | Stripe E2E, messaging, automatic matching — unchanged |
 
 
 ### Game Date Classification Fix
@@ -144,7 +165,7 @@ Game date classification was corrected so yesterday/past games are not shown in 
 | Tests | `__tests__/lib/games/schedule.test.ts`, updated `__tests__/lib/queries/games.test.ts` |
 | Verifiable log | [evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log](./evidence/assignment-4-game-date-classification-fix-test-2026-08-08.log) — **24 files, 131/131 passed** |
 | Lint | `npm run lint` — no ESLint warnings/errors |
-| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+| Non-claims | Stripe E2E, messaging, automatic matching — unchanged |
 
 
 ### Past Game Status Display Fix
@@ -158,7 +179,7 @@ Past games with status=open are now displayed as past/closed and are excluded fr
 | Commit message | `fix: display past games as inactive instead of open` |
 | Tests | `__tests__/lib/games/display-status.test.ts` (+ posted-metrics open count) |
 | Verifiable log | [evidence/assignment-4-game-past-status-fix-test-2026-08-08.log](./evidence/assignment-4-game-past-status-fix-test-2026-08-08.log) — **25 files, 138/138 passed** |
-| Non-claims | Stripe E2E, production URL, messaging, automatic matching — unchanged |
+| Non-claims | Stripe E2E, messaging, automatic matching — unchanged |
 
 
 ### Stripe Checkout Error Handling Fix
@@ -214,7 +235,7 @@ Local Assignment 4 demo must not show a broken Stripe configuration error when `
 | README setup (M13) | PASS WITH COMMITTED LOG | Root `README.md` |
 | A4 git history (M14) | PASS WITH COMMITTED LOG | `git log` on `main` |
 | Stripe E2E | N/A | Not executed |
-| Production URL | N/A | Not claimed |
+| Production URL | PASS | Verified live: https://gogohockey-henna.vercel.app/en (Vercel + Supabase) |
 
 Historical Assignment 3 UI notes only: [DEMO_3_TESTING_CHECKLIST.md](./DEMO_3_TESTING_CHECKLIST.md).
 
@@ -237,7 +258,7 @@ See [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRIPE_BOUNDARY.md).
 
 ## Prior Assignment 3 evidence (carry-forward)
 
-Demo 3 checklist (2026-07-26) is historical UI evidence only. Assignment 4 automated PASS rows above are tied to the committed log under `docs/evidence/`, not to chat history alone.
+Demo 3 checklist (2026-07-26) is historical UI evidence only. Assignment 4 automated PASS rows above are tied to the committed logs under `docs/evidence/`, not to chat history alone.
 
 ---
 
@@ -245,7 +266,8 @@ Demo 3 checklist (2026-07-26) is historical UI evidence only. Assignment 4 autom
 
 | Role | Name | Date | Initials |
 |------|------|------|----------|
-| Automated capture | See `docs/evidence/assignment-4-automated-commands-2026-08-08.log` | 2026-08-08 | — |
+| Automated capture (earlier) | See `docs/evidence/assignment-4-automated-commands-2026-08-08.log` | 2026-08-08 | — |
+| Final automated verification | See `docs/evidence/assignment-4-final-verification-2026-08-16.log` | 2026-08-16 | — |
 | Manual demo checklist | See `docs/evidence/assignment-4-manual-demo-checklist-2026-08-08.md` | 2026-08-08 | — |
 | Human reviewer (confirm video / screenshots) | TODO | TODO | TODO |
 

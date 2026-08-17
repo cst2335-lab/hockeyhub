@@ -20,7 +20,8 @@ Allowed statuses:
 - `N/A` — out of scope or not claimed  
 
 Do **not** invent plain `PASS` without evidence.  
-**Stripe end-to-end payment** and **production deployment URL** are **not** claimed here.
+**Stripe end-to-end payment** is **not** claimed here.  
+**Live deployment** is verified: https://gogohockey-henna.vercel.app/en (Vercel + Supabase).
 
 ## Manual demo path
 
@@ -46,7 +47,7 @@ Do **not** invent plain `PASS` without evidence.
 | Item | Status | Notes |
 |------|--------|-------|
 | Stripe Checkout → webhook → booking `confirmed` E2E | N/A | Not executed for Assignment 4 evidence; see [ASSIGNMENT_4_STRIPE_BOUNDARY.md](../ASSIGNMENT_4_STRIPE_BOUNDARY.md) |
-| Live production / preview deployment URL | N/A | No working deployed URL claimed from this repository alone |
+| Live production / preview deployment URL | PASS | https://gogohockey-henna.vercel.app/en — Vercel hosts Next.js; Supabase provides database/auth/backend |
 
 ## When video / screenshots are added
 

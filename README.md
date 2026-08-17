@@ -6,6 +6,11 @@ Ottawa youth ice hockey community platform — find and post games, browse rinks
 **GitHub:** [github.com/cst2335-lab/hockeyhub](https://github.com/cst2335-lab/hockeyhub)  
 **Package name:** `gogohockey` (v2.0.0)
 
+**Live Application:**  
+https://gogohockey-henna.vercel.app/en
+
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
+
 This README is for instructors reviewing **Assignment 4 final submission**. It describes the finalized, documented state of the GoGoHockey codebase: what is implemented, what remains partially supported, and what is explicitly not claimed.
 
 ---
@@ -33,6 +38,7 @@ The project uses Next.js 15 (App Router), TypeScript, Tailwind CSS, Supabase, an
 | Language | TypeScript |
 | Styling | Tailwind CSS · `next-themes` |
 | Auth / database | Supabase |
+| Hosting | Vercel (live deployment) |
 | Internationalization | next-intl (`en`, `fr`) |
 | Payments (partial) | Stripe Checkout + webhook code (E2E payment **not** claimed without recorded verification) |
 | Unit tests | Vitest |
@@ -50,7 +56,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) — the app redirects to `/en` by default.
 
-Copy `.env.example` to `.env.local` and fill in values (never commit secrets). Without real Supabase credentials, the UI can still render, but data-dependent pages may fail or show empty/error states. See [AGENTS.md](./AGENTS.md).
+Copy `.env.example` to `.env.local` and fill in values (never commit secrets). Without real Supabase credentials, the UI can still render, but data-dependent pages may fail or show empty/error states. See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
 ---
 
@@ -82,6 +88,7 @@ See [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.
 - Notifications page UI (list / read / delete)
 - API routes with Zod validation on main write paths
 - Unit tests (Vitest) and Assignment 4 finalization docs
+- Live deployment on Vercel with Supabase backend/auth: https://gogohockey-henna.vercel.app/en
 
 ### Partially supported (do not overclaim)
 
@@ -91,7 +98,6 @@ See [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.
 
 ### Not claimed in Assignment 4
 
-- Full production / preview deployment URL (unless separately verified)
 - Complete Stripe payment workflow as “done”
 - Direct messaging
 - Automatic game matching / `game_matches`
@@ -113,6 +119,8 @@ npm run lint
 
 `npm run test` runs Vitest under `__tests__/`. `npm run lint` runs ESLint via the Next.js lint script. Manual paths and evidence: [docs/ASSIGNMENT_4_TESTING_EVIDENCE.md](./docs/ASSIGNMENT_4_TESTING_EVIDENCE.md).
 
+Final recorded verification (2026-08-16): **27/27** test files, **162/162** tests, lint **0** errors / **0** warnings, production build PASS (Next.js 15.5.12). See [docs/evidence/assignment-4-final-verification-2026-08-16.log](./docs/evidence/assignment-4-final-verification-2026-08-16.log).
+
 ---
 
 ## Known limitations
@@ -122,7 +130,6 @@ npm run lint
 - Messaging and automatic game matching are **not implemented**.
 - Host accept-interest and full auto-notification coverage remain incomplete.
 - Full RBAC and live RLS confirmation are **not** claimed as complete.
-- No production URL is claimed from this repository alone.
 - No Playwright/Cypress E2E suite in the repo.
 
 Stripe webhook boundary / technical debt: [docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md](./docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md).
@@ -166,7 +173,6 @@ Architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 | Document | Description |
 |----------|-------------|
 | [docs/README.md](./docs/README.md) | Full documentation index |
-| [AGENTS.md](./AGENTS.md) | Env vars, commands, developer conventions |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Architecture and modules |
 | [docs/API.md](./docs/API.md) | API routes |
 | [docs/TASKS.md](./docs/TASKS.md) | Current tasks and phases |
@@ -179,6 +185,8 @@ Architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ## Deployment notes
 
-Vercel is the recommended host. See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
 
-**Assignment 4 does not claim a live production/preview URL** unless one is separately verified and documented in the report or evidence files.
+**Live Application:** https://gogohockey-henna.vercel.app/en
+
+Setup details: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).

@@ -1,8 +1,12 @@
 # Assignment 4 Feature Traceability – GoGoHockey
 
 **Course:** CST8319 Software Development Project — Assignment 4  
-**Updated:** 2026-08-08  
+**Updated:** 2026-08-16  
 **Sources:** [ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./ASSIGNMENT_3_4_SCOPE_ANALYSIS.md) · [ASSIGNMENT_4_FINALIZATION.md](./ASSIGNMENT_4_FINALIZATION.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROLES_AND_ROUTE_GUARDS.md](./ROLES_AND_ROUTE_GUARDS.md)
+
+**Live Application:** https://gogohockey-henna.vercel.app/en  
+
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
 
 **Note:** The original Assignment 1 / Assignment 2 submission PDFs are not stored in this repository. Rows below map **expected course intent** (from product docs and prior scope analysis) to **code evidence** and **Assignment 4 final status**. Cross-check against the team’s submitted A1/A2 documents.
 
@@ -38,9 +42,9 @@
 | Clubs / roles | AuthZ / RBAC design | Clubs pages + API; `manage-rink` guard; `docs/ROLES_AND_ROUTE_GUARDS.md` | Partially supported (**full RBAC not claimed**) |
 | Data security / RLS | Security design / ERD policies | `scripts/sql/supabase-rls.sql` | Documented only / partially applied (**live RLS not claimed as fully verified**) |
 | i18n (en/fr) | Localization | `next-intl`, `messages/en.json`, `messages/fr.json` | Implemented |
-| External dependencies documented | Deployment / env design | `.env.example`, `AGENTS.md`, `docs/DEPLOYMENT.md` | Implemented (docs) |
-| Testing evidence | Quality / verification | `__tests__/` (Vitest), `docs/ASSIGNMENT_4_TESTING_EVIDENCE.md` | Implemented for unit tests; no browser E2E suite |
-| Production deployment | Ops / Vercel | `vercel.json`, `docs/DEPLOYMENT.md` | Documented only (**no production URL claim** without separate evidence) |
+| External dependencies documented | Deployment / env design | `.env.example`, `docs/DEPLOYMENT.md` | Implemented (docs) |
+| Testing evidence | Quality / verification | `__tests__/` (Vitest), `docs/ASSIGNMENT_4_TESTING_EVIDENCE.md`, `docs/evidence/assignment-4-final-verification-2026-08-16.log` | Implemented for unit tests; no browser E2E suite |
+| Production deployment | Ops / Vercel + Supabase | Live app https://gogohockey-henna.vercel.app/en; `vercel.json`, `docs/DEPLOYMENT.md` | Implemented (verified Vercel + Supabase) |
 
 ---
 
@@ -62,10 +66,11 @@
 Do **not** state in the final report or demo that GoGoHockey provides:
 
 1. Fully verified Stripe end-to-end payment confirmation  
-2. A live production deployment URL (unless separately proven)  
-3. Full RBAC across all roles  
-4. Direct messaging  
-5. Automatic game matching  
+2. Full RBAC across all roles  
+3. Direct messaging  
+4. Automatic game matching  
+
+**Do claim (verified):** live Vercel deployment at https://gogohockey-henna.vercel.app/en with Supabase database, authentication, and backend data services.
 
 Use: **implemented**, **partially supported**, or **not implemented**, with the evidence column above.
 

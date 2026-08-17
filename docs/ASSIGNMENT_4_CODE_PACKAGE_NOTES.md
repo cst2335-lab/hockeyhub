@@ -1,10 +1,14 @@
 # GoGoHockey – Assignment 4 Final Code Package Notes
 
 **Package title:** GoGoHockey – Assignment 4 Final Code Package  
-**Date:** 2026-08-08  
+**Date:** 2026-08-16  
 **Course:** CST8319 Software Development Project — Assignment 4  
 
-This note prepares the repository for **final Assignment 4 submission packaging**. It is documentation only; it does not claim a new product release beyond the documented feature status.
+**Live Application:** https://gogohockey-henna.vercel.app/en  
+
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
+
+This note prepares the repository for **final Assignment 4 submission packaging**. It is documentation only; it does not claim product capabilities beyond the documented feature status.
 
 ---
 
@@ -18,15 +22,18 @@ This note prepares the repository for **final Assignment 4 submission packaging*
 - Assignment 4 docs:
   - `docs/ASSIGNMENT_4_FINALIZATION.md`
   - `docs/ASSIGNMENT_4_TESTING_EVIDENCE.md`
+  - `docs/ASSIGNMENT_4_FEATURE_TRACEABILITY.md`
   - `docs/ASSIGNMENT_4_STRIPE_BOUNDARY.md`
+  - `docs/evidence/` (including final verification log)
   - this file
 
 ## What to exclude from a ZIP
 
 - `node_modules/`, `.next/`, `.vercel/`, coverage / build outputs
 - `.env`, `.env.local`, and any secret-bearing env files
-- OS / editor clutter (`.DS_Store`, `.idea`, etc.)
-- Full `.git/` (optional; prefer GitHub commit pointer instead)
+- OS / editor clutter (`.DS_Store`, `.idea`, `.vscode/`, etc.)
+- Developer-only workspace files (for example former `AGENTS.md`, `project-structure.txt`)
+- Full `.git/` (create ZIP with `git archive` from `HEAD`)
 
 ## How to run (instructor)
 
@@ -38,14 +45,19 @@ npm run dev
 
 Open http://localhost:3000/en
 
+Or use the live deployment: https://gogohockey-henna.vercel.app/en
+
 ```bash
 npm run test
+npm run lint
+npm run build
 ```
 
 ## Final claims boundary (repeat)
 
 - **Do claim:** implemented core UI/API features listed in `ASSIGNMENT_4_FINALIZATION.md`
-- **Do not claim:** full Stripe E2E, full production URL, messaging, automatic matching, complete host accept-interest, full RBAC, live RLS fully verified — unless evidence is attached
+- **Do claim:** verified live deployment on Vercel with Supabase backend/auth (URL above)
+- **Do not claim:** full Stripe E2E, messaging, automatic matching, complete host accept-interest, full RBAC, live RLS fully verified — unless additional evidence is attached
 
 ## GitHub
 

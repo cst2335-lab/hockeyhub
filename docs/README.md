@@ -26,8 +26,8 @@
 | **主题** | `next-themes` + `app/globals.css` → [THEMING.md](./THEMING.md) |
 | **冰场数据** | `npm run db:import-rinks` → [RENEW_RINKS.md](./RENEW_RINKS.md) |
 | **SQL 脚本** | `scripts/sql/`（RLS、冰场图片、批量导入） |
-| **AI / 本地开发** | 根目录 [AGENTS.md](../AGENTS.md) |
 | **环境变量示例** | 根目录 [.env.example](../.env.example) |
+| **Live Application** | https://gogohockey-henna.vercel.app/en (Vercel + Supabase) |
 
 ---
 

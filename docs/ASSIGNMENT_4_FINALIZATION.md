@@ -2,8 +2,12 @@
 
 **Course:** CST8319 Software Development Project  
 **Stage:** Assignment 4 — final project submission  
-**Updated:** 2026-08-08  
+**Updated:** 2026-08-16  
 **Related:** [ASSIGNMENT_4_TESTING_EVIDENCE.md](./ASSIGNMENT_4_TESTING_EVIDENCE.md) · [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRIPE_BOUNDARY.md) · [ASSIGNMENT_3_4_SCOPE_ANALYSIS.md](./ASSIGNMENT_3_4_SCOPE_ANALYSIS.md)
+
+**Live Application:** https://gogohockey-henna.vercel.app/en  
+
+GoGoHockey is deployed on Vercel, with Supabase providing database, authentication, and backend data services.
 
 ---
 
@@ -36,12 +40,13 @@ Assignment 4 finalizes documentation and submission packaging for the existing G
 | Clubs / rink manager | Partially supported | Code present; not primary final demo claim |
 | Unit tests (Vitest) | Implemented | `__tests__/` |
 | Docs + finalization evidence | Implemented | This file and related A4 docs |
+| Production deployment | Implemented (verified) | Vercel live app + Supabase backend/auth: https://gogohockey-henna.vercel.app/en |
 
 ---
 
 ## 3. Implemented features
 
-Safe to present as working in a configured local environment:
+Safe to present as working in a configured local environment, and on the verified live deployment:
 
 1. Localized App Router UI (`/en`, `/fr`)
 2. Authentication: register, login, logout
@@ -52,6 +57,7 @@ Safe to present as working in a configured local environment:
 7. Notifications page UI
 8. Validated write APIs (`requireAuth` + Zod on main paths)
 9. Unit test suite and project documentation
+10. Live Vercel deployment with Supabase database/authentication/backend services
 
 ---
 
@@ -94,13 +100,11 @@ Show carefully; use precise language:
 5. Confirm and document live Supabase RLS on the remote project  
 6. Collapse duplicate Stripe webhook paths  
 7. Minimal browser E2E smoke tests  
-8. Documented live deployment URL (if available)
 
 ---
 
 ## 6. Known limitations (do not overclaim)
 
-- **No full production deployment URL claim** from this repository alone  
 - **No full Stripe E2E payment claim** without recorded verification  
 - **No direct messaging**  
 - **No automatic game matching** via `game_matches`  
@@ -109,6 +113,8 @@ Show carefully; use precise language:
 - **No live RLS fully-verified claim**  
 - **No Playwright/Cypress E2E suite** in repo  
 - Dedicated `payments` table writes are not implemented in application code  
+
+**Verified deployment (do claim):** Vercel hosts the Next.js application at https://gogohockey-henna.vercel.app/en; Supabase provides database, authentication, and backend data services.
 
 Stripe technical boundary: [ASSIGNMENT_4_STRIPE_BOUNDARY.md](./ASSIGNMENT_4_STRIPE_BOUNDARY.md).
 
@@ -128,7 +134,7 @@ During local final-demo verification, homepage cards showed **Players 0/** and *
 | Upcoming bookings | Cancelled bookings excluded from dashboard upcoming count |
 | Remove interest | Creator receives interest_removed notification (best-effort) |
 
-Commit: **2a8cca5** (ix: align dashboard game and notification demo flows). Evidence: [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (**112/112**). These are concrete demo-flow bug fixes—not claims of Stripe E2E, messaging, matching, or production deployment.
+Commit: **2a8cca5** (`fix: align dashboard game and notification demo flows`). Evidence: [evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log](./evidence/assignment-4-demo-flow-fixes-test-2026-08-08.log) (**112/112**). These are concrete demo-flow bug fixes—not claims of Stripe E2E, messaging, or matching. Live Vercel + Supabase deployment is documented separately as verified.
 
 ---
 
